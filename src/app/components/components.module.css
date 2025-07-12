@@ -1,0 +1,12 @@
+/* Navbar */
+.menu {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+}
+
+.login {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
