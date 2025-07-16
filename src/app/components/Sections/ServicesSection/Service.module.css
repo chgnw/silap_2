@@ -1,0 +1,115 @@
+.sectionWrapper {
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+
+/* Star container */
+.starContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Individual star */
+.star {
+  position: absolute;
+  font-size: 28px;
+  opacity: 0.6;
+  user-select: none;
+}
+
+.star::before {
+  content: '★';
+}
+
+/* Star sizes */
+.star.small {
+  font-size: 80px;
+  opacity: 0.5;
+}
+
+.star.medium {
+  font-size: 100px;
+  opacity: 0.5;
+}
+
+.star.large {
+  font-size: 120px;
+  opacity: 0.5;
+}
+
+.star.xlarge {
+  font-size: 200px;
+  opacity: 0.5;
+}
+
+/* Star colors */
+.star.green {
+  color: #A4B465;
+  opacity: 50%;
+}
+
+/* Positioning classes for left side */
+.star.left1 { top: 2%; left: 6%; }
+.star.left2 { top: 5%; left: 2%; }
+.star.left3 { top: 10%; left: 8%; }
+.star.left4 { top: 40%; left: 1%; rotate:20deg }
+.star.left5 { top: 75%; left: 1%; rotate: -10deg;}
+
+/* Positioning classes for right side */
+.star.right1 { top: 2%; right: -2%; rotate: 15deg}
+.star.right2 { top: 8%; right: 8%; rotate: 20deg}
+.star.right3 { top: 45%; right: -5%; rotate: -20deg; }
+.star.right4 { top: 50%; right: 30%; rotate: 15deg; }
+.star.right5 { top: 75%; right: 40%; rotate: 5deg;}
+.star.right6 { top: 85%; right: 25%; rotate: -10deg;}
+
+/* Ensure content is above stars */
+.sectionWrapper > .container {
+  position: relative;
+  z-index: 2;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.sectionHeader h1 {
+  font-size: 48px;
+  font-weight: bold;
+  color: #2F5E44;
+  margin-bottom: 16px;
+}
+
+.sectionHeader p {
+  font-size: 18px;
+  color: #7F7F7F;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Media Query untuk layar mobile */
+@media (max-width: 768px) {
+  .sectionWrapper {
+    padding: 60px 0;
+  }
+
+  .sectionHeader {
+    margin-bottom: 40px;
+  }
+
+  .sectionHeader h1 {
+    font-size: 2.25rem;
+  }
+
+  .sectionHeader p {
+    font-size: 1rem;
+  }
+}

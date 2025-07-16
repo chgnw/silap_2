@@ -1,0 +1,71 @@
+/* Card Section Styles */
+.cardCustom {
+  width: 250px;
+  height: 225px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.cardCustom:hover {
+  filter: grayscale(0%);
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+@media (max-width: 768px) {
+    .cardCustom {
+      width: 200px;
+    }
+}
+@media (max-width: 576px) {
+  .cardCustom svg {
+    width: 48px;
+    height: 48px;
+  }
+  .cardCustom img {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+/* Overlay hitam transparan */
+.cardCustom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+/* Pastikan konten di atas overlay */
+.cardCustom > * {
+  position: relative;
+  z-index: 2;
+}
+
+.cardLabel {
+  position: absolute;
+  bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+ @media (max-width: 768px) {
+  .cardLabel {
+    font-size: 1.2rem;
+  }
+}

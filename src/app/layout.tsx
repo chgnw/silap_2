@@ -2,17 +2,20 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Large/Navbar/Navbar";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ['400', '700', '900'], // Sesuaikan dengan berat font yang Anda butuhkan
-  variable: '--font-montserrat', // Mendefinisikan CSS Variable
+  weight: ['400', '700', '900'],
+  variable: '--font-montserrat',
 });
 
+// SESUDAH
 export const metadata: Metadata = {
   title: "SILAP - Satu Aplikasi Untuk Semua",
-  description: "Buang sampah sat set ya pakai SILAP!",
+  icons: {
+    icon: '/assets/logo-silap.png',
+  },
 };
 
 export default function RootLayout({
