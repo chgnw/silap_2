@@ -2,7 +2,8 @@
 .menu {
     display: flex;
     align-items: baseline;
-    gap: 16px;
+    gap: 32px;
+    font-size: 12px;
 }
 
 .login {

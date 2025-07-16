@@ -1,0 +1,80 @@
+.listWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start; 
+  gap: 10px; 
+  margin-bottom: 20px;
+}
+
+.listIcon {
+  background-color: #2F5E44;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;   
+  height: 90px; 
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 70px;
+    height: 70px;
+  }
+  @media (max-width: 576px) {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.listIcon svg {
+  @media (max-width: 576px) {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.listTextWrapper {
+  flex-grow: 1;
+}
+
+.listTitle {
+  color: #FFFFFF;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px; 
+
+  /* Responsiveness for font size */
+  @media (max-width: 992px) { 
+    font-size: 20px;
+  }
+  @media (max-width: 768px) { 
+    font-size: 16px;
+  }
+  @media (max-width: 576px) {
+    font-size: 14px;
+  }
+}
+
+.col-md-6{
+    padding-left: 0px !important;
+}
+
+.listDescription {
+  color: #FFFFFF;
+  font-size: 20px;
+  text-align: justify;
+  line-height: normal; 
+  margin-bottom: 0; 
+  
+  /* Responsiveness for font size */
+  @media (max-width: 992px) { 
+    font-size: 18px;
+  }
+  @media (max-width: 768px) { 
+    font-size: 16px;
+  }
+  @media (max-width: 576px) {
+    font-size: 14px;
+  }
+}
