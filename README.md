@@ -46,12 +46,20 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
 4.  **Konfigurasi *environment variables*. Buat *file* `.env.local` dan isi dengan konfigurasi database dan credential lainnya:**
 
     ```bash
-    DB_HOST=DB_HOST
-    DB_PORT=DB_PORT
-    DB_USER=DB_USER
-    DB_PASS=DB_PASSWORD
-    DB_NAME=DB_NAME
-    NEXTAUTH_SECRET=NEXTAUTH_SECRET
+    # Database config
+    MYSQL_HOST=DB_HOST
+    MYSQL_PORT=DB_PORT
+    MYSQL_USER=DB_USER
+    MYSQL_PASSWORD=DB_PASSWORD
+    MYSQL_DATABASE=DB_NAME
+    
+    # NextAuth secret
+    NEXTAUTH_SECRET=replace_with_long_random_secret
+    NEXTAUTH_URL=your_next_auth_url
+    
+    # Google OAuth (for NextAuth)
+    GOOGLE_CLIENT_ID=your_google_client_id
+    GOOGLE_CLIENT_SECRET=your_google_client_secret
     ```
 
 5.  **Jalankan migrations database:**
