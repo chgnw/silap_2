@@ -28,7 +28,7 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
 1.  **Clone repositori ini:**
 
     ```bash
-    git clone [https://github.com/username/repo.git](https://github.com/username/repo.git)
+    git clone [[https://github.com/username/repo.git](https://github.com/username/repo.git)](https://github.com/chgnw/silap_2.git)
     ```
 
 2.  **Masuk ke direktori proyek:**
@@ -43,32 +43,28 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
     npm install
     ```
 
-4.  **Konfigurasi *environment variables*. Buat *file* `.env.local` dan isi dengan konfigurasi database dan kredensial lainnya:**
+4.  **Konfigurasi *environment variables*. Buat *file* `.env.local` dan isi dengan konfigurasi database dan credential lainnya:**
 
     ```bash
-    DB_HOST=localhost
-    DB_PORT=3306
-    DB_USER=root
-    DB_PASS=password
-    DB_NAME=silap_db
-    NEXTAUTH_SECRET=your_secret_key
+    DB_HOST=DB_HOST
+    DB_PORT=DB_PORT
+    DB_USER=DB_USER
+    DB_PASS=DB_PASSWORD
+    DB_NAME=DB_NAME
+    NEXTAUTH_SECRET=NEXTAUTH_SECRET
     ```
 
-5.  **Jalankan migrasi database untuk membuat tabel `users`:**
+5.  **Jalankan migrations database:**
 
     ```sql
     -- Pastikan Anda sudah memiliki database 'silap_db'
     -- Gunakan file '001_create_user_table.sql' untuk membuat tabel
     ```
 
-6.  **Jalankan server pengembangan:**
+6.  **Jalankan aplikasi:**
 
     ```bash
     npm run dev
     ```
 
     Buka [http://localhost:3001](http://localhost:3001) di browser Anda untuk melihat hasilnya.
-
-## Kontribusi
-
-Kontribusi dari siapa pun sangat kami harapkan. Jika Anda ingin berkontribusi, silakan *fork* repositori ini dan buat *pull request*.
