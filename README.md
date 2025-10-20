@@ -44,7 +44,17 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
     ```
 
 4.  **Konfigurasi *environment variables*. Buat *file* `.env.local` dan isi dengan konfigurasi database dan credential lainnya:**
+    Windows
+    ```bash
+    openssl rand -base64 32
+    ```
 
+    Linux/MacOS
+    ```bash
+    node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+    ```
+
+    .env
     ```bash
     # Database config
     MYSQL_HOST=DB_HOST
@@ -62,14 +72,14 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
     GOOGLE_CLIENT_SECRET=your_google_client_secret
     ```
 
-5.  **Jalankan migrations database:**
+6.  **Jalankan migrations database:**
 
     ```sql
     -- Pastikan Anda sudah memiliki database
     -- Gunakan file '001_create_user_table.sql' untuk membuat tabel
     ```
 
-6.  **Jalankan aplikasi:**
+7.  **Jalankan aplikasi:**
 
     ```bash
     npm run dev
