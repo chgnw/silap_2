@@ -28,7 +28,7 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
 1.  **Clone repositori ini:**
 
     ```bash
-    git clone [[https://github.com/username/repo.git](https://github.com/username/repo.git)](https://github.com/chgnw/silap_2.git)
+    git clone https://github.com/chgnw/silap_2.git
     ```
 
 2.  **Masuk ke direktori proyek:**
