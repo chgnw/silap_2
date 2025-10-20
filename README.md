@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SILAP - Satu Aplikasi Untuk Semua
 
-## Getting Started
+SILAP adalah aplikasi manajemen sampah berbasis web yang dirancang untuk membantu individu dan perusahaan dalam mengelola sampah secara efisien dan bertanggung jawab. Dengan SILAP, pengguna dapat dengan mudah mengatur pengambilan sampah, mendonasikan barang layak pakai, dan berpartisipasi dalam program daur ulang.
 
-First, run the development server:
+## Deskripsi Proyek
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+SILAP (Satu Aplikasi Untuk Semua) adalah sebuah platform digital yang bertujuan untuk merevolusi cara kita mengelola sampah. Aplikasi ini menyediakan berbagai layanan yang memudahkan pengguna, baik individu maupun korporasi, untuk berkontribusi dalam menjaga kebersihan lingkungan. Dengan antarmuka yang ramah pengguna, SILAP menawarkan solusi lengkap mulai dari penjemputan sampah, donasi, hingga program daur ulang.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Fitur Utama
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* **Pick Up**: Pengguna dapat meminta penjemputan sampah langsung dari lokasi mereka.
+* **Drop Off**: Memungkinkan pengguna untuk mengantarkan sampah ke pusat daur ulang terdekat.
+* **Streak**: Memberikan poin dan reward bagi pengguna yang rutin mengelola sampah.
+* **Sedekah**: Memfasilitasi donasi makanan dan barang layak pakai kepada yang membutuhkan.
+* **Layanan Korporat**: Solusi manajemen sampah untuk bisnis, event, dan brand.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Teknologi yang Digunakan
 
-## Learn More
+* **Next.js**: Framework React untuk membangun aplikasi web modern.
+* **React-Bootstrap**: Komponen UI untuk antarmuka yang responsif.
+* **MySQL**: Database untuk menyimpan data pengguna dan transaksi.
+* **Next-Auth**: Untuk fungsionalitas autentikasi.
 
-To learn more about Next.js, take a look at the following resources:
+## Instalasi dan Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1.  **Clone repositori ini:**
 
-## Deploy on Vercel
+    ```bash
+    git clone [https://github.com/username/repo.git](https://github.com/username/repo.git)
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2.  **Masuk ke direktori proyek:**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    ```bash
+    cd silap
+    ```
+
+3.  **Install semua *dependency* yang dibutuhkan:**
+
+    ```bash
+    npm install
+    ```
+
+4.  **Konfigurasi *environment variables*. Buat *file* `.env.local` dan isi dengan konfigurasi database dan kredensial lainnya:**
+
+    ```bash
+    DB_HOST=localhost
+    DB_PORT=3306
+    DB_USER=root
+    DB_PASS=password
+    DB_NAME=silap_db
+    NEXTAUTH_SECRET=your_secret_key
+    ```
+
+5.  **Jalankan migrasi database untuk membuat tabel `users`:**
+
+    ```sql
+    -- Pastikan Anda sudah memiliki database 'silap_db'
+    -- Gunakan file '001_create_user_table.sql' untuk membuat tabel
+    ```
+
+6.  **Jalankan server pengembangan:**
+
+    ```bash
+    npm run dev
+    ```
+
+    Buka [http://localhost:3001](http://localhost:3001) di browser Anda untuk melihat hasilnya.
+
+## Kontribusi
+
+Kontribusi dari siapa pun sangat kami harapkan. Jika Anda ingin berkontribusi, silakan *fork* repositori ini dan buat *pull request*.
