@@ -34,7 +34,7 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
 2.  **Masuk ke direktori proyek:**
 
     ```bash
-    cd silap
+    cd silap_2
     ```
 
 3.  **Install semua *dependency* yang dibutuhkan:**
@@ -57,7 +57,7 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
 5.  **Jalankan migrations database:**
 
     ```sql
-    -- Pastikan Anda sudah memiliki database 'silap_db'
+    -- Pastikan Anda sudah memiliki database
     -- Gunakan file '001_create_user_table.sql' untuk membuat tabel
     ```
 
