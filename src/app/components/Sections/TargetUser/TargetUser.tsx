@@ -7,22 +7,22 @@ import Card from '../../Medium/Card/Card';
 const Features = () => {
   const targetUserCards = [
     {
-      icon: <FaBuilding size={64} />,
+      icon: <FaBuilding size={100} />,
       label: 'Perusahaan',
       bgImage: '/images/building.png',
     },
     {
-      icon: <FaUser size={64} />,
+      icon: <FaUser size={100} />,
       label: 'Individu',
       bgImage: '/images/individual.png',
     },
     {
-      icon: <PiConfettiBold size={64} />,
+      icon: <PiConfettiBold size={100} />,
       label: 'Acara',
       bgImage: '/images/event.png',
     },
     {
-      icon: <Image src="/assets/icon-mitra.png" alt="Mitra Icon" width={94} height={94} />,
+      icon: <Image src="/assets/icon-mitra.png" alt="Mitra Icon" width={130} height={130} />,
       label: 'Mitra',
       bgImage: '/images/partner.png',
     },
@@ -30,7 +30,7 @@ const Features = () => {
 
   return (
     <Container className="my-5">
-      <Row className="justify-content-center g-4">
+      <Row className="justify-content-center">
         {targetUserCards.map((card, index) => (
           <Card
             key={index}

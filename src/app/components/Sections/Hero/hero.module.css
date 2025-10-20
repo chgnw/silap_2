@@ -14,7 +14,7 @@
 }
 
 .heroTitle {
-  font-size: 60px;
+  font-size: 5.5rem;
   font-weight: bold;
   line-height: 1.2;
   text-align: justify;
@@ -32,7 +32,7 @@
 .heroUnderline::after {
   content: '';
   position: absolute;
-  bottom: -5px;
+  bottom: -2px;
   left: 0;
   right: 0;
   height: 8px;
@@ -42,13 +42,13 @@
 
 .heroSubtitle {
   margin-top: 1rem;
-  font-size: 16px;
+  font-size: 1rem;
   color: #000000;
   display: flex;
   align-items: baseline;
   gap: 8px;
 
-   @media (max-width: 768px) {
+  @media (max-width: 768px) {
     font-size: 14px;
   }
 }

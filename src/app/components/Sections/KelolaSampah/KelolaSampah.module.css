@@ -41,19 +41,19 @@
 /* floating tags */
 .tagTopRight {
   position: absolute;
-  right: 10%;
+  right: 20%;
   top: 12%;
   width: auto;}
 
 .tagRight {
   position: absolute;
-  right: 12%;
+  right: 22%;
   bottom: 32%;
   width: auto;}
 
 .tagLeft {
   position: absolute;
-  left: 13%;
+  left: 22%;
   bottom: 10%;
   width: auto;}
 

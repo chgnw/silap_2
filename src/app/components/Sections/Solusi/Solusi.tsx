@@ -7,22 +7,22 @@ import styles from './solusi.module.css';
 // Data untuk fitur-fitur
 const features = [
   {
-    icon: <FaSmile size={48} color="#FFFFFF" />,
+    icon: <FaSmile size={72} color="#FFFFFF" />,
     title: 'User-friendly banget',
     description: 'Buat semua umur, dari anak muda sampai orang tua. Nggak ribet, tinggal klik langsung jalan.'
   },
   {
-    icon: <FaShieldAlt size={48} color="#FFFFFF" />,
+    icon: <FaShieldAlt size={72} color="#FFFFFF" />,
     title: 'Lingkungan jadi lebih terjaga',
     description: 'Bantu pisahin sampah, dukung daur ulang. Langkah kecil kamu bisa jadi dampak besar buat bumi.'
   },
   {
-    icon: <FaClock size={48} color="#FFFFFF" />,
+    icon: <FaClock size={72} color="#FFFFFF" />,
     title: 'Transparan & Real-time',
     description: 'Lihat proses pengangkutan & progress daur ulang langsung dari HP kamu.'
   },
   {
-    icon: <FaGift size={48} color="#FFFFFF" />,
+    icon: <FaGift size={72} color="#FFFFFF" />,
     title: 'Ada reward-nya juga!',
     description: 'Kelola sampah, dapat poin. Poin bisa ditukar jadi voucher, produk, atau hal menarik lainnya.'
   }
@@ -42,7 +42,7 @@ export default function HeroBanner() {
                 untuk Kota <br />
                 yang Lebih
                 <span className={styles.bersihImageWrapper}>
-                  <Image src="/assets/Bersih.png" alt="Bersih" width={200} height={70} />
+                  <Image src="/assets/Bersih.png" alt="Bersih" width={320} height={120} />
                 </span>
               </h1>
             </div>

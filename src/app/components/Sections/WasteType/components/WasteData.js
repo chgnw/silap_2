@@ -10,7 +10,8 @@ const WasteTypes = [
         SubCategory: [
             { id: 1, name: "Kertas 1", imageUrl: "/images/dummy.png" },
             { id: 2, name: "Kertas 2", imageUrl: "/images/dummy.png" },
-            { id: 3, name: "Kertas 3", imageUrl: "/images/dummy.png" }
+            { id: 3, name: "Kertas 3", imageUrl: "/images/dummy.png" },
+            { id: 4, name: "Kertas 4", imageUrl: "/images/dummy.png" },
         ]
     },
     {
@@ -20,7 +21,8 @@ const WasteTypes = [
         SubCategory: [
             { id: 1, name: "Plastik 1", imageUrl: "/images/dummy.png" },
             { id: 2, name: "Plastik 2", imageUrl: "/images/dummy.png" },
-            { id: 3, name: "Plastik 3", imageUrl: "/images/dummy.png" }
+            { id: 3, name: "Plastik 3", imageUrl: "/images/dummy.png" },
+            { id: 4, name: "Plastik 4", imageUrl: "/images/dummy.png" },
         ]
     },
     {
@@ -50,7 +52,8 @@ const WasteTypes = [
         SubCategory: [
             { id: 1, name: "Botol Kaca 1", imageUrl: "/images/dummy.png" },
             { id: 2, name: "Botol Kaca 2", imageUrl: "/images/dummy.png" },
-            { id: 3, name: "Botol Kaca 3", imageUrl: "/images/dummy.png" }
+            { id: 3, name: "Botol Kaca 3", imageUrl: "/images/dummy.png" },
+            { id: 4, name: "Botol Kaca 4", imageUrl: "/images/dummy.png" },
         ]
     },
     {
@@ -60,7 +63,9 @@ const WasteTypes = [
         SubCategory: [
             { id: 1, name: "Khusus 1", imageUrl: "/images/dummy.png" },
             { id: 2, name: "Khusus 2", imageUrl: "/images/dummy.png" },
-            { id: 3, name: "Khusus 3", imageUrl: "/images/dummy.png" }
+            { id: 3, name: "Khusus 3", imageUrl: "/images/dummy.png" },
+            { id: 4, name: "Khusus 4", imageUrl: "/images/dummy.png" },
+            { id: 5, name: "Khusus 5", imageUrl: "/images/dummy.png" },
         ]
     },
     {
@@ -79,8 +84,7 @@ const WasteTypes = [
         Icon: FaTshirt,
         SubCategory: [
             { id: 1, name: "Kain 1", imageUrl: "/images/dummy.png" },
-            { id: 2, name: "Kain 2", imageUrl: "/images/dummy.png" },
-            { id: 3, name: "Kain 3", imageUrl: "/images/dummy.png" }
+            { id: 2, name: "Kain 2", imageUrl: "/images/dummy.png" }
         ]
     }
 ]
