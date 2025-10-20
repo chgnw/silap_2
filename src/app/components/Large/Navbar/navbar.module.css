@@ -1,13 +1,29 @@
 /* Navbar */
+.navbar{
+    background-color: #a4b465 !important;
+}
+
 .menu {
     display: flex;
     align-items: baseline;
-    gap: 32px;
-    font-size: 12px;
+    gap: 4rem;
+    font-size: 1rem;
+    font-weight: 500; }
+
+.navLinkDark .nav-link {
+    color: #000000 !important;
+}
+
+.navLinkLight .nav-link {
+    color: #FFFFFF !important;
+}
+
+.navLinkLight .dropdown-toggle::after,
+.navLinkLight .dropdown-toggle {
+    color: #FFFFFF !important;
 }
 
 .login {
     display: flex;
     align-items: center;
-    gap: 8px;
-}
+    gap: 8px; }

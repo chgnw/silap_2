@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
-import Navbar from "./components/Large/Navbar/Navbar";
+
+import Providers from "./providers";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -10,7 +11,6 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
 
-// SESUDAH
 export const metadata: Metadata = {
   title: "SILAP - Satu Aplikasi Untuk Semua",
   icons: {
@@ -26,8 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={montserrat.variable}>
-        <Navbar /> 
-        <main>{children}</main>
+        <Providers>
+          <main>{children}</main>
+        </Providers>
       </body>
     </html>
   );

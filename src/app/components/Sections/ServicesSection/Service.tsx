@@ -77,7 +77,7 @@ export default function ServicesSection() {
 
                 {/* Grup 1: Untuk Semua Orang */}
                 <ServiceGroup groupNumber={1} groupTitle="Untuk Semua Orang">
-                    <Row>
+                    <Row className={`${styles.serviceRow}`}>
                         {servicesForEveryone.map(service => (
                             <Col sm={12} md={6} key={service.title} className="mb-4">
                                 <ServiceCard
@@ -92,7 +92,7 @@ export default function ServicesSection() {
 
                 {/* Grup 2: Untuk Perusahaan */}
                 <ServiceGroup groupNumber={2} groupTitle="Untuk Perusahaan">
-                    <Row>
+                    <Row className={`${styles.serviceRow}`}>
                         {servicesForCompanies.map(service => (
                             <Col sm={12} md={6} key={service.title} className="mb-4">
                                 <ServiceCard
