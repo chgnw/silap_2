@@ -45,12 +45,12 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
 
 4.  **Konfigurasi *environment variables*. Buat *file* `.env.local` dan isi dengan konfigurasi database dan credential lainnya:**
 
-    Windows
+    Linux/MacOS
     ```bash
     openssl rand -base64 32
     ```
 
-    Linux/MacOS
+    Windows
     ```bash
     node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
     ```
