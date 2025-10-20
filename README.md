@@ -44,6 +44,7 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
     ```
 
 4.  **Konfigurasi *environment variables*. Buat *file* `.env.local` dan isi dengan konfigurasi database dan credential lainnya:**
+
     Windows
     ```bash
     openssl rand -base64 32
