@@ -1,0 +1,152 @@
+.layoutContainer {
+  display: flex;
+  flex-direction: column; 
+  min-height: 100vh;      
+}
+
+/* Navbar */
+.navbar{
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #a4b465;}
+  .menu {
+    display: flex;
+    align-items: baseline;
+    gap: 4.25rem;
+    color: #FFFFFF;
+    font-size: 1rem;
+    font-weight: 500;}
+  .login {
+    display: flex;
+    align-items: center;
+    gap: 8px;}
+
+.authWrapper {
+  flex-grow: 1;
+  width: 100%;
+  background-color: #a4b465;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: "Montserrat", sans-serif;
+  position: relative;}
+
+.containerCustom{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;}
+
+.rowCustom{
+  width: 100%;
+  height: 100%;
+}
+
+/* Center white card */
+.authCard {
+  width: 100%;
+  background-color: transparent;
+  border-radius: 16px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+  .navTop {
+    right: 20px;
+    top: 16px;
+  }
+
+  .authCard {
+    min-height: 380px;
+    padding: 1.5rem !important;
+  }
+}
+
+.page {
+  display:flex;
+  min-height: 100%;
+  gap:24px;
+  padding:40px;
+  background: var(--light-green,#A4B465);}
+
+.left {
+  flex:1;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;}
+
+.card {
+  width: 600px;
+  background:#fff;
+  border-radius:12px;
+  padding: 4rem;
+  box-shadow:0 8px 20px rgba(0,0,0,0.06);}
+  .card h2 { 
+    margin-top:0}
+
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.125rem;
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 1.375rem 0;
+  border: 1px solid #2F5E44;
+  border-radius: 1rem;
+  background:#FFFFFF;
+  cursor:pointer;}
+  .googleBtn img{
+    width: 24px;
+    height: 24px;
+  }
+
+.card form label { 
+  display: block; 
+  margin-top: 1.125rem; 
+  color:#000000;
+  font-size: 1.25rem; 
+  font-weight:500;}
+.card form input, 
+.card form select {
+  width:100%; 
+  padding: 1.375rem 1.25rem; 
+  margin-top: 6px; 
+  border-radius:8px; 
+  border:1px solid #e0e0e0;}
+
+.submit {
+  width:100%; 
+  margin-top:1.125rem; 
+  padding: 1.375rem 0; 
+  background:#2F5E44; 
+  color:#fff; 
+  border:none; 
+  border-radius:8px;}
+
+.err { 
+  color: #c0392b; 
+  margin-top:10px;}
+.footer { 
+  margin-top:14px; 
+  text-align:center; 
+  color:#555;}
+
+.rightPanel {
+  width:320px;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}

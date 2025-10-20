@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255),
+  phone_number VARCHAR(50),
+  provider ENUM('local','google') DEFAULT 'local',
+  provider_id VARCHAR(255),
+  avatar VARCHAR(512),
+  role ENUM('customer','mitra','admin') DEFAULT 'customer',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

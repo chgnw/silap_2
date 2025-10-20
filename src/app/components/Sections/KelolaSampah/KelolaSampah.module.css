@@ -1,0 +1,67 @@
+.sectionWrap {
+  padding: 5.375rem;
+  display:flex;
+  justify-content:center;
+  background: transparent;}
+
+.card {
+  width:100%;
+  background: #A4B465;
+  border-radius: 4rem;
+  padding: 3.25rem 0;
+  position: relative;}
+
+.heading {
+  text-align:center;
+  color: #2F5E44;
+  font-size: 5rem;
+  margin-bottom: 3.25rem;
+  font-weight: 700;}
+
+.mudah {
+  background: #2F5E44;
+  color: #FFFFFF;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-left: 8px;
+  font-size: 5rem;
+  transform: rotate(-8deg);}
+
+.mockupWrap {
+  position: relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding: 12px 20px 40px;}
+  .dashboard {
+    border-radius: 3.25rem;
+    overflow: hidden;
+    background: transparent;}
+
+/* floating tags */
+.tagTopRight {
+  position: absolute;
+  right: 10%;
+  top: 12%;
+  width: auto;}
+
+.tagRight {
+  position: absolute;
+  right: 12%;
+  bottom: 32%;
+  width: auto;}
+
+.tagLeft {
+  position: absolute;
+  left: 13%;
+  bottom: 10%;
+  width: auto;}
+
+/* responsive */
+@media (max-width: 900px) {
+  .tagTopRight { right: 6%; top: 6%; width: 90px; }
+  .tagRight { right: 6%; bottom: 8%; width: 100px; }
+  .tagLeft { left: 6%; bottom: 6%; width: 90px; }
+  .heading { font-size: 24px; }
+  .card { padding: 20px; }
+}
