@@ -1,11 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import Image from 'next/image';
 import { FaUser } from "react-icons/fa";
 import styles from './navbar.module.css';
 import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
+
+import FullPageSpinner from "../Spinner/Spinner";
 
 type HeaderProps = {
   theme?: 'light' | 'dark';
@@ -20,48 +23,56 @@ export default function Header({ theme = 'dark' }: HeaderProps) {
   const bootstrapVariant = theme === 'light' ? 'dark' : 'light';
   const logoStyle = theme === 'light' ? { filter: 'brightness(0) invert(1)' } : {};
 
+  const handleLogout = async () => {
+    try {
+      await signOut({ callbackUrl: "/" });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
+
   return (
-    // HAPUS prop "bg" dari sini
-    <Navbar expand="lg" variant={bootstrapVariant} className="py-3">
-      <Container>
-        <Navbar.Brand href="/">
-          <Image src="/assets/logo-silap.png" alt="SILAP Logo" width={50} height={50} style={logoStyle} />
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className={`ms-auto ${styles.menu} ${navLinkClass}`}>
-            {/* ... sisa kode Anda tidak perlu diubah ... */}
-            {theme === 'dark' ? (
-              <>
-                {/* Menu Halaman Utama */}
-                <Nav.Link href="/" className="fw-bold">HOME</Nav.Link>
-                <Nav.Link href="/" className="fw-bold">SERVICES</Nav.Link>
-                <Nav.Link href="#pesanan" className="fw-bold">ORDER</Nav.Link>
-                <Nav.Link href="#riwayat" className="fw-bold">HISTORY</Nav.Link>
-                {status === 'authenticated' ? (
-                  <NavDropdown title={session.user?.name || 'User'} id="basic-nav-dropdown" className={`${styles.login} fw-bold`}>
-                    <NavDropdown.Item href="#profile">Profile</NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item onClick={() => signOut()}>Logout</NavDropdown.Item>
-                  </NavDropdown>
-                ) : (
-                  <Nav.Link href="/login" className={`${styles.login} fw-bold`}>
-                    <FaUser size={12}/> LOGIN
+    <>
+      <Navbar expand="lg" variant={bootstrapVariant} className="py-3">
+        <Container>
+          <Navbar.Brand href="/">
+            <Image src="/assets/logo-silap.png" alt="SILAP Logo" width={50} height={50} style={logoStyle} />
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className={`ms-auto ${styles.menu} ${navLinkClass}`}>
+              {theme === 'dark' ? (
+                <>
+                  <Nav.Link href="/" className="fw-bold">HOME</Nav.Link>
+                  <Nav.Link href="#services" className="fw-bold">SERVICES</Nav.Link>
+                  <Nav.Link href="#order" className="fw-bold">ORDER</Nav.Link>
+                  <Nav.Link href="#history" className="fw-bold">HISTORY</Nav.Link>
+                  {status === 'authenticated' ? (
+                    <NavDropdown title={session.user?.name || 'User'} id="basic-nav-dropdown" className={`${styles.login} fw-bold`}>
+                      <NavDropdown.Item href="#profile">Profile</NavDropdown.Item>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+                    </NavDropdown>
+                  ) : (
+                    <Nav.Link href="/login" className={`${styles.login} fw-bold`}>
+                      <FaUser size={12}/> LOGIN
+                    </Nav.Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Menu Halaman Auth */}
+                  <Nav.Link href="/" className="fw-bold">HOME</Nav.Link>
+                  <Nav.Link href={isLoginPage ? "/register" : "/login"} className={`${styles.login} fw-bold`}>
+                    <FaUser size={12}/> {isLoginPage ? 'REGISTER' : 'LOGIN'}
                   </Nav.Link>
-                )}
-              </>
-            ) : (
-              <>
-                {/* Menu Halaman Auth */}
-                <Nav.Link href="/" className="fw-bold">HOME</Nav.Link>
-                <Nav.Link href={isLoginPage ? "/register" : "/login"} className={`${styles.login} fw-bold`}>
-                  <FaUser size={12}/> {isLoginPage ? 'REGISTER' : 'LOGIN'}
-                </Nav.Link>
-              </>
-            )}
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+                </>
+              )}
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>`
+    </>
   );
 }
