@@ -1,0 +1,43 @@
+.layoutContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f9fafb;
+  font-family: 'Inter', sans-serif;
+}
+
+.navbar {
+  background-color: #a4b465;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.navLinks {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.navLinks li {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.navLinks li:hover {
+  opacity: 0.8;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 2rem;
+}

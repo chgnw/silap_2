@@ -1,25 +1,32 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import Image from 'next/image'
 import styles from './WasteType.module.css'
 
-import WasteTypes from './components/WasteData';
 import WasteTypeCard from "../../Medium/WasteTypeCard/WasteTypeCard";
 import { Container } from 'react-bootstrap';
 
 export default function WasteTypeSection() {
-    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(1);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+    const [categories, setCategories] = useState<any[]>([])
 
-    const handleCategorySelect = (id: number | null) => {
-        setSelectedCategoryId(prevId => (prevId === id ? null : id));
-    };
+    useEffect(() => {
+        fetch('/api/waste')
+        .then(res => res.json())
+        .then(data => setCategories(data))
+        .catch(err => console.error('Error fetching waste data:', err))
+    }, [])
 
     const selectedSubCategories = useMemo(() => {
-        if (!selectedCategoryId) return [];
-        const selectedCategory = WasteTypes.find(cat => cat.id === selectedCategoryId);
-        return selectedCategory ? selectedCategory.SubCategory : [];
-    }, [selectedCategoryId]);
+        if (!selectedCategoryId) return []
+        const selected = categories.find(cat => cat.id === selectedCategoryId)
+        return selected ? selected.SubCategory : []
+    }, [selectedCategoryId, categories])
+
+    const handleCategorySelect = (id: number | null) => {
+        setSelectedCategoryId(prev => (prev === id ? null : id))
+    }
     
     return (
         <Container>
@@ -33,12 +40,12 @@ export default function WasteTypeSection() {
 
                     <div className={styles.leftColumn}>
                         <div className={styles.categoryGrid}>
-                            {WasteTypes.map(category => (
+                            {categories.map(category => (
                                 <WasteTypeCard
-                                    key={category.id}
-                                    category={category}
-                                    isSelected={selectedCategoryId === category.id}
-                                    onSelect={handleCategorySelect}
+                                key={category.id}
+                                category={category}
+                                isSelected={selectedCategoryId === category.id}
+                                onSelect={handleCategorySelect}
                                 />
                             ))}
                         </div>
@@ -60,7 +67,7 @@ export default function WasteTypeSection() {
                                     ))}
                                 </div>
                             ) : (
-                                <p>Select a category to see items.</p>
+                                <p>Pilih kategori untuk melihat itemnya.</p>
                             )}
                         </div>
                     </div>
