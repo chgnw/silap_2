@@ -8,7 +8,6 @@ import styles from './navbar.module.css';
 import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 
-import FullPageSpinner from "../Spinner/Spinner";
 
 type HeaderProps = {
   theme?: 'light' | 'dark';

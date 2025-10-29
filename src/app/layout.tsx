@@ -7,7 +7,7 @@ import Providers from "./providers";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ['400', '700', '900'],
+  weight: ['400', '500', '600', '700', '900'],
   variable: '--font-montserrat',
 });
 
@@ -27,7 +27,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={montserrat.variable}>
         <Providers>
-          <main>{children}</main>
+          <main>
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

@@ -12,6 +12,7 @@
     "bcryptjs": "^3.0.2",
     "bootoast": "^1.1.4",
     "bootstrap": "^5.3.7",
+    "framer-motion": "^12.23.24",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.2",
     "next": "15.3.5",
