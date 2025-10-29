@@ -5,14 +5,12 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import styles from '../auth.module.css';
 
-import FullPageSpinner from "../../components/Large/Spinner/Spinner";
-
 function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'mitra') => void }) {
   return (
     <div className={styles.page}>
       <div className={styles.registerCard}>
-        <p className={styles.leftSub} style={{ textAlign: 'left'}}>Hola,</p>
-        <h2 style={{ fontSize: '5.5rem',  textAlign: 'left'}}>Selamat Datang</h2>
+        <p>Hola,</p>
+        <h2>Selamat Datang</h2>
         
         <div className={styles.roleSelection}>
           <div className={styles.roleCard} onClick={() => onSelectRole('customer')}>
@@ -26,18 +24,21 @@ function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'mi
           </div>
         </div>
         
-        <p className={styles.footerRegister}>
+        <div className={styles.registerFooter}>
           Sudah punya akun?{" "}
           <a href="/login" className={styles.linkRegister}>
             Masuk
           </a>
-        </p>
+        </div>
       </div>
     </div>
   );
 }
 
-function RegisterForm({ role }: { role: 'customer' | 'mitra' }) {
+function RegisterForm({ role, onBackToSelection }: { 
+  role: 'customer' | 'mitra',
+  onBackToSelection: () => void 
+}) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -57,7 +58,7 @@ function RegisterForm({ role }: { role: 'customer' | 'mitra' }) {
     }
 
     setError(null);
-    setLoading(true); // 🌀 start spinner
+    setLoading(true);
 
     try {
       const res = await fetch('/api/auth/register', {
@@ -76,7 +77,6 @@ function RegisterForm({ role }: { role: 'customer' | 'mitra' }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal mendaftar');
 
-      // 🚀 Step 2: Auto-login via NextAuth
       const loginResult = await signIn('credentials', {
         redirect: false,
         email,
@@ -100,102 +100,116 @@ function RegisterForm({ role }: { role: 'customer' | 'mitra' }) {
     <>
       <div className={styles.page}>
         <div className={styles.registerFormCard}>
-          <h2>Daftar sebagai {role === 'customer' ? 'Customer' : 'Mitra'}</h2>
-
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className={styles.formGroup}>
             <div className={styles.formRow}>
               <div className={styles.formCol}>
-                <div className={styles.formGroup}>
-                  <label>Nama Depan *</label>
+                <div className={styles.formContainer}>
+                  <label className={styles.formLabel}>
+                    Nama Depan <span className={styles.requiredField}>*</span>
+                  </label>
                   <input
                     type="text"
-                    placeholder="Javier"
+                    placeholder="First"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
+                    className={styles.formInput}
                   />
                 </div>
               </div>
 
               <div className={styles.formCol}>
                 <div className={styles.formGroup}>
-                  <label>Nama Belakang *</label>
-                  <input
-                    type="text"
-                    placeholder="Adios"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                  />
+                  <div className={styles.formContainer}>
+                    <label className={styles.formLabel}>
+                      Nama Belakang <span className={styles.requiredField}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Last"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      className={styles.formInput}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label>Nomor Telepon *</label>
+            <div className={styles.formContainer}>
+              <label className={styles.formLabel}>
+                Nomor Telepon <span className={styles.requiredField}>*</span>
+              </label>
               <input
                 type="tel"
-                placeholder="0822 1212 3422"
+                placeholder="Phone Number"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 required
+                className={styles.formInput}
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label>Email*</label>
+            <div className={styles.formContainer}>
+              <label className={styles.formLabel}>
+                Email <span className={styles.requiredField}>*</span>
+              </label>
               <input
                 type="email"
-                placeholder="javierpansyolo@gmail.com"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className={styles.formInput}
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label>Kata Sandi *</label>
+            <div className={styles.formContainer}>
+              <label className={styles.formLabel}>
+                Kata Sandi <span className={styles.requiredField}>*</span>
+              </label>
               <input
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className={styles.formInput}
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label>Tulis Ulang Kata Sandi *</label>
+            <div className={styles.formContainer}>
+              <label className={styles.formLabel}>
+                Tulis Ulang Kata Sandi <span className={styles.requiredField}>*</span>
+              </label>
               <input
                 type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                className={styles.formInput}
               />
             </div>
 
             {error && <div className={styles.alert}>{error}</div>}
 
-            <button
-              type="submit"
-              className={styles.registerSubmit}
-              disabled={loading}
-            >
+            <button type="submit" className={styles.submitButton} disabled={loading}>
               {loading ? (
                 <div className={styles.spinner}></div>
               ) : (
                 "Daftar →"
               )}
             </button>
-          </form>
 
-          <p className={styles.footer}>
-            Sudah punya akun?{" "}
-            <a href="/login" className={styles.link}>
-              Masuk
-            </a>
-          </p>
+            <p className={styles.footer}>
+              Sudah punya akun?{" "}
+              <a href="/login" className={styles.link}>
+                Masuk
+              </a>
+            </p>
+          </form>
         </div>
 
         <div className={styles.registerRight}>
@@ -221,7 +235,13 @@ export default function RegisterPage() {
     setStep('form');
   };
 
+  const handleBackToSelection = () => {
+    setStep('selection');
+    setRole(null);
+  };
+
   if (step === 'selection') return <RoleSelection onSelectRole={handleRoleSelect} />;
-  if (step === 'form' && role) return <RegisterForm role={role} />;
+  if (step === 'form' && role) return <RegisterForm role={role} onBackToSelection={handleBackToSelection} />;
+  
   return null;
 }
