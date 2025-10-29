@@ -1,108 +1,87 @@
+/* Layout */
 .layoutContainer {
   display: flex;
   flex-direction: column; 
   min-height: 100vh;
-  color: #FFFFFF;
-}
+  color: #FFFFFF;}
+  .loginBg {
+    background: linear-gradient(
+      180deg,
+      #a4b465 0%,
+      #a4b465 65%,
+      #e7f0d2 65%,
+      #e7f0d2 85%,
+      #d2ea9b 85%,
+      #d2ea9b 100%
+    );}
+  .registerBg {
+    background: #a4b465;}
+  .authWrapper {
+      flex-grow: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    align-items: center;
+    font-family: "Montserrat", sans-serif;
+    position: relative;
+    padding: 2rem;}
+  .containerCustom{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    position: absolute;
+    bottom: 25%;}
+  .authCard{
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 600px;}
 
-.loginBg {
-  background: linear-gradient(
-    180deg,
-    #a4b465 0%,
-    #a4b465 65%,
-    #e7f0d2 65%,
-    #e7f0d2 85%,
-    #d2ea9b 85%,
-    #d2ea9b 100%
-  );
-}
 
-.registerBg {
-  background: #a4b465;
-}
-
-.authWrapper {
-  flex-grow: 1;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: "Montserrat", sans-serif;
-  position: relative;
-  padding: 2rem;
-}
-
-.containerCustom{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  position: absolute;
-  bottom: 25%;
-}
-
-.authCard{
-  padding: 0 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 600px;
-}
-
+/* Container */
 .page {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 1200px;
-  gap: 4rem;
-}
+  gap: 4rem;}
+  .page .centered {
+    justify-content: center;}
 
-/* LEFT SIDE */
+
+/* LEFT SIDE (LOGIN) */
 .left {
   flex: 1;
   color: #FFFFFF;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding-left: 2rem;
-}
+  justify-content: flex-start;}
+  .leftContent {
+    max-width: 500px;
+    padding-left: 2rem;
+    border-left: 4px solid #FFFFFF;}
+    .leftSub {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 2.75rem;
+      font-style: italic;
+      font-weight: 600;
+      margin: 0;
+      color: #FFFFFF;}
+    .leftTitle {
+      font-size: 5.5rem;
+      font-weight: bold;}
+    .leftDesc {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #FFFFFF;}
 
-.leftContent {
-  max-width: 500px;
-  padding-left: 2rem;
-  border-left: 4px solid #FFFFFF;
-}
 
-.leftSub {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 2.75rem;
-  font-style: italic;
-  font-weight: 600;
-  margin: 0;
-  color: #FFFFFF;
-}
-
-.leftTitle {
-  font-size: 5.5rem;
-  font-weight: 600;
-  margin: 0;
-  letter-spacing: 2px;
-  color: #FFFFFF;
-  line-height: 1;
-}
-
-.leftDesc {
-  font-size: 1.5rem;
-  line-height: 1.6;
-  margin-top: 1rem;
-  color: #FFFFFF;
-}
-
-/* RIGHT SIDE - Modal Card */
+/* RIGHT SIDE (LOGIN) */
 .card {
   background: #FFFFFF;
-  border-radius: 24px;
-  padding: 2.5rem 2rem;
+  border-radius: 2rem;
+  padding: 4rem;
   width: 600px;
   height: auto;
   display: flex;
@@ -110,199 +89,283 @@
   justify-content: center;
   flex-direction: column;;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  position: relative;
-}
+  position: relative;}
+  .closeBtn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #000000;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;}
+  .headerContainer{
+    width: 100%;
+    color: #2F5E44;
+    margin-bottom: 1.25rem;}
+  .alert {
+    width: 100%;
+    background: #FFF1F2;
+    color: #ED1C24;
+    font-weight: 600;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;}
+  .formGroup{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;}
+    .formContainer{
+      width: 100%;}
+      .formLabel{
+        display: block;
+        font-weight: 600;
+        color: #363636;
+        margin-bottom: 0.5rem;}
+      .formInput{
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #2F5E44;
+        font-size: 1rem;}
+  .eyeIcon{
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #363636;}
+  .smallText{
+      color: #363636;
+      font-size: 0.875rem;
+      font-weight: 500;}
+    .buttonContainer{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;}
+      .submitButton{
+        width: 100%;
+        background: #2F5E44;
+        color: #FFFFFF;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;}
+      .backButton{
+        width: 100%;
+        background: #FFFFFF;
+        color: #2F5E44;
+        font-weight: 600;
+        border: 1px solid #2F5E44;
+        border-radius: 10px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;}
+        .backButton:hover{
+          background: #2f5e4420;}
 
-.closeBtn {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  color: #000000;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-}
+  /* Khusus step 'method' */
+  .googleBtn {
+    width: 100%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #363636;
+    border: 1px solid #2F5E44;
+    border-radius: 1rem;
+    padding: 1rem;
+    cursor: pointer;
+    background: #FFFFFF;
+    transition: all 0.2s;}
+    .googleBtn:hover {
+      background: #F8F8F8;}
+    .googleBtn img {
+      width: 20px;
+      height: 20px;}
+  .emailBtn {
+    width: 100%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #363636;
+    border: 1px solid #2F5E44;
+    border-radius: 1rem;
+    padding: 1rem;
+    cursor: pointer;
+    background: #FFFFFF;
+    transition: all 0.2s;}
+    .emailBtn:hover {
+      background: #F8F8F8;}
+  .footer {
+    text-align: center;
+    color: #363636;
+    font-size: 1rem;}
+    .link {
+      color: #2F5E44;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;}
+      .link:hover {
+        text-decoration: underline;}
 
-/* BUTTONS */
-.googleBtn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-
-  font-size: 1rem;
-  font-weight: 500;
-  color: #000000d0;
+  /* Khusus step 'login' */
+  .passwordWrapper{
+    position: relative;
+    width: 100%;}
+  .loginCondition{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #2F5E44;}
+    .rememberMe{
+      display: flex;
+      flex: 1;
+      align-items: center;
+      gap: 0.5rem;}
+      .rememberMe input{
+        width: 24px;
+        height: 24px;
+        cursor: pointer;}
+      .rememberMe label{
+        font-size: 0.875rem;}
+    .forgotPassword{
+      background: transparent;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #2F5E44;
+      cursor: pointer;
+      transition: all 0.2s;}
+      .forgotPassword:hover {
+        text-decoration: underline;}
   
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  cursor: pointer;
-  background: #FFFFFF;
-  transition: all 0.2s;
-}
-
-.googleBtn img {
-  width: 20px;
-  height: 20px;
-}
-
-.googleBtn:hover {
-  background: #f8f8f8;
-}
-
-.emailBtn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-
-  font-size: 1rem;
-  font-weight: 500;
-  color: #000000d0;
+  /* Khusus step 'otp' */
+  .resendButton{
+    background: transparent;
+    color: #2F5E44;
+    font-weight: 600;
+    border: none;}
   
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 1rem;
-  cursor: pointer;
-  background: #FFFFFF;
-  transition: all 0.2s;
-}
 
-.emailBtn:hover {
-  background: #f8f8f8;
-}
-
-.footer {
-  text-align: center;
-  color: #666;
-  margin-top: 1.5rem;
-  font-size: 1rem;
-  margin-bottom: 0 !important;
-}
-
-.footerRegister {
-  text-align: center;
-  color: #666;
-  margin-top: 1.5rem;
-  font-size: 1.125rem;
-  margin-bottom: 0 !important;
-}
-
-.link {
-  color: #A4B465;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.linkRegister {
-  color: #FFFFFF;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.link:hover, 
-.linkRegister:hover {
-  text-decoration: underline;
-}
-
+/* STYLE KHUSUS REGISTER PAGE */
 .registerCard {
   width: 1000px;
   background: transparent;
   border-radius: 24px;
   padding: 3rem 2.5rem;
-  text-align: center;
-}
+  text-align: center;}
+  .registerCard p {
+    font-family: 'Times New Roman', Times, serif;
+    text-align: left;
+    font-size: 2.75rem;
+    font-style: italic;
+    font-weight: 600;
+    margin: 0;
+    color: #FFFFFF;}
+  .registerCard h2 {
+    font-size: 5.5rem;
+    text-align: left;
+    font-weight: 700;
+    color: #FFF;
+    margin-bottom: 0.5rem;}
+  .roleSelection {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;}
+    .roleCard {
+      background: #F5F5F5;
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      width: 100%;
+      height: 300px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;}
+      .roleCard:hover {
+        border: none;
+        background: #FFFFFF;
+        border-color: #A4B465;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);}
+      .roleCard img {
+        width: 200px;
+        height: 200px;
+        margin-bottom: 1rem;
+        object-fit: contain;}
+      .roleLabel {
+        background: #2F5E44;
+        color: #FFFFFF;
+        font-weight: 500;
+        padding: 0.5rem 1.5rem;
+        border-radius: 8px;
+        font-size: 2.25rem;}
+  .registerFooter{
+    text-align: center;
+    color: #FFFFFF;
+    font-size: 1rem;
+    font-weight: 500;}
+    .linkRegister {
+      color: #FFFFFF;
+      font-weight: 500;
+      text-decoration: none;}
+      .linkRegister:hover {
+        text-decoration: underline;}
 
-.registerCard h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #FFF;
-  margin-bottom: 0.5rem;
-}
-
-.registerCard > p {
-  color: #FFF;
-}
-
-.roleSelection {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
-.roleCard {
-  background: #F5F5F5;
-  border-radius: 16px;
-  padding: 2rem 1.5rem;
-  width: 100%;
-  height: 300px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.roleCard:hover {
-  background: #FFFFFF;
-  border-color: #A4B465;
-  transform: translateY(-5px);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-}
-
-.roleCard img {
-  width: 200px;
-  height: 200px;
-  margin-bottom: 1rem;
-  object-fit: contain;
-}
-
-.roleLabel {
-  background: #2F5E44;
-  color: #FFFFFF;
-  font-weight: 500;
-  padding: 0.5rem 1.5rem;
-  border-radius: 8px;
-  font-size: 2.25rem;
-}
-
-/* REGISTER FORM */
 .registerFormCard {
   background: #FFFFFF;
   border-radius: 24px;
   padding: 2.5rem;
   width: 540px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-}
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);}
+  .registerFormCard h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;}
+  .formRow {
+    width: 100%;
+    display: flex;
+    gap: 1rem;}
+  .formCol {
+    flex: 1;}
+  .requiredField{
+    color: #ED1C24;}
 
-.registerFormCard h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 1.5rem;
-}
 
-.formRow {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
+/* REGISTER FORM */
+/* 
 
-.formCol {
-  flex: 1;
-}
+
+
+
 
 .formGroup {
   margin-bottom: 1rem;
@@ -354,16 +417,7 @@
 
 .registerSubmit:hover {
   background: #244c37;
-}
-
-.alert {
-  background: #fee;
-  color: #c33;
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
+} */
 
 /* Right Panel with Image */
 .registerRight {
@@ -376,16 +430,17 @@
 
 .registerRight h1 {
   font-size: 3.5rem;
-  font-weight: 800;
+  font-weight: bold;
   margin-bottom: 2rem;
   text-align: center;
   line-height: 1.2;
 }
 
 .registerRight .subtitle {
-  font-size: 2rem;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 2.75rem;
   font-style: italic;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 0.5rem;
 }
 

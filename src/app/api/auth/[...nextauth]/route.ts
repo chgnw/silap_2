@@ -3,10 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { query } from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import type { JWT } from 'next-auth/jwt';
-import type { Session, User } from 'next-auth';
 
-// ✅ Definisikan tipe untuk user dari database
 interface DBUser {
   id: number;
   uuid: string;
@@ -18,7 +15,6 @@ interface DBUser {
   provider: string;
 }
 
-// ✅ Extend JWT dan Session types
 declare module 'next-auth/jwt' {
   interface JWT {
     id?: number;
@@ -98,7 +94,6 @@ const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
 
   callbacks: {
-    // 🔹 Handle user creation / sync on Google sign-in
     async signIn({ user, account }) {
       if (account?.provider === 'google' && user.email) {
         try {
@@ -122,7 +117,7 @@ const authOptions: NextAuthOptions = {
       return true;
     },
 
-    // 🔹 Embed custom fields into JWT
+    // Set JWT 
     async jwt({ token, user }) {
       if (user) {
         token.id = (user as any).id;
@@ -133,7 +128,7 @@ const authOptions: NextAuthOptions = {
       return token;
     },
 
-    // 🔹 Expose fields into session object (for client side)
+    // Set session untuk user
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
