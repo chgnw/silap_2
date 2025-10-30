@@ -50,29 +50,25 @@ const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const email = credentials?.email;
         const password = credentials?.password;
-        if (!email || !password) return null;
+        if (!email || !password) throw new Error("Silahkan isi email dan password Anda yang terdaftar");
 
-        // cari user di ms_users
         const rows = (await query('SELECT * FROM ms_users WHERE email = ? LIMIT 1', [email])) as DBUser[];
         if (!rows || rows.length === 0) {
-          console.log('❌ User not found');
-          return null;
+          throw new Error("Email yang Anda masukkan tidak terdaftar");
         }
 
         const user = rows[0];
         if (!user.password) {
-          console.log('❌ User has no password (likely Google login)');
-          return null;
+          throw new Error("Akun ini terdaftar menggunakan Google, silakan login dengan Google.");
         }
 
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
-          console.log('❌ Invalid password for', email);
-          return null;
+          throw new Error("Wrong password");
         }
 
         console.log('✅ Login success for', email);
-
+        
         return {
           id: String(user.id),
           uuid: user.uuid,

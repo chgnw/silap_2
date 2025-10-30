@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,10 +11,9 @@ import styles from "../auth.module.css";
 
 export default function LoginPage() {
   const [step, setStep] = useState<"method" | "login" | "forgot" | "otp" | "reset">("method");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp] = useState("");
+  
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -59,7 +58,7 @@ export default function LoginPage() {
       console.log(result);
 
       if (result?.error) {
-        setError("Login gagal, silakan coba lagi.");
+        setError(result.error);
       } else {
         const sessionRes = await fetch("/api/auth/session");
         const session = await sessionRes.json();
@@ -76,62 +75,153 @@ export default function LoginPage() {
     }
   };
 
-  // Simulasi aja belom beneran
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => setResendCooldown((t) => t - 1), 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    // TODO: ganti dengan call ke /api/auth/send-otp
-    setTimeout(() => {
+
+    const email = emailRef.current?.value?.trim();
+    if (!email) {
+      setError("Email wajib diisi.");
       setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Gagal mengirim kode OTP.");
+      }
+
+      // Jika berhasil kirim email → pindah ke step OTP
+      setUserEmail(email);
       setStep("otp");
+      setResendCooldown(30);
       setError(null);
-    }, 1000);
+    } catch (err: any) {
+      setError(err.message || "Terjadi kesalahan.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
-    const otp = otpRef.current?.value || "";
-    
-    // TODO: call ke /api/auth/verify-otp
-    setTimeout(() => {
-      if (otp === "123456") {
-        setStep("reset");
-        setError(null);
-      } else {
-        setError("OTP salah atau sudah kadaluarsa.");
-      }
+
+    const otp = otpRef.current?.value?.trim();
+
+    if (!userEmail || !otp) {
+      setError("Kode OTP wajib diisi.");
       setLoading(false);
-    }, 800);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail, otp }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "OTP salah atau sudah kadaluarsa.");
+      }
+
+      setStep("reset");
+    } catch (err: any) {
+      setError(err.message || "Terjadi kesalahan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // === 🔹 HANDLE RESEND CODE ===
+  const handleResendCode = async () => {
+    const email = emailRef.current?.value?.trim();
+    if (!email) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Gagal mengirim ulang kode.");
+
+      setResendCooldown(30);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || "Terjadi kesalahan.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const password = passwordRef.current?.value || "";
-    const confirmPassword = confirmPasswordRef.current?.value || "";
-    
-    if (password !== confirmPassword) {
-      setError("Password dan konfirmasi tidak sama.");
-      return;
-    }
-    
     setLoading(true);
     setError(null);
-    // TODO: call ke /api/auth/reset-password
-    setTimeout(() => {
-      setStep("method");
-      setError(null);
 
-      if (emailRef.current) emailRef.current.value = "";
-      if (passwordRef.current) passwordRef.current.value = "";
-      if (confirmPasswordRef.current) confirmPasswordRef.current.value = "";
-      if (otpRef.current) otpRef.current.value = "";
+    const newPassword = passwordRef.current?.value?.trim();
+    const confirmPassword = confirmPasswordRef.current?.value?.trim();
+
+    if (!newPassword || !confirmPassword) {
+      setError("Semua kolom wajib diisi.");
       setLoading(false);
-    }, 1200);
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError("Kata sandi harus minimal 8 karakter.");
+      setLoading(false);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError("Kata sandi tidak cocok.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: userEmail, // dari state sebelumnya
+          password: newPassword,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Gagal mengubah kata sandi.");
+
+      setStep("login");
+    } catch (err: any) {
+      setError(err.message || "Terjadi kesalahan server.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -330,7 +420,7 @@ export default function LoginPage() {
               <div className={styles.headerContainer}>
                 <h2>Enter The 6-Digit Code</h2>
                 <p className={styles.smallText}>
-                  Silahkan cek email untuk mendapatkan kode OTP
+                  Silahkan cek {userEmail} untuk mendapatkan kode OTP
                 </p>
               </div>
 
@@ -348,8 +438,13 @@ export default function LoginPage() {
                 </div>
 
                 <div style={{ width: '100%' }}>
-                  <button type="button" className={styles.resendButton}>
-                    Resend code
+                  <button
+                    type="button"
+                    className={styles.resendButton}
+                    onClick={handleResendCode}
+                    disabled={resendCooldown > 0 || loading}
+                  >
+                    {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
                   </button>
                 </div>
                 
@@ -368,6 +463,7 @@ export default function LoginPage() {
             </motion.div>
           )}
 
+          {/* Reset Password */}
           {step === "reset" && (
             <motion.div key="reset" {...fadeSlide} className="w-100">
               <button className={styles.closeBtn} onClick={() => {
