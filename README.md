@@ -58,19 +58,36 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
     .env
     ```bash
     # Database config
-    MYSQL_HOST=DB_HOST
-    MYSQL_PORT=DB_PORT
-    MYSQL_USER=DB_USER
-    MYSQL_PASSWORD=DB_PASSWORD
-    MYSQL_DATABASE=DB_NAME
+    MYSQL_HOST=
+    MYSQL_PORT=
+    MYSQL_USER=
+    MYSQL_PASSWORD=
+    MYSQL_DATABASE= 
+    
+    # JWT
+    JWT_SECRET=
     
     # NextAuth secret
-    NEXTAUTH_SECRET=replace_with_long_random_secret
-    NEXTAUTH_URL=your_next_auth_url
+    NEXTAUTH_SECRET=
+    NEXTAUTH_URL=
     
     # Google OAuth (for NextAuth)
-    GOOGLE_CLIENT_ID=your_google_client_id
-    GOOGLE_CLIENT_SECRET=your_google_client_secret
+    GOOGLE_CLIENT_ID=
+    GOOGLE_CLIENT_SECRET=
+    
+    # REDIS
+    REDIS_HOST=
+    REDIS_PORT=
+    REDIS_USERNAME=
+    REDIS_PASSWORD=
+    
+    # Mailer (nodemailer)
+    SMTP_USER=
+    SMTP_PASSWORD=
+    
+    # Environment
+    NODE_ENV=
+    APP_VERSION=
     ```
 
 6.  **Jalankan migrations database:**
