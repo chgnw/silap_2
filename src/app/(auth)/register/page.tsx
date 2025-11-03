@@ -86,7 +86,7 @@ function RegisterForm({ role, onBackToSelection }: {
       if (loginResult?.error) {
         setError("Login otomatis gagal, silakan login manual.");
       } else {
-        router.push('/');
+        router.push('/dashboard');
         router.refresh();
       }
     } catch (err: any) {
