@@ -64,8 +64,7 @@ export default function LoginPage() {
         const session = await sessionRes.json();
 
         if (session?.user?.role_id === 3) router.push("/admin");
-        else if (session?.user?.role_id === 2) router.push("/dashboard");
-        else router.push("/");
+        else router.push("/dashboard");
         router.refresh();
       }
     } catch (err: any) {
