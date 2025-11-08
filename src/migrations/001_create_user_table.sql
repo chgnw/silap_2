@@ -31,8 +31,7 @@ CREATE TABLE IF NOT EXISTS ms_waste_item (
   image_url VARCHAR(512) DEFAULT NULL,
   is_deleted BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (waste_category_id) REFERENCES ms_waste_category(id)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS ms_transaction_status (
@@ -44,6 +43,18 @@ CREATE TABLE IF NOT EXISTS ms_donation_item_type (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   donation_item_type_name VARCHAR(50) NOT NULL UNIQUE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS ms_tier_list (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tier_name VARCHAR(100) NOT NULL UNIQUE,
+  min_weight DECIMAL(10,2) NOT NULL DEFAULT 0,
+  max_weight DECIMAL(10,2) NULL,
+  description TEXT NULL,
+  benefit TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 -- =============================================
@@ -61,9 +72,9 @@ CREATE TABLE IF NOT EXISTS ms_users (
   address TEXT NULL,
   points INT DEFAULT 0,
   current_streak INT DEFAULT 0,
+  tier_list_id INT UNSIGNED NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (role_id) REFERENCES ms_role(id)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS ms_partners (
@@ -78,17 +89,12 @@ CREATE TABLE IF NOT EXISTS ms_partners (
   description TEXT NULL,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (role_id) REFERENCES ms_role(id),
-  FOREIGN KEY (partner_type_id) REFERENCES ms_partner_type(id)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS ms_partner_accepted_waste (
   partners_id INT UNSIGNED NOT NULL,
-  waste_item_id INT UNSIGNED NOT NULL,
-  PRIMARY KEY (partners_id, waste_item_id),
-  FOREIGN KEY (partners_id) REFERENCES ms_partners(id) ON DELETE CASCADE,
-  FOREIGN KEY (waste_item_id) REFERENCES ms_waste_item(id) ON DELETE CASCADE
+  waste_item_id INT UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- =============================================
@@ -106,10 +112,7 @@ CREATE TABLE IF NOT EXISTS tr_pickups (
   pickup_schedule TIMESTAMP NULL,
   completion_time TIMESTAMP NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (users_id) REFERENCES ms_users(id),
-  FOREIGN KEY (partners_id) REFERENCES ms_partners(id),
-  FOREIGN KEY (transaction_status_id) REFERENCES ms_transaction_status(id)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tr_pickup_items (
@@ -117,9 +120,7 @@ CREATE TABLE IF NOT EXISTS tr_pickup_items (
   pickups_id INT UNSIGNED NOT NULL,
   waste_item_id INT UNSIGNED NOT NULL,
   quantity DECIMAL(10, 2) NOT NULL,
-  points_earned INT DEFAULT 0,
-  FOREIGN KEY (pickups_id) REFERENCES tr_pickups(id) ON DELETE CASCADE,
-  FOREIGN KEY (waste_item_id) REFERENCES ms_waste_item(id)
+  points_earned INT DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tr_donations (
@@ -136,11 +137,7 @@ CREATE TABLE IF NOT EXISTS tr_donations (
   pickup_schedule TIMESTAMP NULL,
   completion_time TIMESTAMP NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (users_id) REFERENCES ms_users(id),
-  FOREIGN KEY (partners_id) REFERENCES ms_partners(id),
-  FOREIGN KEY (donation_item_type_id) REFERENCES ms_donation_item_type(id),
-  FOREIGN KEY (transaction_status_id) REFERENCES ms_transaction_status(id)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tr_point_history (
@@ -150,10 +147,7 @@ CREATE TABLE IF NOT EXISTS tr_point_history (
   pickups_id INT UNSIGNED NULL,
   donations_id INT UNSIGNED NULL,
   description VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (users_id) REFERENCES ms_users(id),
-  FOREIGN KEY (pickups_id) REFERENCES tr_pickups(id),
-  FOREIGN KEY (donations_id) REFERENCES tr_donations(id)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- =============================================
@@ -254,3 +248,9 @@ VALUES
 (8, 'Kain 1', 'kg', '/images/dummy.png'), 
 (8, 'Kain 2', 'kg', '/images/dummy.png')
 ON DUPLICATE KEY UPDATE waste_item_name=VALUES(waste_item_name);
+
+INSERT INTO ms_tier_list (tier_name, min_weight, max_weight, description, benefit)
+VALUES
+('Eco Starter', 0.00, 10.00, 'Pengguna baru atau jarang membuang sampah (0–10 kg/bulan).', 'Edukasi dan reminder ramah lingkungan.'),
+('Eco Regular', 10.01, 30.00, 'Pengguna aktif yang rutin menggunakan layanan (10–30 kg/bulan).', 'Bonus poin 5%, prioritas penjemputan standar.'),
+('Eco Hero', 30.01, NULL, 'Pengguna paling aktif dengan kontribusi besar (>30 kg/bulan).', 'Bonus poin 10%, badge khusus, prioritas cepat.');

@@ -1,4 +1,4 @@
-import styles from './admin.module.css';
+import styles from './admin/admin.module.css';
 
 export default function AdminLayout({
   children,
