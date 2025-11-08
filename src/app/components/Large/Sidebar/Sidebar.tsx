@@ -59,37 +59,56 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           </div>
           <span>Dashboard</span>
         </Link>
-        <Link href="/dashboard/pickup" className={styles.navLink} onClick={toggleSidebar}>
+        <Link href="/dashboard/pickup" 
+          className={`${styles.navLink} ${
+            pathname === '/dashboard/pickup' ? styles.isSelected : ''
+          }`} 
+          onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <FaCalendar size={24}/>
           </div>
           <span>Jadwal Pick Up</span>
         </Link>
-        <Link href="/dashboard/donation" className={styles.navLink} onClick={toggleSidebar}>
+        <Link href="/dashboard/donation" className={`${styles.navLink} ${
+            pathname === '/dashboard/donation' ? styles.isSelected : ''
+          }`} 
+          onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <FaHandHoldingUsd size={24}/>
           </div>
           <span>Donasi</span>
         </Link>
-        <Link href="/dashboard/point" className={styles.navLink} onClick={toggleSidebar}>
+        <Link href="/dashboard/point" className={`${styles.navLink} ${
+            pathname === '/dashboard/point' ? styles.isSelected : ''
+          }`} 
+          onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <IoIosGift size={24}/>
           </div>
           <span>Point & Reward</span>
         </Link>
-        <Link href="/dashboard/history" className={styles.navLink} onClick={toggleSidebar}>
+        <Link href="/dashboard/history" className={`${styles.navLink} ${
+            pathname === '/dashboard/history' ? styles.isSelected : ''
+          }`} 
+          onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <FaHistory size={24}/>
           </div>
           <span>History</span>
         </Link>
-        <Link href="/dashboard/profile" className={styles.navLink} onClick={toggleSidebar}>
+        <Link href="/dashboard/profile" className={`${styles.navLink} ${
+            pathname === '/dashboard/profile' ? styles.isSelected : ''
+          }`} 
+          onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <FaUser size={24}/>
           </div>
           <span>Profile</span>
         </Link>
-        <Link href="/dashboard/rangking" className={styles.navLink} onClick={toggleSidebar}>
+        <Link href="/dashboard/ranking" className={`${styles.navLink} ${
+            pathname === '/dashboard/ranking' ? styles.isSelected : ''
+          }`} 
+          onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <FaRankingStar size={24}/>
           </div>

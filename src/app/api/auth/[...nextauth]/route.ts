@@ -6,7 +6,6 @@ import bcrypt from 'bcryptjs';
 
 interface DBUser {
   id: string;
-  uuid: string;
   role_id: number;
   role_name: string;
   provider: string;
@@ -43,12 +42,29 @@ const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        console.log("Koneksi DB Host:", process.env.MYSQL_HOST); 
+        console.log("Koneksi DB Name:", process.env.MYSQL_DATABASE);
         const email = credentials?.email;
         const password = credentials?.password;
         if (!email || !password) throw new Error("Silahkan isi email dan password Anda yang terdaftar");
+        console.log("Email yang diterima 'authorize':", email);
 
         var sql = `
-          SELECT *
+          SELECT 
+            ms_users.id AS id,
+            ms_users.role_id,
+            ms_role.role_name,
+            ms_users.provider,
+            ms_users.first_name,
+            ms_users.last_name,
+            ms_users.email,
+            ms_users.password,
+            ms_users.phone_number,
+            ms_users.address,
+            ms_users.points,
+            ms_users.tier_list_id,
+            ms_tier_list.tier_name,
+            ms_users.current_streak
           FROM ms_users
           JOIN ms_role ON ms_users.role_id = ms_role.id
           JOIN ms_tier_list ON ms_users.tier_list_id = ms_tier_list.id
@@ -85,7 +101,16 @@ const authOptions: NextAuthOptions = {
     }),
   ],
 
-  session: { strategy: 'jwt' },
+  session: { 
+    strategy: 'jwt',
+    // maxAge ini berapa lama maksimal session valid
+    // satuannya pake detik, jadi kalau mau satu hari, berarti 24 * 60 * 60 (24jam * 60menit * 60detik)
+    maxAge: 24 * 60 * 60,
+    // updateAge ini berapa lama session bakal di refresh kalau misalnya ada user activity
+    // jadi kalau user login, terus do something, session bakal direfresh terus,
+    // tapi refreshnya itu setiap 'updateAge' sekali, 60 * 60 berarti satu jam sekali
+    updateAge: 60 * 60,
+  },
 
   callbacks: {
     async signIn({ user, account }) {
@@ -122,7 +147,6 @@ const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.user = {
         id: token.id,
-        uuid: token.uuid,
         role_id: token.role_id,
         role_name: token.role_name,
         provider: token.provider,
@@ -133,7 +157,7 @@ const authOptions: NextAuthOptions = {
         address: token.address,
         points: token.points,
         tier_list_id: token.tier_list_id,
-        tier_list_name: token.tier_list_name,
+        tier_list_name: token.tier_name,
         current_streak: token.current_streak,
       } as Session['user'];
 
@@ -143,7 +167,8 @@ const authOptions: NextAuthOptions = {
   },
 
   pages: {
-    signIn: '/login',
+    // Session expired bakal redirect kesini
+    signIn: '/login', 
   },
 
   secret: process.env.NEXTAUTH_SECRET,

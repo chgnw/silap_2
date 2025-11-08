@@ -14,7 +14,10 @@ export default function WasteTypeSection() {
     useEffect(() => {
         fetch('/api/waste')
         .then(res => res.json())
-        .then(data => setCategories(data))
+        .then(data => {
+            console.log('API response:', data)
+            setCategories(Array.isArray(data) ? data : [])
+        })
         .catch(err => console.error('Error fetching waste data:', err))
     }, [])
 

@@ -18,65 +18,92 @@ export async function POST(req: NextRequest) {
         const { user_id, start_date, end_date } = body;
 
         if (!user_id) {
-        return NextResponse.json({ error: 'user_id is required' }, { status: 400 });
+            return NextResponse.json({ 
+                error: 'user_id is required' 
+            }, { status: 400 });
         }
 
         const { start_date: defaultStart, end_date: defaultEnd } = getDefaultDateRange();
         const rangeStart = start_date || defaultStart;
         const rangeEnd = end_date || defaultEnd;
+        console.log('Dashboard API Range:', rangeStart, rangeEnd);
 
         // Semua query dijalankan paralel
         const results = await Promise.allSettled([
             // Total sampah dibuang
             query<{ total: number }>(
-                `SELECT COALESCE(SUM(pi.quantity), 0) AS total
-                FROM tr_pickups p
-                JOIN tr_pickup_items pi ON p.id = pi.pickups_id
-                WHERE p.users_id = ? 
-                AND p.created_at BETWEEN ? AND ?`,
+                `
+                    SELECT COALESCE(SUM(pi.quantity), 0) AS total
+                    FROM tr_pickups p
+                    JOIN tr_pickup_items pi ON p.id = pi.pickups_id
+                    WHERE p.users_id = ? 
+                    AND DATE(p.created_at) BETWEEN ? AND ?
+                `,
                 [user_id, rangeStart, rangeEnd]
             ),
 
             // Jumlah poin dikumpulkan
-            query<{ current_points: number; earned_points: number }>(
-                `SELECT 
-                (SELECT points FROM ms_users WHERE id = ?) AS current_points,
-                (
-                    SELECT COALESCE(SUM(pi.points_earned), 0)
-                    FROM tr_pickups p
-                    JOIN tr_pickup_items pi ON p.id = pi.pickups_id
-                    WHERE p.users_id = ?
-                ) AS earned_points`,
+            query<{ points_current: number; points_last_earned: number }>(
+                `
+                    SELECT 
+                        -- Poin user saat ini (Total Balance)
+                        (
+                            SELECT points 
+                            FROM ms_users 
+                            WHERE id = ?
+                        ) AS points_current,
+                        
+                        -- Poin dari pickup TERAKHIR
+                        (
+                            SELECT COALESCE(points_change, 0)
+                            FROM tr_point_history
+                            WHERE users_id = ? AND pickups_id IS NOT NULL
+                            ORDER BY created_at DESC
+                            LIMIT 1
+                        ) AS points_last_earned
+                `,
                 [user_id, user_id]
             ),
 
             // Streak harian
             query<{ current_streak: number }>(
-                `SELECT current_streak FROM ms_users WHERE id = ?`,
+                `
+                    SELECT current_streak FROM ms_users WHERE id = ?
+                `,
                 [user_id]
             ),
 
             // Kategori sampah (Pie chart)
             query<{ category: string; total: number }>(
-                `SELECT w.name AS category, COALESCE(SUM(pi.quantity), 0) AS total
-                FROM tr_pickups p
-                JOIN tr_pickup_items pi ON p.id = pi.pickups_id
-                JOIN ms_waste_items w ON pi.waste_item_id = w.id
-                WHERE p.users_id = ? 
-                AND p.created_at BETWEEN ? AND ?
-                GROUP BY w.name`,
+                `
+                    SELECT 
+                        c.waste_category_name AS category,
+                        COALESCE(SUM(pi.quantity), 0) AS total
+                    FROM tr_pickups p
+                    JOIN tr_pickup_items pi ON p.id = pi.pickups_id
+                    JOIN ms_waste_item i ON pi.waste_item_id = i.id
+                    JOIN ms_waste_category c ON i.waste_category_id = c.id
+                    WHERE p.users_id = ?
+                    AND DATE(p.created_at) BETWEEN ? AND ?
+                    GROUP BY c.waste_category_name
+                    ORDER BY total DESC;
+                `,
                 [user_id, rangeStart, rangeEnd]
             ),
 
             // Detail harian (Line chart)
             query<{ date: string; total: number }>(
-                `SELECT DATE(p.created_at) AS date, COALESCE(SUM(pi.quantity), 0) AS total
-                FROM tr_pickups p
-                JOIN tr_pickup_items pi ON p.id = pi.pickups_id
-                WHERE p.users_id = ?
-                AND p.created_at BETWEEN ? AND ?
-                GROUP BY DATE(p.created_at)
-                ORDER BY DATE(p.created_at)`,
+                `
+                    SELECT 
+                        DATE(p.created_at) AS date,
+                        COALESCE(SUM(pi.quantity), 0) AS total
+                    FROM tr_pickups p
+                    JOIN tr_pickup_items pi ON p.id = pi.pickups_id
+                    WHERE p.users_id = ?
+                    AND DATE(p.created_at) BETWEEN ? AND ?
+                    GROUP BY DATE(p.created_at)
+                    ORDER BY DATE(p.created_at);
+                `,
                 [user_id, rangeStart, rangeEnd]
             ),
         ]);
@@ -87,13 +114,16 @@ export async function POST(req: NextRequest) {
 
         // Ambil hasil query sesuai urutan
         const totalWaste = safe<{ total: number }[]>(0, [{ total: 0 }]);
-        const pointsChange = safe<{ current_points: number; earned_points: number }[]>(1, [{ current_points: 0, earned_points: 0 }]);
+        const pointsData = safe<{ points_current: number; points_last_earned: number }[]>(
+            1, 
+            [{ points_current: 0, points_last_earned: 0 }]
+        );
         const streakData = safe<{ current_streak: number }[]>(2, [{ current_streak: 0 }]);
         const categoryData = safe<{ category: string; total: number }[]>(3, []);
         const dailyData = safe<{ date: string; total: number }[]>(4, []);
 
         console.log('Total Waste:', totalWaste);
-        console.log('Points Change:', pointsChange);
+        console.log('Points Change:', pointsData);
         console.log('Streak Data:', streakData);
         console.log('Category Data:', categoryData);
         console.log('Daily Data:', dailyData);
@@ -103,9 +133,8 @@ export async function POST(req: NextRequest) {
             data: {
                 date_range: { start: rangeStart, end: rangeEnd },
                 total_waste: totalWaste[0]?.total || 0,
-                points_earned: pointsChange[0]?.earned_points || 0,
-                points_current: pointsChange[0]?.current_points || 0,
-                points_change: (pointsChange[0]?.current_points || 0) - (pointsChange[0]?.earned_points || 0),
+                points_current: pointsData[0]?.points_current || 0,
+                points_last_earned: pointsData[0]?.points_last_earned || 0,
                 current_streak: streakData[0]?.current_streak || 0,
                 categories: categoryData,
                 daily: dailyData,

@@ -77,11 +77,14 @@ function RegisterForm({ role, onBackToSelection }: {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal mendaftar');
 
+      await new Promise(r => setTimeout(r, 500));
+
       const loginResult = await signIn('credentials', {
         redirect: false,
         email,
         password,
       });
+      console.log("login result: ", loginResult);
 
       if (loginResult?.error) {
         setError("Login otomatis gagal, silakan login manual.");
