@@ -40,14 +40,14 @@ export default function WasteTypeSection() {
 
                     <div className={styles.leftColumn}>
                         <div className={styles.categoryGrid}>
-                            {categories.map(category => (
+                            {/* {categories.map(category => (
                                 <WasteTypeCard
                                 key={category.id}
                                 category={category}
                                 isSelected={selectedCategoryId === category.id}
                                 onSelect={handleCategorySelect}
                                 />
-                            ))}
+                            ))} */}
                         </div>
                     </div>
 
