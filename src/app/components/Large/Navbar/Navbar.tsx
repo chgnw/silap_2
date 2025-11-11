@@ -48,7 +48,7 @@ export default function Header({ theme = 'dark' }: HeaderProps) {
                   <Nav.Link href="#order" className="fw-bold">ORDER</Nav.Link>
                   <Nav.Link href="#history" className="fw-bold">HISTORY</Nav.Link>
                   {status === 'authenticated' ? (
-                    <NavDropdown title={session.user?.name || 'User'} id="basic-nav-dropdown" className={`${styles.login} fw-bold`}>
+                    <NavDropdown title={`${session?.user?.first_name} ${session?.user?.last_name}` || 'User'} id="basic-nav-dropdown" className={`${styles.login} fw-bold`}>
                       <NavDropdown.Item href="#profile">Profile</NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>

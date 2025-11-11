@@ -1,6 +1,6 @@
-import styles from './dashboard.module.css';
+import styles from './admin/admin.module.css';
 
-export default function DashboardLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;

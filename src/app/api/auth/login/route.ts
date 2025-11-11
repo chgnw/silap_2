@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { signToken } from '@/lib/jwt';
 
 export async function POST(req: Request) {
@@ -38,7 +38,6 @@ export async function POST(req: Request) {
     // 4️⃣ Generate JWT token
     const token = signToken({
       id: user.id,
-      uuid: user.uuid,
       email: user.email,
       role_id: user.role_id,
     });
@@ -49,7 +48,6 @@ export async function POST(req: Request) {
       token,
       user: {
         id: user.id,
-        uuid: user.uuid,
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
