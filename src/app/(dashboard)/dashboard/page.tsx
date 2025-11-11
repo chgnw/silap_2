@@ -275,7 +275,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Second Row */}
-      <div className={styles.secondRow} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+      <div className={styles.secondRow}>
         {/* Total Sampah Card */}
         <div className={`${styles.baseCard} ${styles.totalSampahCard}`}>
           <div className={styles.totalSampahHeader}>
@@ -291,7 +291,7 @@ export default function DashboardPage() {
           </div>
 
           <div className={styles.totalSampahFooter}>
-            <h1>*total sampah kamu keseluruhan</h1>
+            <h1>*Total sampah kamu keseluruhan</h1>
           </div>
         </div>
 
@@ -351,22 +351,37 @@ export default function DashboardPage() {
 
             <div className={styles.leftTargetProgressContainer}>
               <div className={styles.leftTargetProgressPercentage}>
-                  <p>50%</p>
+                  <p>
+                    {dashboardData?.waste_target && dashboardData.waste_target > 0
+                      ? ((dashboardData.total_monthly / dashboardData.waste_target) * 100).toFixed(1)
+                      : 0
+                    } %
+                  </p>
               </div>  
               <div className={styles.leftTargetProgressBarContainer}>
-                <div className={styles.leftTargetProgressBarOverlay} style={{ width: "50%", height: '100%', backgroundColor: "#A4B465"}}>
-                    15 Kg
+                <div 
+                  className={styles.leftTargetProgressBarOverlay} 
+                  style={{ 
+                    width: `${dashboardData?.waste_target && dashboardData.waste_target > 0
+                      ? Math.min(((dashboardData.total_monthly / dashboardData.waste_target) * 100), 100)
+                      : 0
+                    }%`, 
+                    height: '100%', 
+                    backgroundColor: "#A4B465"
+                  }}
+                >
+                  <p>{ dashboardData?.total_monthly } Kg</p>
                 </div>
               </div>
             </div>
 
             <div style={{width: '100%'}}>
-              <p style={{float: 'right'}}>(P) 30 Kg</p>
+              <p style={{float: 'right'}}>{ dashboardData?.waste_target } Kg</p>
             </div>
 
             <div style={{width: '100%'}}>
               <p style={{color: '#000000', fontSize: '0.875rem', fontWeight: '500'}}>
-                *Target kontribusi sampah setiap minggu
+                *Target kontribusi sampah anda untuk bulan ini
               </p>
             </div>
           </div>

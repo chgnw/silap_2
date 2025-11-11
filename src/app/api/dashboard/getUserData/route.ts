@@ -14,7 +14,7 @@ function getDefaultDateRange() {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        console.log('Dashboard API Body:', body);
+        // console.log('Dashboard API Body:', body);
         const { user_id, start_date, end_date } = body;
 
         if (!user_id) {
@@ -26,11 +26,11 @@ export async function POST(req: NextRequest) {
         const { start_date: defaultStart, end_date: defaultEnd } = getDefaultDateRange();
         const rangeStart = start_date || defaultStart;
         const rangeEnd = end_date || defaultEnd;
-        console.log('Dashboard API Range:', rangeStart, rangeEnd);
+        // console.log('Dashboard API Range:', rangeStart, rangeEnd);
 
         // Semua query dijalankan paralel
         const results = await Promise.allSettled([
-            // Total sampah dibuang
+            // Total sampah dibuang sesuai range (filter)
             query<{ total: number }>(
                 `
                     SELECT COALESCE(SUM(pi.quantity), 0) AS total
@@ -42,16 +42,19 @@ export async function POST(req: NextRequest) {
                 [user_id, rangeStart, rangeEnd]
             ),
 
-            // Jumlah poin dikumpulkan
-            query<{ points_current: number; points_last_earned: number }>(
+            // Poin current & last earned + streak + waste target & monthly total (GABUNG JADI 1 QUERY)
+            query<{ 
+                points_current: number; 
+                points_last_earned: number;
+                current_streak: number;
+                waste_target: string;
+                total_monthly: number;
+            }>(
                 `
                     SELECT 
-                        -- Poin user saat ini (Total Balance)
-                        (
-                            SELECT points 
-                            FROM ms_users 
-                            WHERE id = ?
-                        ) AS points_current,
+                        u.points AS points_current,
+                        u.current_streak,
+                        u.waste_target,
                         
                         -- Poin dari pickup TERAKHIR
                         (
@@ -60,17 +63,20 @@ export async function POST(req: NextRequest) {
                             WHERE users_id = ? AND pickups_id IS NOT NULL
                             ORDER BY created_at DESC
                             LIMIT 1
-                        ) AS points_last_earned
+                        ) AS points_last_earned,
+                        
+                        -- Total sampah bulan ini
+                        COALESCE(SUM(pi.quantity), 0) AS total_monthly
+                        
+                    FROM ms_users u
+                    LEFT JOIN tr_pickups p ON p.users_id = u.id 
+                        AND MONTH(p.created_at) = MONTH(NOW())
+                        AND YEAR(p.created_at) = YEAR(NOW())
+                    LEFT JOIN tr_pickup_items pi ON pi.pickups_id = p.id
+                    WHERE u.id = ?
+                    GROUP BY u.id, u.points, u.current_streak, u.waste_target
                 `,
                 [user_id, user_id]
-            ),
-
-            // Streak harian
-            query<{ current_streak: number }>(
-                `
-                    SELECT current_streak FROM ms_users WHERE id = ?
-                `,
-                [user_id]
             ),
 
             // Kategori sampah (Pie chart)
@@ -114,28 +120,39 @@ export async function POST(req: NextRequest) {
 
         // Ambil hasil query sesuai urutan
         const totalWaste = safe<{ total: number }[]>(0, [{ total: 0 }]);
-        const pointsData = safe<{ points_current: number; points_last_earned: number }[]>(
-            1, 
-            [{ points_current: 0, points_last_earned: 0 }]
-        );
-        const streakData = safe<{ current_streak: number }[]>(2, [{ current_streak: 0 }]);
-        const categoryData = safe<{ category: string; total: number }[]>(3, []);
-        const dailyData = safe<{ date: string; total: number }[]>(4, []);
+        const userData = safe<{ 
+            points_current: number; 
+            points_last_earned: number;
+            current_streak: number;
+            waste_target: string;
+            total_monthly: number;
+        }[]>(1, [{
+            points_current: 0,
+            points_last_earned: 0,
+            current_streak: 0,
+            waste_target: "0",
+            total_monthly: 0
+        }]);
+        const categoryData = safe<{ category: string; total: number }[]>(2, []);
+        const dailyData = safe<{ date: string; total: number }[]>(3, []);
 
-        console.log('Total Waste:', totalWaste);
-        console.log('Points Change:', pointsData);
-        console.log('Streak Data:', streakData);
-        console.log('Category Data:', categoryData);
-        console.log('Daily Data:', dailyData);
+        // console.log('Total Waste:', totalWaste);
+        // console.log('Points Change:', pointsData);
+        // console.log('Streak Data:', streakData);
+        // console.log('User Data:', userData);
+        // console.log('Category Data:', categoryData);
+        // console.log('Daily Data:', dailyData);
 
         return NextResponse.json({
             success: true,
             data: {
                 date_range: { start: rangeStart, end: rangeEnd },
                 total_waste: totalWaste[0]?.total || 0,
-                points_current: pointsData[0]?.points_current || 0,
-                points_last_earned: pointsData[0]?.points_last_earned || 0,
-                current_streak: streakData[0]?.current_streak || 0,
+                points_current: userData[0]?.points_current || 0,
+                points_last_earned: userData[0]?.points_last_earned || 0,
+                current_streak: userData[0]?.current_streak || 0,
+                waste_target: parseFloat(userData[0]?.waste_target || "0"),
+                total_monthly: userData[0]?.total_monthly || 0,
                 categories: categoryData,
                 daily: dailyData,
             },

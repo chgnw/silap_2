@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -54,6 +55,7 @@ export default function LoginPage() {
         redirect: false,
         email,
         password,
+        rememberMe
       });
       console.log(result);
 
@@ -330,7 +332,7 @@ export default function LoginPage() {
                 {/* Login Condition */}
                 <div className={styles.loginCondition}>
                   <div className={styles.rememberMe}>
-                    <input type="checkbox" id="rememberMeCheckbox" />
+                    <input type="checkbox" id="rememberMeCheckbox" onChange={(e) => setRememberMe(e.target.checked)}/>
                     <label htmlFor="rememberMeCheckbox" className={styles.rememberMeLabel}>Remember me</label>
                   </div>
 

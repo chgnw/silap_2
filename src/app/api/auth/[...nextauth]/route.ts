@@ -19,17 +19,39 @@ interface DBUser {
   tier_list_id?: number | null;
   tier_list_name: string;
   current_streak?: number;
+  rememberMeFlag?: boolean;
 }
 
 declare module 'next-auth/jwt' {
-  interface JWT extends Partial<DBUser> {}
+  interface JWT extends Partial<DBUser> {
+    exp?: number; 
+    maxAge?: number;
+    iat?: number;
+  }
 }
 
 declare module 'next-auth' {
   interface Session {
     user: Omit<DBUser, 'password'>;
+    expiresAt?: number;
   }
 }
+
+function formatTimestamp(ts: number) {
+  const d = new Date(ts * 1000); 
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  const day = pad(d.getDate());
+  const month = pad(d.getMonth() + 1);
+  const year = d.getFullYear();
+
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+  const seconds = pad(d.getSeconds());
+
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
+
 
 const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',
@@ -40,14 +62,12 @@ const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
+        rememberMe: { label: "Remember Me", type: "checkbox" },
       },
       async authorize(credentials) {
-        console.log("Koneksi DB Host:", process.env.MYSQL_HOST); 
-        console.log("Koneksi DB Name:", process.env.MYSQL_DATABASE);
         const email = credentials?.email;
         const password = credentials?.password;
         if (!email || !password) throw new Error("Silahkan isi email dan password Anda yang terdaftar");
-        console.log("Email yang diterima 'authorize':", email);
 
         var sql = `
           SELECT 
@@ -77,7 +97,6 @@ const authOptions: NextAuthOptions = {
         }
 
         const user = rows[0];
-        console.log("user nextAuth: ", user);
         if (!user.password) {
           throw new Error("Akun ini terdaftar menggunakan Google, silakan login dengan Google.");
         }
@@ -90,7 +109,10 @@ const authOptions: NextAuthOptions = {
         console.log('✅ Login success for', email);
         
         const { password: _, ...safeUser } = user;
-        return safeUser;
+        return {
+          ...safeUser,
+          rememberMeFlag: credentials.rememberMe === "true",
+        }
       },
     }),
 
@@ -105,7 +127,7 @@ const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     // maxAge ini berapa lama maksimal session valid
     // satuannya pake detik, jadi kalau mau satu hari, berarti 24 * 60 * 60 (24jam * 60menit * 60detik)
-    maxAge: 24 * 60 * 60,
+    maxAge: 7 * 24 * 60 * 60,
     // updateAge ini berapa lama session bakal di refresh kalau misalnya ada user activity
     // jadi kalau user login, terus do something, session bakal direfresh terus,
     // tapi refreshnya itu setiap 'updateAge' sekali, 60 * 60 berarti satu jam sekali
@@ -140,6 +162,16 @@ const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         Object.assign(token, user);
+
+        const now = Math.floor(Date.now() / 1000);
+        const maxAge = 'rememberMeFlag' in user && user.rememberMeFlag
+          ? 7 * 24 * 60 * 60
+          : 24 * 60 * 60;
+
+        // Simpan maxAge di token
+        token.maxAge = maxAge;
+        token.exp = now + maxAge;
+        token.iat = now; // iat = issued at time
       }
       return token;
     },
@@ -159,9 +191,21 @@ const authOptions: NextAuthOptions = {
         tier_list_id: token.tier_list_id,
         tier_list_name: token.tier_name,
         current_streak: token.current_streak,
+        rememberMeFlag: token.rememberMeFlag,
       } as Session['user'];
 
-      console.log("session user: ", session.user);
+      // Hitung expiry based on iat + maxAge yang disimpen
+      const now = Math.floor(Date.now() / 1000);
+      const iat = typeof token.iat === 'number' ? token.iat : now;
+      const maxAge = typeof token.maxAge === 'number' ? token.maxAge : 24 * 60 * 60;
+      const exp = iat + maxAge;
+      
+      session.expiresAt = exp;
+
+      // console.log("🕒 Token Exp:", formatTimestamp(exp));
+      // console.log("📅 Duration (days):", maxAge / (24 * 60 * 60));
+      // console.log("⏰ IAT:", formatTimestamp(iat));
+
       return session;
     },
   },

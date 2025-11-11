@@ -149,6 +149,7 @@
 }
 
 .resetButton {
+  height: 100%;
   align-self: flex-start;
   background: none;
   border: 1px solid #A4B465;
@@ -236,7 +237,8 @@
 
 /* Total Sampah Card */
 .totalSampahCard {
-  background-color: #A4B465;}
+  background-color: #A4B465;
+  width: calc(100% / 3);}
   .totalSampahHeader {
     width: 100%;
     display: flex;
@@ -277,7 +279,8 @@
 
 /* Total Point Card */
 .totalPointCard {
-  background-color: #FFFFFF;}
+  background-color: #FFFFFF;
+  width: calc(100% / 3);}
   .totalPointHeader {
     width: 100%;
     display: flex;
@@ -331,7 +334,8 @@
 
 /* Total Streak Card */
 .totalStreakCard {
-  background-color: #FFFFFF;}
+  background-color: #FFFFFF;
+  width: calc(100% / 3);}
   .totalStreakHeader {
     width: 100%;
     display: flex;
@@ -414,6 +418,7 @@
         align-items: center;
         gap: 0.5rem}
         .leftTargetProgressPercentage p {
+          width: 100px;
           font-size: 1.275rem;
           font-weight: 500;
           color: #000000;}
@@ -426,7 +431,9 @@
             height: 100%;
             background-color: #A4B465;
             text-align: center;
-            border-radius: 1rem;}
+            border-radius: 1rem;
+            overflow: hidden;
+            text-wrap: nowrap;}
 
     /* Pie Chart */
     .pieChartCard {
@@ -474,7 +481,7 @@
     /* Line Chart Card */
     .lineChartCard {
       background-color: #FFFFFF;
-      width: calc(100% - 33.3%);
+      width: calc(200% / 3);
       justify-content: space-between;}
       .infoContainer {
         width: 100%;
