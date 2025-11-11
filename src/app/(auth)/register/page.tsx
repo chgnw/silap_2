@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import styles from '../auth.module.css';
 
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'mitra') => void }) {
   return (
     <div className={styles.page}>
@@ -47,6 +49,8 @@ function RegisterForm({ role, onBackToSelection }: {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -172,28 +176,42 @@ function RegisterForm({ role, onBackToSelection }: {
               <label className={styles.formLabel}>
                 Kata Sandi <span className={styles.requiredField}>*</span>
               </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className={styles.formInput}
-              />
+              <div className={styles.passwordWrapper}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className={styles.formInput}
+                />
+                {showPassword ? (
+                  <FaEyeSlash className={styles.eyeIcon} onClick={() => setShowPassword(false)} />
+                ) : (
+                  <FaEye className={styles.eyeIcon} onClick={() => setShowPassword(true)} />
+                )}
+              </div>
             </div>
 
             <div className={styles.formContainer}>
               <label className={styles.formLabel}>
                 Tulis Ulang Kata Sandi <span className={styles.requiredField}>*</span>
               </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className={styles.formInput}
-              />
+              <div className={styles.passwordWrapper}>
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className={styles.formInput}
+                />
+                {showConfirm ? (
+                  <FaEyeSlash className={styles.eyeIcon} onClick={() => setShowConfirm(false)} />
+                ) : (
+                  <FaEye className={styles.eyeIcon} onClick={() => setShowConfirm(true)} />
+                )}
+              </div>
             </div>
 
             {error && <div className={styles.alert}>{error}</div>}

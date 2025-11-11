@@ -15,7 +15,7 @@ export default function WasteTypeSection() {
         fetch('/api/waste')
         .then(res => res.json())
         .then(data => {
-            console.log('API response:', data)
+            // console.log('API response:', data)
             setCategories(Array.isArray(data) ? data : [])
         })
         .catch(err => console.error('Error fetching waste data:', err))
