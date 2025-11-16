@@ -159,24 +159,74 @@ const authOptions: NextAuthOptions = {
     },
 
     // Set JWT 
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        Object.assign(token, user);
+        if (account?.provider === 'google' && user.email) {
+          console.log('🔍 Fetching Google user data from DB:', user.email);
+          
+          const sql = `
+            SELECT 
+              ms_users.id AS id,
+              ms_users.role_id,
+              ms_role.role_name,
+              ms_users.provider,
+              ms_users.first_name,
+              ms_users.last_name,
+              ms_users.email,
+              ms_users.phone_number,
+              ms_users.address,
+              ms_users.points,
+              ms_users.tier_list_id,
+              ms_tier_list.tier_name,
+              ms_users.current_streak
+            FROM ms_users
+            JOIN ms_role ON ms_users.role_id = ms_role.id
+            LEFT JOIN ms_tier_list ON ms_users.tier_list_id = ms_tier_list.id
+            WHERE ms_users.email = ?
+            LIMIT 1;
+          `;
+          
+          const rows = (await query(sql, [user.email])) as DBUser[];
+          
+          if (rows && rows.length > 0) {
+            const dbUser = rows[0];
+            Object.assign(token, {
+              id: dbUser.id,
+              role_id: dbUser.role_id,
+              role_name: dbUser.role_name,
+              provider: dbUser.provider,
+              first_name: dbUser.first_name,
+              last_name: dbUser.last_name,
+              email: dbUser.email,
+              phone_number: dbUser.phone_number,
+              address: dbUser.address,
+              points: dbUser.points,
+              tier_list_id: dbUser.tier_list_id,
+              tier_name: dbUser.tier_list_name,
+              current_streak: dbUser.current_streak,
+              rememberMeFlag: false,
+            });
+            
+            console.log('✅ Google user data loaded from DB');
+          }
+        } else {
+          Object.assign(token, user);
+        }
 
         const now = Math.floor(Date.now() / 1000);
-        const maxAge = 'rememberMeFlag' in user && user.rememberMeFlag
+        const maxAge = 'rememberMeFlag' in token && token.rememberMeFlag
           ? 7 * 24 * 60 * 60
           : 24 * 60 * 60;
 
-        // Simpan maxAge di token
         token.maxAge = maxAge;
         token.exp = now + maxAge;
-        token.iat = now; // iat = issued at time
+        token.iat = now;
       }
       return token;
     },
 
     async session({ session, token }) {
+      console.log("token: ", token);
       session.user = {
         id: token.id,
         role_id: token.role_id,
@@ -206,6 +256,7 @@ const authOptions: NextAuthOptions = {
       // console.log("📅 Duration (days):", maxAge / (24 * 60 * 60));
       // console.log("⏰ IAT:", formatTimestamp(iat));
 
+      console.log("session user : ", session.user);
       return session;
     },
   },
