@@ -262,7 +262,7 @@ export default function LoginPage() {
           {step === "method" && (
             <motion.div key="method" {...fadeSlide} className="w-100">
               <div className={styles.buttonContainer} style={{ marginBottom: '1rem' }}>
-                <button className={styles.googleBtn} onClick={() => signIn("google", { callbackUrl: "/" })}>
+                <button className={styles.googleBtn} onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
                   <img src="/icons/google-icon.svg" alt="Google" />
                   Login dengan Google
                 </button>
