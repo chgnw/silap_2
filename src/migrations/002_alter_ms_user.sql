@@ -1,0 +1,5 @@
+ALTER TABLE ms_users
+ADD COLUMN province VARCHAR(100) NULL AFTER address,
+ADD COLUMN regency VARCHAR(100) NULL AFTER province,
+ADD COLUMN subdistrict VARCHAR(100) NULL AFTER regency,
+ADD COLUMN postal_code VARCHAR(20) NULL AFTER subdistrict;

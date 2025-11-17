@@ -14,11 +14,16 @@ interface DBUser {
   email: string;
   password?: string | null;
   phone_number?: string | null;
+  province?: string | null,
+  regency?: string | null,
+  subdistrict?: string | null,
   address?: string | null;
+  postal_code?: string | null;
   points?: number;
   tier_list_id?: number | null;
   tier_list_name: string;
   current_streak?: number;
+  waste_target?: number;
   rememberMeFlag?: boolean;
 }
 
@@ -80,10 +85,15 @@ const authOptions: NextAuthOptions = {
             ms_users.email,
             ms_users.password,
             ms_users.phone_number,
+            ms_users.province,
+            ms_users.regency,
+            ms_users.subdistrict,
             ms_users.address,
+            ms_users.postal_code,
             ms_users.points,
             ms_users.tier_list_id,
             ms_tier_list.tier_name,
+            ms_users.waste_target,
             ms_users.current_streak
           FROM ms_users
           JOIN ms_role ON ms_users.role_id = ms_role.id
@@ -159,7 +169,7 @@ const authOptions: NextAuthOptions = {
     },
 
     // Set JWT 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       if (user) {
         if (account?.provider === 'google' && user.email) {
           console.log('🔍 Fetching Google user data from DB:', user.email);
@@ -174,10 +184,15 @@ const authOptions: NextAuthOptions = {
               ms_users.last_name,
               ms_users.email,
               ms_users.phone_number,
+              ms_users.province,
+              ms_users.regency,
+              ms_users.subdistrict,
               ms_users.address,
+              ms_users.postal_code,
               ms_users.points,
               ms_users.tier_list_id,
-              ms_tier_list.tier_name,
+              ms_tier_list.tier_name AS tier_list_name,
+              ms_users.waste_target,
               ms_users.current_streak
             FROM ms_users
             JOIN ms_role ON ms_users.role_id = ms_role.id
@@ -199,11 +214,16 @@ const authOptions: NextAuthOptions = {
               last_name: dbUser.last_name,
               email: dbUser.email,
               phone_number: dbUser.phone_number,
+              province: dbUser.province,
+              regency: dbUser.regency,
+              subdistrict: dbUser.subdistrict,
               address: dbUser.address,
+              postalCode: dbUser.postal_code,
               points: dbUser.points,
               tier_list_id: dbUser.tier_list_id,
               tier_name: dbUser.tier_list_name,
               current_streak: dbUser.current_streak,
+              waste_target: dbUser.waste_target,
               rememberMeFlag: false,
             });
             
@@ -222,6 +242,68 @@ const authOptions: NextAuthOptions = {
         token.exp = now + maxAge;
         token.iat = now;
       }
+
+      if (trigger === "update" && token.email) {
+        console.log('🔄 Refreshing user data from DB:', token.email);
+        
+        const sql = `
+          SELECT 
+              ms_users.id AS id,
+              ms_users.role_id,
+              ms_role.role_name,
+              ms_users.provider,
+              ms_users.first_name,
+              ms_users.last_name,
+              ms_users.email,
+              ms_users.phone_number,
+              ms_users.province,
+              ms_users.regency,
+              ms_users.subdistrict,
+              ms_users.address,
+              ms_users.postal_code,
+              ms_users.points,
+              ms_users.tier_list_id,
+              ms_tier_list.tier_name AS tier_list_name,
+              ms_users.waste_target,
+              ms_users.current_streak
+          FROM ms_users
+          JOIN ms_role ON ms_users.role_id = ms_role.id
+          LEFT JOIN ms_tier_list ON ms_users.tier_list_id = ms_tier_list.id
+          WHERE ms_users.email = ?
+          LIMIT 1;
+        `;
+        
+        const rows = (await query(sql, [token.email])) as DBUser[];
+        
+        if (rows && rows.length > 0) {
+          const dbUser = rows[0];
+          
+          // Update token dengan data terbaru dari DB
+          Object.assign(token, {
+              id: dbUser.id,
+              role_id: dbUser.role_id,
+              role_name: dbUser.role_name,
+              provider: dbUser.provider,
+              first_name: dbUser.first_name,
+              last_name: dbUser.last_name,
+              email: dbUser.email,
+              phone_number: dbUser.phone_number,
+              province: dbUser.province,
+              regency: dbUser.regency,
+              subdistrict: dbUser.subdistrict,
+              address: dbUser.address,
+              postal_code: dbUser.postal_code,
+              points: dbUser.points,
+              tier_list_id: dbUser.tier_list_id,
+              tier_name: dbUser.tier_list_name,
+              current_streak: dbUser.current_streak,
+              waste_target: dbUser.waste_target,
+          });
+          
+          console.log('✅ User data refreshed from DB');
+        }
+      }
+
       return token;
     },
 
@@ -236,11 +318,16 @@ const authOptions: NextAuthOptions = {
         last_name: token.last_name,
         email: token.email,
         phone_number: token.phone_number,
+        province: token.province,
+        regency: token.regency,
+        subdistrict: token.subdistrict,
         address: token.address,
+        postal_code: token.postal_code,
         points: token.points,
         tier_list_id: token.tier_list_id,
         tier_list_name: token.tier_name,
         current_streak: token.current_streak,
+        waste_target: token.waste_target,
         rememberMeFlag: token.rememberMeFlag,
       } as Session['user'];
 
