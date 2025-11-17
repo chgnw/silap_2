@@ -15,13 +15,13 @@ import styles from "../dashboard.module.css";
 // Warna dummy untuk tiap category, kalau mau ganti silahkan
 // (sepertinya bakal hard coded aja daripada disimpen di DB)
 const CHART_COLORS = [
-  "#2E4F3E", 
-  "#75A68C", 
-  "#C8E3D4", 
-  "#F4A261", 
-  "#E76F51", 
-  "#2A9D8F", 
-  "#E9C46A", 
+  "#2F5E44",
+  "#4B7A59",
+  "#A4B465", 
+  "#C3D982",
+  "#D6E3A8",
+  "#E8EED0",
+  "#F4F7E7", 
 ];
 
 type PieDataEntry = {
