@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaPencilAlt, FaSave, FaTimes } from 'react-icons/fa';
 import { useSession } from 'next-auth/react';
+
+import { showToast } from "@/lib/toastHelper"; 
 import styles from './profile.module.css';
 
 interface Wilayah {
@@ -23,6 +25,10 @@ export default function ProfilePage() {
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedRegency, setSelectedRegency] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
+
+  const [countryCode, setCountryCode] = useState('+62');
+  const [countryOptions, setCountryOptions] = useState<any[]>([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(true);
 
   
   const [userData, setUserData] = useState({
@@ -110,6 +116,48 @@ export default function ProfilePage() {
       initializeLocation();
     }
   }, [session, status]);
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await fetch('https://restcountries.com/v3.1/all?fields=name,idd,cca2');
+        const data = await res.json();
+
+        const formatted = data
+          .filter((c: any) => c.idd?.root)
+          .map((c: any) => ({
+            name: c.name.common,
+            code: `${c.idd.root}${c.idd.suffixes ? c.idd.suffixes[0] : ''}`,
+            cca2: c.cca2
+          }))
+          .sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+        setCountryOptions(formatted);
+      } catch (err) {
+        console.error("Gagal ambil data negara, fallback manual", err);
+        setCountryOptions([{ name: 'Indonesia', code: '+62' }]); 
+      } finally {
+        setIsLoadingCountries(false);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
+  useEffect(() => {
+    if (userData.phoneNumber && countryOptions.length > 0) {
+      const sortedOptions = [...countryOptions].sort((a, b) => b.code.length - a.code.length);
+      
+      const found = sortedOptions.find(c => userData.phoneNumber.startsWith(c.code));
+
+      if (found) {
+        setCountryCode(found.code);
+        const localNumber = userData.phoneNumber.substring(found.code.length);
+        
+        setFormData(prev => ({ ...prev, phoneNumber: localNumber }));
+      }
+    }
+  }, [userData.phoneNumber, countryOptions]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -215,9 +263,33 @@ export default function ProfilePage() {
     resetLocation();
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    val = val.replace(/\D/g, '');
+
+    if (val.startsWith('0')) val = val.substring(1);
+
+    const codeOnly = countryCode.replace('+', '');
+    if (val.startsWith(codeOnly)) val = val.substring(codeOnly.length);
+
+    setFormData(prev => ({ ...prev, phoneNumber: val }));
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     // console.log("data yang dikirim untuk di update: ", formData);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("Format email tidak valid! (contoh: user@email.com)");
+      return;
+    }
+    
+    if (formData.phoneNumber.length < 9 || formData.phoneNumber.length > 15) {
+      alert("Nomor telepon tidak valid (minimal 9 angka).");
+      return;
+    }
+
+    const fullPhoneNumber = `${countryCode} ${formData.phoneNumber}`;
     
     try {
       const response = await fetch('/api/user/profile', {
@@ -231,7 +303,7 @@ export default function ProfilePage() {
           province: formData.province,
           regency: formData.regency,
           subdistrict: formData.subdistrict,
-          phoneNumber: formData.phoneNumber,
+          phoneNumber: fullPhoneNumber,
           address: formData.address,
           wasteTarget: parseFloat(formData.wasteTarget)
         })
@@ -245,11 +317,11 @@ export default function ProfilePage() {
       const result = await response.json();
       if(result.updated) {
         await update();
+        showToast(result.updated, "Profile updated successfully!")
       }
-      alert(result.message);
 
       if (result.updated) {
-        setUserData({ ...formData });
+        setUserData({ ...formData, phoneNumber: fullPhoneNumber });
         setIsEditing(false);
       }
     } catch (error) {
@@ -358,14 +430,61 @@ export default function ProfilePage() {
             {/* Phone Number */}
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>No. Telp (Phone Number)</label>
-              <input
-                type="text"
-                name="phoneNumber"
-                className={`${styles.formInput}`}
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                readOnly={!isEditing}
-              />
+              
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div 
+                  className={styles.formInput} 
+                  style={{ 
+                    position: 'relative', 
+                    width: '100px', 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                    overflow: 'hidden',
+                    backgroundColor: !isEditing ? '#ECF0F1' : '#FFF',
+                    color: !isEditing ? '#7F8C8D' : 'inherit',
+                    borderColor: !isEditing ? '#E0E0E0' : '#4A90E2'
+                  }}
+                >
+                  <span style={{ pointerEvents: 'none', fontSize: '14px' }}>
+                    {isLoadingCountries ? '...' : countryCode}
+                  </span>
+                  
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    disabled={!isEditing || isLoadingCountries}
+                    style={{
+                      position: 'absolute',
+                      top: 0, left: 0, width: '100%', height: '100%',
+                      opacity: 0,
+                      cursor: isEditing ? 'pointer' : 'default'
+                    }}
+                  >
+                    {isLoadingCountries ? (
+                      <option>Loading...</option>
+                    ) : (
+                      countryOptions.map((option, index) => (
+                        <option key={index} value={option.code}>
+                          {option.name} ({option.code})
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  className={styles.formInput}
+                  style={{ flexGrow: 1 }}
+                  placeholder={isEditing ? "812 xxxx xxxx" : ""}
+                  value={formData.phoneNumber}
+                  onChange={handlePhoneChange}
+                  readOnly={!isEditing}
+                />
+              </div>
             </div>
 
             {/* Kode Pos */}

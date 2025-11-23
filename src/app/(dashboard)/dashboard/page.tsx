@@ -321,7 +321,7 @@ export default function DashboardPage() {
             <div className={styles.totalStreakSymbol}>
               <FaFire style={{color: '#2F5E44'}}/> 
             </div>
-            <p>Streak Harian</p>
+            <p>Streak Mingguan</p>
           </div>
 
           <div className={styles.totalStreakValue}>
