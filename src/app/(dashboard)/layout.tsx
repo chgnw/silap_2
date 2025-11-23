@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { Toaster } from 'react-hot-toast';
 
 import { FaBars, FaBell } from 'react-icons/fa';
 import Sidebar from '../components/Large/Sidebar/Sidebar';
@@ -63,6 +64,10 @@ export default function DashboardLayout({
           </div>
         </header>
         <main className={styles.pageContent}>
+          <Toaster 
+            position="top-center" 
+            reverseOrder={false}
+          />
           {children}
         </main>
       </div>

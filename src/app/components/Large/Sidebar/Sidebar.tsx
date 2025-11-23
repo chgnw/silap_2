@@ -59,6 +59,7 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           </div>
           <span>Dashboard</span>
         </Link>
+        
         <Link href="/dashboard/pickup" 
           className={`${styles.navLink} ${
             pathname === '/dashboard/pickup' ? styles.isSelected : ''
@@ -69,15 +70,7 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           </div>
           <span>Jadwal Pick Up</span>
         </Link>
-        <Link href="/dashboard/donation" className={`${styles.navLink} ${
-            pathname === '/dashboard/donation' ? styles.isSelected : ''
-          }`} 
-          onClick={handleLinkClick}>
-          <div className={styles.iconContainer}>
-            <FaHandHoldingUsd size={24}/>
-          </div>
-          <span>Donasi</span>
-        </Link>
+
         <Link href="/dashboard/point" className={`${styles.navLink} ${
             pathname === '/dashboard/point' ? styles.isSelected : ''
           }`} 
@@ -87,6 +80,7 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           </div>
           <span>Point & Reward</span>
         </Link>
+
         <Link href="/dashboard/history" className={`${styles.navLink} ${
             pathname === '/dashboard/history' ? styles.isSelected : ''
           }`} 
@@ -96,6 +90,17 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           </div>
           <span>History</span>
         </Link>
+
+        <Link href="/dashboard/ranking" className={`${styles.navLink} ${
+            pathname === '/dashboard/ranking' ? styles.isSelected : ''
+          }`} 
+          onClick={handleLinkClick}>
+          <div className={styles.iconContainer}>
+            <FaRankingStar size={24}/>
+          </div>
+          <span>Top Contributor</span>
+        </Link>
+
         <Link href="/dashboard/profile" className={`${styles.navLink} ${
             pathname === '/dashboard/profile' ? styles.isSelected : ''
           }`} 
@@ -104,15 +109,6 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
             <FaUser size={24}/>
           </div>
           <span>Profile</span>
-        </Link>
-        <Link href="/dashboard/ranking" className={`${styles.navLink} ${
-            pathname === '/dashboard/ranking' ? styles.isSelected : ''
-          }`} 
-          onClick={handleLinkClick}>
-          <div className={styles.iconContainer}>
-            <FaRankingStar size={24}/>
-          </div>
-          <span>Ranking</span>
         </Link>
       </nav>
 

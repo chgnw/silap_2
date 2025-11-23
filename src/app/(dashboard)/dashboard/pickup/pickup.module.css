@@ -1,0 +1,244 @@
+.pickupContainer{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 1rem;}
+    .title {
+        font-size: 1.8rem;
+        font-weight: 700;}
+    .detailContainer{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 3rem;}
+    .leftSide {
+        max-width: 400px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 1rem;}
+        .leftSideHeader{
+            font-size: 1rem;
+            font-weight: 600;}
+        .detailCard {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: space-between;
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            gap: 0.5rem;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
+            .iconBox {
+                padding: 0.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                background-color: #2F5E44;}
+            .cardContentRow {
+                width: 100%;
+                display: flex;
+                flex-direction: column;}
+                .senderHeader {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;}
+                    .senderName {
+                        font-size: 0.875rem;
+                        font-weight: 600;
+                        color: #000000;}
+                    .addressContainer{
+                        width: auto;
+                        padding: 0 0.25rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 12px;
+                        background-color: #F1F2F4;}
+                        .phoneBadge {
+                            font-size: 0.875rem;
+                            font-weight: 500;
+                            color: #4A4B4C;}
+                .addressText,
+                .addressInput {
+                    height: 60px;}
+                .addressText {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    color: #4A4B4C;}
+                .addressInput {
+                    resize: none;
+                    padding: 8px;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    color: #4A4B4C;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    height: 60px;}
+        .weightCard {
+            flex-direction: column;
+            align-items: flex-start;}
+            .headerTitleGroup {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;}
+                .headerTitle {
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    color: #000000;}
+                    .inputWrapper{
+                        width: auto;
+                        display: flex;
+                        align-items: baseline;
+                        gap: 0.5rem;
+                        margin-left: 11%;}
+                        .weightInput {
+                            border: 1px solid #2F5E44;
+                            border-radius: 0.75rem;
+                            padding-inline-start: 0.5rem;
+                            width: 35%;
+                            font-size: 2.5rem;}
+                        .unitLabel {
+                            font-size: 1rem;
+                            font-weight: 600;
+                            color: #2F5E44;}
+        .armadaCard {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;}
+            .cardHeaderTop {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.5rem;}
+                .actionLink {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;}
+                    .actionLink span {
+                        font-size: 0.875rem;
+                        font-weight: 600;
+                        color: #000000;
+                        white-space: nowrap;}
+            .cardBodyVehicle {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 1rem;
+                border-radius: 0.75rem;
+                padding: 1rem;
+                gap: 0.5rem;
+                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
+                .vehicleRadio {
+                    transform: scale(1.2);
+                    pointer-events: none;}
+                .vehicleImgPlaceholder,
+                .vehicleImgPlaceholderSmall {
+                    width: auto;
+                    height: auto;
+                    padding: 0.5rem;
+                    font-size: 2rem;}
+                .vehicleName {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: #000000;}
+        .vehicleOptionsList {
+            width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;}
+            .vehicleOptionItem {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                width: 100%;
+                gap: 0.5rem;
+                padding: 1rem;
+                border-radius: 0.75rem;
+                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
+        .dateCard,
+        .timeCard {
+            align-items: center;}
+        .submitButton {
+            width: 100%;
+            padding: 1rem;
+            background-color: #2F5E44;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
+            .submitButton:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;}
+    .rightSide{
+        width: 100%;
+        position: sticky;
+        top: 0;}
+        /* Full Calendar Style */
+        .rightSide :global(.fc) {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);}
+        .rightSide :global(.fc-col-header) {
+            background-color: #F1F2F4;}
+        .rightSide :global(.fc-toolbar) {
+            padding: 1rem;}
+        .rightSide :global(.fc .fc-toolbar.fc-header-toolbar) {
+            margin: 0;}
+        .rightSide :global(.fc-button-group) {
+            gap: 0.75em;}
+        .rightSide :global(.fc .fc-button-group > .fc-button:hover) {
+            background-color: #E2EBC0;}
+        .rightSide :global(.fc-button-primary),
+        .rightSide :global(.fc-button-primary:disabled) {
+            background-color: #A4B465;
+            color: #000000;
+            border: none;
+            border-radius: 4px;}
+        .rightSide :global(.fc .fc-daygrid-day.fc-day-today) {
+            background-color: transparent;}
+        .rightSide :global(.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number) {
+            padding: 4px 7px;
+            border-radius: 100%;
+            background-color: #2F5E44;
+            color: #FFF;}
+        .rightSide :global(.fc-direction-ltr .fc-daygrid-event.fc-event-end) {
+            background-color: #D5F35F;}
+        .rightSide :global(.fc-h-event) {
+            background-color: #D5F35F;
+            border: none;}
+
+/* Others */
+.loadingState {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4A4B4C;
+    font-weight: 500;}

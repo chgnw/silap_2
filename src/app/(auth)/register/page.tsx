@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import styles from '../auth.module.css';
@@ -53,6 +53,64 @@ function RegisterForm({ role, onBackToSelection }: {
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
 
+  const [countryCode, setCountryCode] = useState('+62'); 
+  const [countryOptions, setCountryOptions] = useState([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(true);
+
+  // Fetch data kode telepon tiap negara 
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await fetch('https://restcountries.com/v3.1/all?fields=name,idd,cca2');
+        const data = await res.json();
+
+        const formattedCountries = data
+          .filter((country: any) => country.idd?.root)
+          .map((country: any) => {
+            const code = `${country.idd.root}${country.idd.suffixes ? country.idd.suffixes[0] : ''}`;
+            
+            return {
+              name: country.name.common,
+              code: code,
+              flag: country.cca2
+            };
+          })
+          .sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+        setCountryOptions(formattedCountries);
+        
+        const indonesia = formattedCountries.find((c: any) => c.name === 'Indonesia');
+        if(indonesia) setCountryCode(indonesia.code);
+
+      } catch (error) {
+        console.error("Gagal ambil data negara:", error);
+        setCountryOptions([
+            { name: 'Indonesia', code: '+62' }
+        ] as any);
+      } finally {
+        setIsLoadingCountries(false);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    val = val.replace(/\D/g, '');
+
+    if (val.startsWith('0')) {
+      val = val.substring(1);
+    }
+
+    const codeNumber = countryCode.replace('+', '');
+    if (val.startsWith(codeNumber)) {
+      val = val.substring(codeNumber.length);
+    }
+
+    setPhoneNumber(val);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -61,9 +119,41 @@ function RegisterForm({ role, onBackToSelection }: {
       return;
     }
 
+    if (phoneNumber.length < 9 || phoneNumber.length > 15) {
+      setError("Nomor telepon tidak valid (minimal 9 angka).");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Format email tidak valid!");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Kata sandi minimal harus 8 karakter!");
+      return;
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+      setError("Kata sandi harus mengandung minimal 1 huruf kapital!");
+      return;
+    }
+
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setError("Kata sandi harus mengandung minimal 1 karakter spesial!");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Konfirmasi kata sandi tidak cocok!");
+      return;
+    }
+
     setError(null);
     setLoading(true);
 
+    const fullPhoneNumber = `${countryCode} ${phoneNumber}`;
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -73,7 +163,7 @@ function RegisterForm({ role, onBackToSelection }: {
           last_name: lastName,
           email,
           password,
-          phone_number: phoneNumber,
+          phone_number: fullPhoneNumber,
           role,
         }),
       });
@@ -146,16 +236,63 @@ function RegisterForm({ role, onBackToSelection }: {
 
             <div className={styles.formContainer}>
               <label className={styles.formLabel}>
-                Nomor Telepon <span className={styles.requiredField}>*</span>
+                  Nomor Telepon <span className={styles.requiredField}>*</span>
               </label>
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
-                className={styles.formInput}
-              />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                  <div 
+                    className={styles.formInput}
+                    style={{ 
+                      position: 'relative', 
+                      width: '100px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0,
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <span style={{ pointerEvents: 'none', fontWeight: 'medium', color: '#000000' }}>
+                      {countryCode}
+                    </span>
+                    
+                    <span style={{ fontSize: '10px', marginLeft: '4px', pointerEvents: 'none' }}>▼</span>
+
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      disabled={isLoadingCountries}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: 0,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isLoadingCountries ? (
+                        <option>Loading...</option>
+                      ) : (
+                        countryOptions.map((option: any, index) => (
+                          <option key={index} value={option.code}>
+                            {option.name} ({option.code})
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  </div>
+
+                  <input
+                    type="tel"
+                    placeholder="Phone Number"
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    required
+                    className={styles.formInput}
+                    style={{ flexGrow: 1 }}
+                  />
+              </div>
             </div>
 
             <div className={styles.formContainer}>

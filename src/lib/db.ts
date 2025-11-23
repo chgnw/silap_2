@@ -12,6 +12,7 @@ export async function getPool() {
       database: process.env.MYSQL_DATABASE!,
       waitForConnections: true,
       connectionLimit: 10,
+      timezone: '+07:00'
     });
   }
   return globalForMysql.pool;

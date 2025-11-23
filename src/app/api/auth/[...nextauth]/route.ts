@@ -308,7 +308,7 @@ const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      console.log("token: ", token);
+      // console.log("token: ", token);
       session.user = {
         id: token.id,
         role_id: token.role_id,
@@ -343,7 +343,7 @@ const authOptions: NextAuthOptions = {
       // console.log("📅 Duration (days):", maxAge / (24 * 60 * 60));
       // console.log("⏰ IAT:", formatTimestamp(iat));
 
-      console.log("session user : ", session.user);
+      // console.log("session user : ", session.user);
       return session;
     },
   },
