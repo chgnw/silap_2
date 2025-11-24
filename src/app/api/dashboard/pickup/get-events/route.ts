@@ -8,18 +8,23 @@ export async function POST (req: NextRequest) {
         
         const sql = `
             SELECT 
-                id,
+                tr_pickup_event.id,
                 user_id,
+                ms_users.first_name,
+                ms_users.last_name,
                 pickup_address,
                 pickup_weight,
                 pickup_type_id,
+                pickup_type_name,
                 DATE_FORMAT(event_date, '%Y-%m-%d') as event_date,
                 pickup_time,
                 vehicle_id,
-                created_at,
-                updated_at
-            FROM tr_pickup_event 
-            WHERE user_id = ?
+                tr_pickup_event.created_at,
+                tr_pickup_event.updated_at
+            FROM tr_pickup_event
+            JOIN ms_users ON ms_users.id = tr_pickup_event.user_id
+            JOIN ms_pickup_type ON ms_pickup_type.id = tr_pickup_event.pickup_type_id
+            WHERE tr_pickup_event.user_id = ?
         `
         const result = await query(sql, [user_id]);
 

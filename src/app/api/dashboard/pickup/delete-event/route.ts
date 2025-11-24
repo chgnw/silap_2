@@ -4,31 +4,30 @@ import { query } from '@/lib/db';
 export async function POST (req: NextRequest) {
     try {
         const body = await req.json();
-        const {event_id, user_id, new_date} = body;
+        const { event_id, user_id } = body;
 
         const sql = `
-            UPDATE tr_pickup_event
-            SET event_date = ? 
+            DELETE FROM tr_pickup_event
             WHERE id = ?
-            AND user_id = ?
+            AND user_id = ?;
         `
-        const [result] = await query(sql, [new_date, event_id, user_id]);
+        const result = await query(sql, [event_id, user_id]) as any;
         if(result.affectedRows == 0) {
             return NextResponse.json({
                 message: "FAILED",
-                detail: "Failed updating event date!"
+                detail: "Gagal menghapus event"
             }, { status: 500 });
         }
-        
+
         return NextResponse.json({
             message: "SUCCESS",
-            detail: "Event updated!"
+            detail: "Event berhasil di hapus"
         }, { status: 200 });
     } catch (error:any) {
+        console.error("Error in /delete-event: ", error);
         return NextResponse.json({
             message: "FAILED",
-            error: error,
-            detail: "Terjadi kesalahan pada server."
+            detail: "Terjadi kesalahan pada server"
         }, { status: 500 });
     }
 }

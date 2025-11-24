@@ -18,8 +18,7 @@
     padding: 1rem 2rem;
     background-color: #E2EBC0;
     position: sticky;
-    top: 0;
-    z-index: 998;}
+    top: 0;}
     .hamburgerButton {
       display: none;
       background: none;
