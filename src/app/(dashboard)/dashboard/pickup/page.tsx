@@ -71,6 +71,7 @@ export default function PickUpPage() {
   const currentWeightNum = parseFloat(weight) || 0;
   const isTotalOverload = currentWeightNum > maxCapacity;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [minTime, setMinTime] = useState("");
 
 
   /*
@@ -242,6 +243,47 @@ export default function PickUpPage() {
       setIsSubmitting(false);
     }
   }
+
+  /* 
+    Function untuk dapetin jam sekarang
+    berguna buat set min di input hour
+  */
+  useEffect(() => {
+    updateMinTime();
+    
+    const interval = setInterval(() => {
+      updateMinTime();
+    }, 60000);
+    
+    return () => clearInterval(interval);
+  }, [selectedDate]);
+
+  const updateMinTime = () => {
+    const now = new Date();
+    const jakartaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+    
+    const selectedDateObj = new Date(selectedDate);
+    const isToday = selectedDateObj.toDateString() === jakartaTime.toDateString();
+    
+    if (isToday) {
+      const hours = jakartaTime.getHours().toString().padStart(2, '0');
+      const minutes = jakartaTime.getMinutes().toString().padStart(2, '0');
+      setMinTime(`${hours}:${minutes}`);
+    } else {
+      setMinTime("00:00");
+    }
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedTimeValue = e.target.value;
+    
+    if (minTime && selectedTimeValue < minTime) {
+      showToast("error", "Waktu tidak boleh lebih kecil dari jam sekarang");
+      return;
+    }
+    
+    setSelectedTime(selectedTimeValue);
+  };
 
   const handleSubmit = () => {
     if (!selectedDate || !selectedTime || weight === "" || !selectedPickupType || !selectedVehicle) {
@@ -499,30 +541,31 @@ export default function PickUpPage() {
           className={`${style.detailCard} ${style.timeCard}`} 
           onClick={openTimePicker}
           style={{ cursor: 'pointer' }}>
-            <div className={style.headerTitleGroup}>
-              <div className={style.iconBox}>
-                <FaClock style={{ color: "#FFFFFF" }} />
-              </div>
-              <span className={style.headerTitle}>Pilih Jam</span>
+          <div className={style.headerTitleGroup}>
+            <div className={style.iconBox}>
+              <FaClock style={{ color: "#FFFFFF" }} />
             </div>
+            <span className={style.headerTitle}>Pilih Jam</span>
+          </div>
 
-            <div className={style.actionLink} style={{position: 'relative', cursor: 'pointer'}}>
-              <span>
-                 {selectedTime ? selectedTime : "Pilih"}
-              </span>
-              <MdArrowForwardIos />
+          <div className={style.actionLink} style={{position: 'relative', cursor: 'pointer'}}>
+            <span>
+              {selectedTime ? selectedTime : "Pilih"}
+            </span>
+            <MdArrowForwardIos />
 
-              <input 
-                ref={timeInputRef}
-                type="time" 
-                value={selectedTime}
-                onChange={(e) => setSelectedTime(e.target.value)}
-                style={{
-                  visibility: 'hidden',
-                  position: 'absolute',
-                  pointerEvents: 'none'
-                }}
-              />
+            <input 
+              ref={timeInputRef}
+              type="time" 
+              value={selectedTime}
+              min={minTime}
+              onChange={handleTimeChange}
+              style={{
+                visibility: 'hidden',
+                position: 'absolute',
+                pointerEvents: 'none'
+              }}
+            />
           </div>
         </div>
 
