@@ -8,7 +8,7 @@
 .decorationLeft,
 .decorationRight {
   position: absolute;
-  z-index: 1;
+  z-index: 0;
   opacity: 0.8;
   transition: all 0.3s ease;
 }
@@ -16,9 +16,9 @@
 /* Polaroid kiri */
 .decorationLeft {
   top: 10%;
-  left: 8%;
+  left: 2%;
   transform: translate(-25%, -10%);
-  width: clamp(120px, 18vw, 280px);
+  width: clamp(180px, 22vw, 400px);
   height: auto;
 }
 
@@ -27,6 +27,23 @@
   top: 0;
   right: 0;
   transform: translate(20%, -20%) rotate(8deg);
-  width: clamp(150px, 22vw, 380px);
+  width: clamp(180px, 22vw, 380px);
   height: auto;
+}
+
+@media (max-width: 576px) {
+  .decorationLeft {
+    left: 0;
+  }
+
+  .decorationRight {
+    top: 20%;
+  }
+}
+
+@media (max-width: 376px) {
+  .decorationLeft,
+  .decorationRight {
+    width: 120px;
+  }
 }

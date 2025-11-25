@@ -4,6 +4,8 @@ import { PiConfettiBold } from 'react-icons/pi';
 import Image from 'next/image';
 import Card from '../../Medium/Card/Card';
 
+import styles from './TargetUser.module.css'
+
 const Features = () => {
   const targetUserCards = [
     {
@@ -29,18 +31,16 @@ const Features = () => {
   ];
 
   return (
-    <Container className="my-5">
-      <Row className="justify-content-center">
-        {targetUserCards.map((card, index) => (
-          <Card
-            key={index}
-            icon={card.icon}
-            label={card.label}
-            backgroundImage={card.bgImage}
-          />
-        ))}
-      </Row>
-    </Container>
+    <div className={styles.container}>
+      {targetUserCards.map((card, index) => (
+        <Card
+          key={index}
+          icon={card.icon}
+          label={card.label}
+          backgroundImage={card.bgImage}
+        />
+      ))}
+    </div>
   );
 };
 

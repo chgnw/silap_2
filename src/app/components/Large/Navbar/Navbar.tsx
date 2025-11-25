@@ -33,10 +33,10 @@ export default function Header({ theme = 'dark' }: HeaderProps) {
 
   return (
     <>
-      <Navbar expand="lg" variant={bootstrapVariant} className="py-3">
-        <Container>
+      <Navbar expand="lg" variant={bootstrapVariant}>
+        <div className={styles.container}>
           <Navbar.Brand href="/">
-            <Image src="/assets/logo-silap.png" alt="SILAP Logo" width={50} height={50} style={logoStyle} />
+            <img src="/assets/logo-silap.png" alt="SILAP Logo" className={styles.logoStyle} />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -70,8 +70,8 @@ export default function Header({ theme = 'dark' }: HeaderProps) {
               )}
             </Nav>
           </Navbar.Collapse>
-        </Container>
-      </Navbar>`
+        </div>
+      </Navbar>
     </>
   );
 }

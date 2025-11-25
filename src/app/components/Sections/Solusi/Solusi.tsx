@@ -1,6 +1,9 @@
-import { Container, Row, Col } from 'react-bootstrap';
+'use client'
+
 import Image from 'next/image';
 import { FaSmile, FaShieldAlt, FaClock, FaGift } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+
 import Solusi from '../../Medium/Solusi/Solusi';
 import styles from './solusi.module.css';
 
@@ -29,39 +32,58 @@ const features = [
 ];
 
 export default function HeroBanner() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className={styles.banner}>
-      <Container>
-        <Row className="align-items-center justify-content-center">
-          
-          {/* Kolom Kiri - Teks Utama */}
-          <Col md={6} className='pe-4'>
-            <div className={styles.bannerTextWrapper}>
-              <h1 className={styles.bannerText}>
-                Solusi Digital <br />
-                untuk Kota <br />
-                yang Lebih
-                <span className={styles.bersihImageWrapper}>
-                  <Image src="/assets/Bersih.png" alt="Bersih" width={320} height={120} />
-                </span>
-              </h1>
-            </div>
-          </Col>
+      {/* Kolom Kiri - Teks Utama */}
+      <div className={styles.leftWrapper}>
+        <div className={styles.bannerTextWrapper}>
+          <h1 className={styles.bannerText}>
+            {isMobile ? (
+            <>
+              Solusi Digital untuk Kota yang Lebih
+              <p className={styles.bersihImageWrapper}>
+                <Image src="/assets/Bersih.png" alt="Bersih" width={320} height={120} />
+              </p>
+            </>
+          ) : (
+            <>
+              Solusi Digital <br />
+              untuk Kota <br />
+              yang Lebih
+              <span className={styles.bersihImageWrapper}>
+                <Image src="/assets/Bersih.png" alt="Bersih" width={320} height={120} />
+              </span>
+            </>
+          )}
+          </h1>
+        </div>
+      </div>
 
-          {/* Kolom Kanan - Daftar Fitur */}
-          <Col md={6} className='ps-4'>
-            {features.map((feature, index) => (
-              <Solusi
-                key={feature.title}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-                isLastItem={index === features.length - 1}
-              />
-            ))}
-          </Col>
-        </Row>
-      </Container>
+      {/* Kolom Kanan - Daftar Fitur */}
+      <div className={styles.rightWrapper}>
+        {features.map((feature, index) => (
+          <Solusi
+            key={feature.title}
+            icon={feature.icon}
+            title={feature.title}
+            description={feature.description}
+          />
+        ))}
+      </div>
     </div>
   );
 }

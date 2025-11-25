@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
 import Providers from "./providers";
+import DeviceNotSupported from "./components/Large/Overlay/DeviceNotSupported";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={montserrat.variable}>
+        <DeviceNotSupported />
         <Providers>
           <main>
             {children}

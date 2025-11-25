@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <Header theme="light" />
       <div className={styles.authWrapper}>
         <Container fluid className={styles.containerCustom}>
-          <Row>
+          <Row className={styles.row}>
             <Col className={styles.authCard}>{children}</Col>
           </Row>
         </Container>

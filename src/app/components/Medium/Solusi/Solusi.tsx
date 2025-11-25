@@ -8,11 +8,9 @@ type SolusiItemProps = {
   isLastItem?: boolean;
 };
 
-export default function SolusiItem({ icon, title, description, isLastItem = false }: SolusiItemProps) {
-  const wrapperClass = `${styles.listWrapper} ${!isLastItem ? 'mb-4' : ''}`;
-
+export default function SolusiItem({ icon, title, description }: SolusiItemProps) {
   return (
-    <div className={wrapperClass}>
+    <div className={styles.listWrapper}>
       <div className={styles.listIcon}>
         {icon}
       </div>
