@@ -82,6 +82,24 @@ export default function LoginPage() {
     return () => clearInterval(interval);
   }, [resendCooldown]);
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string): { valid: boolean; message?: string } => {
+    if (password.length < 8) {
+      return { valid: false, message: "Kata sandi harus minimal 8 karakter." };
+    }
+    if (!/[A-Z]/.test(password)) {
+      return { valid: false, message: "Kata sandi harus mengandung minimal 1 huruf kapital." };
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return { valid: false, message: "Kata sandi harus mengandung minimal 1 karakter spesial." };
+    }
+    return { valid: true };
+  };
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -90,6 +108,12 @@ export default function LoginPage() {
     const email = emailRef.current?.value?.trim();
     if (!email) {
       setError("Email wajib diisi.");
+      setLoading(false);
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError("Format email tidak valid. Harus mengandung @ dan domain yang valid.");
       setLoading(false);
       return;
     }
@@ -152,10 +176,15 @@ export default function LoginPage() {
     }
   };
 
-  // === 🔹 HANDLE RESEND CODE ===
   const handleResendCode = async () => {
     const email = emailRef.current?.value?.trim();
     if (!email) return;
+
+    if (!validateEmail(email)) {
+      setError("Format email tidak valid.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -192,8 +221,9 @@ export default function LoginPage() {
       return;
     }
 
-    if (newPassword.length < 8) {
-      setError("Kata sandi harus minimal 8 karakter.");
+   const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.message || "Kata sandi tidak memenuhi syarat.");
       setLoading(false);
       return;
     }
