@@ -1,7 +1,8 @@
 .wrap {
   display:flex;
   justify-content:center;
-  background: transparent;}
+  background: transparent;
+  max-height: unset;}
 
 .box {
   width: 100%;
@@ -11,17 +12,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: relative;}
+  position: relative;
+  overflow: hidden;}
 
-.left, .right{
-  width: 30%;
-  height: 100%;}
-  .left img, .right img{
+.left, 
+.right {
+  width: calc(100% / 3);
+  height: 100%;
+  display: flex;
+  align-items: flex-end;}
+  .left img, 
+  .right img {
     width: 100%;
-    height: 100%;}
+    height: auto; 
+    object-fit: contain;
+    object-position: bottom;}
 
 .mid {
-  width: 30%;
+  width: calc(100% / 3);
   padding: 4.375rem 0;
   display: flex;
   flex-direction: column;
@@ -53,8 +61,106 @@
     background: rgba(255, 255, 255, 0.25);}
 
 
-@media (max-width:900px) {
-  .box { flex-direction: column; gap: 16px; text-align:center; padding: 20px; }
-  .right { width:100%; }
-  .left h3 { font-size:22px; }
+@media (max-width: 1400px) {
+  .mid h3 {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .mid h3 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .mid h3 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .left,
+  .right {
+    width: 35%;
+  }
+
+  .left img,
+  .right img {
+    max-height: 100%;
+  }
+
+  .mid {
+    width: 50%;
+    padding: 2.5rem 0;
+  }
+
+  .mid h3 {
+    font-size: 1.5rem;
+  }
+
+  .cta {
+    padding: 0.5rem 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .box {
+    border-top-left-radius: 3rem;
+    border-top-right-radius: 3rem;
+  }
+
+  .mid {
+    width: 60%;
+    padding: 2rem 0;
+  }
+
+  .mid h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .cta {
+    font-size: 1rem;
+    padding: 0.5rem 1.5rem;
+  }
+
+  .left img,
+  .right img {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 368px) {
+  .mid h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .cta {
+    font-size: 0.875rem;
+    padding: 0.375rem 1rem;
+  }
+
+  .left img,
+  .right img {
+    max-height: 120px;
+  }
+}
+
+@media (max-width: 300px) {
+  .mid h3 {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .cta {
+    font-size: 0.5rem;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .left img,
+  .right img {
+    max-height: 120px;
+  }
 }

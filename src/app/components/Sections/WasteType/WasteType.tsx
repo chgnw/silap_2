@@ -5,7 +5,6 @@ import Image from 'next/image'
 import styles from './WasteType.module.css'
 
 import WasteTypeCard from "../../Medium/WasteTypeCard/WasteTypeCard";
-import { Container } from 'react-bootstrap';
 
 export default function WasteTypeSection() {
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
@@ -32,7 +31,7 @@ export default function WasteTypeSection() {
     }
     
     return (
-        <Container>
+        <div className={styles.container}>
             <div className={styles.sectionHeader}>
                 <h1>Jenis Sampah</h1>
                 <p>Lihat semua jenis sampah yang kami daur ulang</p>
@@ -57,7 +56,7 @@ export default function WasteTypeSection() {
                     <div className={styles.rightColumn}>
                         <div className={styles.subCategoryContainer}>
                             <div className={styles.recycleIconWrapper}>
-                                <Image src='/assets/recycle-icon.svg' alt='Recycle Icon' width={107} height={107} />
+                                <img src='/assets/recycle-icon.svg' alt='Recycle Icon' />
                             </div>
 
                             {selectedSubCategories.length > 0 ? (
@@ -76,6 +75,6 @@ export default function WasteTypeSection() {
                     </div>
                 </div>
             </div>
-        </Container>
+        </div>
     )
 }

@@ -24,6 +24,7 @@
     .categoryIcon.active{
         color: #A4B465;}
     .categoryName {
+        text-align: center;
         color: #2F5E44;
         font-size: 1.375rem;
         font-weight: 500;}
@@ -41,3 +42,26 @@
         font-weight: medium;
         color: #FFFFFF;
         background-color: #2F5E44;}
+
+
+@media (max-width: 992px) {
+    .categoryItem { 
+        height: 150px;
+    }
+
+    .categoryIcon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .categoryName {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 300px) {
+    .categoryIcon {
+        width: 32px;
+        height: 32px;
+    }
+}

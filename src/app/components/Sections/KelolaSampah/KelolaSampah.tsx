@@ -1,7 +1,4 @@
-// src/app/components/Sections/KelolaSampah/KelolaSampah.tsx
 import styles from './KelolaSampah.module.css';
-import Image from 'next/image';
-import Link from 'next/link';
 
 export default function KelolaSampah() {
   return (
@@ -10,7 +7,7 @@ export default function KelolaSampah() {
         <h2 className={styles.heading}>
           Kelola Sampah 
           <br /> 
-          Dengan <img src="/images/mudah.svg" alt=""/>
+          Dengan <img src="/images/mudah.svg" alt="" className={styles.mudah}/>
         </h2>
 
         <div className={styles.mockupWrap}>

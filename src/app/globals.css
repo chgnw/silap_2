@@ -39,6 +39,12 @@ h1, h2, h3, h4, p {
   margin: 0;
 }
 
+@media (max-width: 299px) {
+  main {
+    display: none !important;
+  }
+}
+
 /* @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

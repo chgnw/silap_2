@@ -20,12 +20,7 @@ const servicesForEveryone = [
         icon: <Image src="/assets/streak-icon.png" alt="Streak" width={24} height={24} />,
         title: 'Streak',
         description: "Setiap kali kamu kelola sampah dengan baik, kamu dapet streak. Semakin konsisten, semakin banyak manfaat dan poin yang bisa kamu kumpulin. It's like a daily mission to save the planet dan kamu pahlawannya!"
-    },
-    {
-        icon: <Image src="/assets/sedekah-icon.png" alt="Drop Off" width={24} height={24} />,
-        title: 'Sedekah Makanan & Barang Tidak Terpakai',
-        description: 'Makanan sisa yang masih layak? Baju atau barang yang udah gak dipakai tapi masih bagus? Kamu bisa donasiin lewat SILAP. Tim kami akan jemput dan salurkan ke orang-orang yang membutuhkan.'
-    },
+    }
 ];
 
 // Data untuk kategori "Untuk Perusahaan"
@@ -53,23 +48,21 @@ export default function ServicesSection() {
         <section className={styles.sectionWrapper}>
             {/* Star container */}
             <div className={styles.starContainer}>
-                <div className={styles.starContainer}>
-                    <div className={`${styles.star} ${styles.medium} ${styles.green} ${styles.left1}`} />
-                    <div className={`${styles.star} ${styles.large} ${styles.green} ${styles.left2}`} />
-                    <div className={`${styles.star} ${styles.small} ${styles.green} ${styles.left3}`} />
-                    <div className={`${styles.star} ${styles.small} ${styles.green} ${styles.left4}`} />
-                    <div className={`${styles.star} ${styles.medium} ${styles.green} ${styles.left5}`} />
+                <div className={`${styles.star} ${styles.medium} ${styles.left1}`} />
+                <div className={`${styles.star} ${styles.large} ${styles.left2}`} />
+                <div className={`${styles.star} ${styles.small} ${styles.left3}`} />
+                <div className={`${styles.star} ${styles.small} ${styles.left4}`} />
+                <div className={`${styles.star} ${styles.medium} ${styles.left5}`} />
 
-                    <div className={`${styles.star} ${styles.large} ${styles.green} ${styles.right1}`} />
-                    <div className={`${styles.star} ${styles.large} ${styles.green} ${styles.right2}`} />
-                    <div className={`${styles.star} ${styles.xlarge} ${styles.green} ${styles.right3}`} />
-                    <div className={`${styles.star} ${styles.medium} ${styles.green} ${styles.right4}`} />
-                    <div className={`${styles.star} ${styles.small} ${styles.green} ${styles.right5}`} />
-                    <div className={`${styles.star} ${styles.small} ${styles.green} ${styles.right6}`} />
-                </div>
+                <div className={`${styles.star} ${styles.large} ${styles.right1}`} />
+                <div className={`${styles.star} ${styles.large} ${styles.right2}`} />
+                <div className={`${styles.star} ${styles.xlarge} ${styles.right3}`} />
+                <div className={`${styles.star} ${styles.medium} ${styles.right4}`} />
+                <div className={`${styles.star} ${styles.small} ${styles.right5}`} />
+                <div className={`${styles.star} ${styles.small} ${styles.right6}`} />
             </div>
 
-            <Container>
+            <div className={styles.container}>
                 <div className={styles.sectionHeader}>
                     <h1>Layanan Kami</h1>
                     <p>Siapapun bisa menggunakan layanan SILAP untuk mengakhiri sampah</p>
@@ -79,7 +72,7 @@ export default function ServicesSection() {
                 <ServiceGroup groupNumber={1} groupTitle="Untuk Semua Orang">
                     <Row className={`${styles.serviceRow}`}>
                         {servicesForEveryone.map(service => (
-                            <Col sm={12} md={6} key={service.title} className="mb-4">
+                            <Col key={service.title} className={styles.columnCard}>
                                 <ServiceCard
                                     icon={service.icon}
                                     title={service.title}
@@ -94,7 +87,7 @@ export default function ServicesSection() {
                 <ServiceGroup groupNumber={2} groupTitle="Untuk Perusahaan">
                     <Row className={`${styles.serviceRow}`}>
                         {servicesForCompanies.map(service => (
-                            <Col sm={12} md={6} key={service.title} className="mb-4">
+                            <Col key={service.title} className={styles.columnCard}>
                                 <ServiceCard
                                     icon={service.icon}
                                     title={service.title}
@@ -104,7 +97,7 @@ export default function ServicesSection() {
                         ))}
                     </Row>
                 </ServiceGroup>
-            </Container>
+            </div>
         </section>
     );
 }

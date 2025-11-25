@@ -13,7 +13,7 @@ export default function Hero() {
                     UNTUK <span className={styles.heroUnderline}>SEMUA</span>
                 </h1>
                 <p className={styles.heroSubtitle}>
-                    <Image src="/assets/angled-arrow-icon.png" alt="arrow icon" width={60} height={50} />
+                    <img src="/assets/angled-arrow-icon.png" alt="arrow icon" className={styles.arrow} />
                     Buang sampah sat set ya pakai SILAP!
                 </p>
             </div>

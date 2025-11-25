@@ -1,6 +1,4 @@
-// src/app/components/Sections/JoinUs/JoinUs.tsx
 import styles from './JoinUs.module.css';
-import Image from 'next/image';
 import Link from 'next/link';
 
 export default function JoinUs() {

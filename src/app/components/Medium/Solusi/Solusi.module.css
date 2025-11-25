@@ -16,22 +16,6 @@
   width: 130px;   
   height: 130px; 
   flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    width: 70px;
-    height: 70px;
-  }
-  @media (max-width: 576px) {
-    width: 60px;
-    height: 60px;
-  }
-}
-
-.listIcon svg {
-  @media (max-width: 576px) {
-    width: 28px;
-    height: 28px;
-  }
 }
 
 .listTextWrapper {
@@ -40,20 +24,9 @@
 
 .listTitle {
   color: #FFFFFF;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 5px; 
-
-  /* Responsiveness for font size */
-  @media (max-width: 992px) { 
-    font-size: 20px;
-  }
-  @media (max-width: 768px) { 
-    font-size: 16px;
-  }
-  @media (max-width: 576px) {
-    font-size: 14px;
-  }
 }
 
 .col-md-6{
@@ -62,19 +35,76 @@
 
 .listDescription {
   color: #FFFFFF;
-  font-size: 24px;
+  font-size: 1.5rem;
   text-align: justify;
   line-height: normal; 
   margin-bottom: 0; 
-  
-  /* Responsiveness for font size */
-  @media (max-width: 992px) { 
-    font-size: 18px;
+}
+
+@media (max-width: 1200px) {
+  .listIcon {
+    width: 100px;
+    height: 100px;
   }
-  @media (max-width: 768px) { 
-    font-size: 16px;
+
+  .listIcon svg {
+    width: 60px;
+    height: 60px;
   }
-  @media (max-width: 576px) {
-    font-size: 14px;
+}
+
+@media (max-width: 992px) {
+  .listIcon {
+    width: 90px;
+    height: 90px;
+  }
+
+  .listIcon svg {
+    width: 50px;
+    height: 50px;
+  }
+
+  .listTitle {
+    font-size: 1.25rem;
+  }
+
+  .listDescription {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .listIcon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .listIcon svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .listDescription {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 376px) {
+  .listIcon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .listIcon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .listTitle {
+    font-size: 1rem;
+  }
+
+  .listDescription {
+    font-size: 0.75rem;
   }
 }
