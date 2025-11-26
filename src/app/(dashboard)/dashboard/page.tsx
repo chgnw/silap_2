@@ -282,7 +282,7 @@ export default function DashboardPage() {
             <div className={styles.totalSampahSymbol}>
               <PiSigma /> 
             </div>
-            <p>Total sampah yang dibuang</p>  
+            <p>Total sampah</p>  
           </div>
 
           <div className={styles.totalSampahValue}>
@@ -291,7 +291,7 @@ export default function DashboardPage() {
           </div>
 
           <div className={styles.totalSampahFooter}>
-            <h1>*Total sampah kamu keseluruhan</h1>
+            <h1>*Total sampah keseluruhan</h1>
           </div>
         </div>
 
@@ -301,7 +301,7 @@ export default function DashboardPage() {
             <div className={styles.totalPointSymbol}>
               <FaStar style={{color: '#A4B465'}}/> 
             </div>
-            <p>Jumlah point yang terkumpul</p>
+            <p>Jumlah poin</p>
           </div>
 
           <div className={styles.totalPointValue}>
@@ -330,7 +330,7 @@ export default function DashboardPage() {
           </div>
 
           <div className={styles.totalStreakFooter}>
-            <h1>*Pertahankan streak dengan konsisten</h1>
+            <h1>*Pertahankan streak-mu</h1>
           </div>
         </div>
       </div>
@@ -345,7 +345,7 @@ export default function DashboardPage() {
               <div className={styles.leftTargetSymbol}>
                 <TbTargetArrow style={{color: '#2F5E44'}}/> 
               </div>
-              <p>Target Sampah Terkumpul</p>
+              <p>Target Sampah</p>
             </div>
 
 
@@ -375,12 +375,12 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div style={{width: '100%'}}>
-              <p style={{float: 'right'}}>{ dashboardData?.waste_target } Kg</p>
+            <div className={styles.progressTarget}>
+              <p>{ dashboardData?.waste_target } Kg</p>
             </div>
 
-            <div style={{width: '100%'}}>
-              <p style={{color: '#000000', fontSize: '0.875rem', fontWeight: '500'}}>
+            <div className={styles.progressFooter}>
+              <p>
                 *Target kontribusi sampah anda untuk bulan ini
               </p>
             </div>
@@ -463,7 +463,7 @@ export default function DashboardPage() {
           </div>
 
           {processedLineData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="30%">
+            <ResponsiveContainer className={styles.lineChart}>
               <AreaChart data={processedLineData}>
                 <defs>
                   <linearGradient id="colorGreen" x1="0" y1="0" x2="0" y2="1">
