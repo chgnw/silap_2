@@ -48,7 +48,12 @@ export default function LoginPage() {
 
     const email = emailRef.current?.value || "";
     const password = passwordRef.current?.value || "";
-    console.log(email, password);
+    
+    if (!validateEmail(email)) {
+      setError("Format email tidak valid, mohon periksa kembali.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await signIn("credentials", {
@@ -113,7 +118,7 @@ export default function LoginPage() {
     }
 
     if (!validateEmail(email)) {
-      setError("Format email tidak valid. Harus mengandung @ dan domain yang valid.");
+      setError("Format email tidak valid, mohon periksa kembali.");
       setLoading(false);
       return;
     }
@@ -181,7 +186,7 @@ export default function LoginPage() {
     if (!email) return;
 
     if (!validateEmail(email)) {
-      setError("Format email tidak valid.");
+      setError("Format email tidak valid, mohon periksa kembali.");
       return;
     }
 
@@ -239,7 +244,7 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: userEmail, // dari state sebelumnya
+          email: userEmail,
           password: newPassword,
         }),
       });
