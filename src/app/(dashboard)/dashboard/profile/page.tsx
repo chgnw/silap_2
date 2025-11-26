@@ -356,7 +356,7 @@ export default function ProfilePage() {
                 onClick={handleSave}
                 disabled={isSaving}
               >
-                <FaSave /> {isSaving ? 'Saving...' : 'Save Changes'}
+                <FaSave /> {isSaving ? 'Saving..' : 'Save'}
               </button>
               <button 
                 className={`${styles.btn} ${styles.btnCancel}`}
@@ -431,17 +431,10 @@ export default function ProfilePage() {
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>No. Telp (Phone Number)</label>
               
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div className={styles.formInputPhoneNumberContainer}>
                 <div 
-                  className={styles.formInput} 
-                  style={{ 
-                    position: 'relative', 
-                    width: '100px', 
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 0,
-                    overflow: 'hidden',
+                  className={`${styles.formInput} ${styles.formInputPhoneNumber}`}
+                  style={{
                     backgroundColor: !isEditing ? '#ECF0F1' : '#FFF',
                     color: !isEditing ? '#7F8C8D' : 'inherit',
                     borderColor: !isEditing ? '#E0E0E0' : '#4A90E2'
@@ -456,11 +449,10 @@ export default function ProfilePage() {
                     onChange={(e) => setCountryCode(e.target.value)}
                     disabled={!isEditing || isLoadingCountries}
                     style={{
-                      position: 'absolute',
-                      top: 0, left: 0, width: '100%', height: '100%',
                       opacity: 0,
                       cursor: isEditing ? 'pointer' : 'default'
                     }}
+                    className={styles.formInputPhoneNumberSelect}
                   >
                     {isLoadingCountries ? (
                       <option>Loading...</option>
