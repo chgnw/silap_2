@@ -18,7 +18,8 @@
     padding: 1rem 2rem;
     background-color: #E2EBC0;
     position: sticky;
-    top: 0;}
+    top: 0;
+    z-index: 100;}
     .hamburgerButton {
       display: none;
       background: none;
@@ -573,6 +574,10 @@
 }
 
 @media (max-width: 768px) {
+  .pageContent {
+    height: auto;
+  }
+
   .totalSampahSymbol,
   .totalPointSymbol,
   .totalStreakSymbol,
