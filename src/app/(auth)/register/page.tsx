@@ -120,7 +120,7 @@ function RegisterForm({ role, onBackToSelection }: {
     }
 
     if (phoneNumber.length < 9 || phoneNumber.length > 15) {
-      setError("Nomor telepon tidak valid (minimal 9 angka).");
+      setError("Nomor telepon tidak valid.");
       return;
     }
 

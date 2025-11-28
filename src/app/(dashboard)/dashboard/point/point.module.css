@@ -1,0 +1,486 @@
+.poinHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.poinHeader h1 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.poinHeader span {
+    font-size: 1.75rem;
+    font-weight: 500;
+}
+
+.topRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+}
+
+.poinCard {
+    width: calc(100% / 3);
+    padding: 1rem 2rem;
+    background-color: #FFF;
+    border: 1px solid #CECECE;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px 0 rgb(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.poinCardHeaderContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    color: #000;
+}
+
+.poinCardHeaderContainer p {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #000;
+}
+
+.poinCardLogoContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #F7FFD6;
+    color: #A4B465;
+}
+
+.poinCardContent {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.poinCardContent h1 {
+    font-size: 3.5rem;
+    font-weight: 600;
+}
+
+.poinCardContent p {
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+.poinCardFooter {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 0.25rem;
+}
+
+.poinCardFooter h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #A4B465;
+}
+
+.poinCardFooter p {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+}
+
+.filterContainer {
+    background-color: transparent;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.75rem;
+    gap: 0.5rem;
+    border: 1px solid #000;
+    border-radius: 1rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.itemsGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding-bottom: 2rem;
+}
+
+.itemsHeaderContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.redeemButton {
+    padding: 0 1rem;
+    border-radius: 0.75rem;
+    height: 56px;
+    align-items: center;
+    border: none;
+    background-color: #2F5E44;
+    color: #FFF;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.searchBar {
+    width: 50%;
+    height: 56px;
+    padding: 0.5rem 1rem;
+    background-color: #FFF;
+    border-radius: 0.75rem;
+    border: 1px solid #CECECE;
+    box-shadow: 0 2px 4px 0 rgb(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.searchBar input {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.searchBar input:focus {
+    outline: none;
+}
+
+.itemsContainer {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.itemsCard {
+    max-height: 400px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    border-radius: 1rem;
+    border: 1px solid #CECECE;
+    background-color: #FFF;
+    box-shadow: 0 2px 4px 0 rgb(0, 0, 0, 0.25);
+}
+
+.cardImageContainer {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+}
+
+.cardImageContainer img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.cardContentContainer {
+    padding: 0.75rem;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.contentTitle,
+.contentPoint,
+.contentFooter {
+    width: 100%;
+}
+
+.contentTitle h1 {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.contentTitle p {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #999;
+}
+
+.contentPoint h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2F5E44;
+}
+
+.contentFooter {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.buttonContainer {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.addButton,
+.minusButton,
+.plusButton {
+    border: none;
+    background-color: transparent;
+    font-size: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantityControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quantityControlsContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.quantityInput {
+  width: 40px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.quantityInput:focus {
+  outline: none;
+  border-color: #A4B465;
+}
+
+.maxNotice {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #ED1C24;
+}
+
+.quantityInput::-webkit-outer-spin-button,
+.quantityInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantityInput[type=number] {
+    -moz-appearance: textfield;
+}
+
+.loadingContainer,
+.emptyContainer {
+    width: 100%;
+    text-align: center;
+    padding: 4rem 0;
+    color: #666;
+}
+
+.paginationContainer {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.paginationButtonContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.paginationButton {
+    padding: 0.5rem 1rem;
+    border: 1px solid #A4B465;
+    background-color: #FFF;
+    color: #A4B465;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px 0 rgb(0, 0, 0, 0.25);
+}
+
+.paginationButton:hover:not(:disabled) {
+    background-color: #A4B465;
+    color: #FFF;
+}
+
+.paginationButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.paginationInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.totalItems {
+    font-size: 1rem;
+    color: #000;
+}
+
+.filterContainer.active {
+    background-color: #A4B465;
+    color: #FFF;
+}
+
+@media (max-width: 1400px) {
+    .poinCard {
+        padding: 1rem;
+        width: calc(100% / 2);
+        max-width: unset;
+    }
+
+    .filterGroup {
+        gap: 0.75rem;
+    }
+
+    .filterContainer {
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        justify-content: flex-start;
+    }
+
+    .itemsContainer {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .poinCardHeaderContainer {
+        gap: 0.5rem;
+    }
+
+    .poinCardHeaderContainer p {
+        font-size: 0.875rem;
+    }
+
+    .poinCardContent h1 {
+        font-size: 2.75rem;
+    }
+
+    .poinCardContent p {
+        font-size: 1.5rem;
+    }
+
+    .poinCardFooter h1 {
+        font-size: 1.25rem;
+    }
+
+    .poinCardFooter p {
+        font-size: 0.875rem;
+    }
+
+    .searchBar {
+        width: 75%;
+    }
+}
+
+@media (max-width: 1200px) {
+    .itemsContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 568px) {
+    .topRow {
+        flex-direction: column;
+    }
+
+    .poinCard {
+        width: 100%;
+    }
+
+    .itemsGroup {
+        padding: 0;
+    }
+
+    .itemsContainer {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .itemsCard {
+        max-width: unset;
+    }
+
+    .searchBar {
+        width: 100%;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

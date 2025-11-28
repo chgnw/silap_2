@@ -19,7 +19,7 @@
     background-color: #E2EBC0;
     position: sticky;
     top: 0;
-    z-index: 100;}
+    z-index: 2;}
     .hamburgerButton {
       display: none;
       background: none;
@@ -473,7 +473,7 @@
     .lineChartCard {
       background-color: #FFFFFF;
       width: calc(200% / 3);
-      justify-content: space-between !important;}
+      justify-content: space-between;}
       .infoContainer {
         width: 100%;
         display: flex;
@@ -527,6 +527,13 @@
 /* Others */
 .overlay {
   display: none;}
+.emptyChart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 270px;
+}
 
 
 /* Responsive */
@@ -571,6 +578,9 @@
   .contentWrapper {
     height: auto;
     min-height: calc(100vh - 82px);}
+
+  .emptyChart {
+    min-height: 200px;}
 }
 
 @media (max-width: 768px) {
@@ -678,6 +688,7 @@
 
   .lineChartCard {
     height: 450px;
+    justify-content: center;
   }
 
   .lineChartDataCard {
@@ -693,4 +704,7 @@
     height: 250px;
     min-height: 250px;
   }
+
+  .emptyChart {
+    min-height: 100px;}
 }

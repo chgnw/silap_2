@@ -40,6 +40,10 @@ declare module 'next-auth' {
     user: Omit<DBUser, 'password'>;
     expiresAt?: number;
   }
+  interface User {
+    given_name?: string;
+    family_name?: string;
+  }
 }
 
 function formatTimestamp(ts: number) {
@@ -130,6 +134,15 @@ const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      profile(profile) {
+        return {
+          id: profile.sub,
+          email: profile.email,
+          given_name: profile.given_name,
+          family_name: profile.family_name,
+          image: profile.picture,
+        }
+      },
     }),
   ],
 
@@ -153,9 +166,9 @@ const authOptions: NextAuthOptions = {
           if (existingUser.length === 0) {
             console.log('🆕 Creating Google user:', user.email);
             await query(
-              `INSERT INTO ms_users (role_id, provider, first_name, email)
-               VALUES ((SELECT id FROM ms_role WHERE role_name = 'customer'), 'google', ?, ?)`,
-              [user.name, user.email]
+              `INSERT INTO ms_users (role_id, provider, first_name, last_name, email)
+               VALUES ((SELECT id FROM ms_role WHERE role_name = 'customer'), 'google', ?, ?, ?)`,
+              [user.given_name, user.family_name, user.email]
             );
           } else {
             console.log('✅ Google user already exists:', user.email);

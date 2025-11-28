@@ -229,6 +229,7 @@
             background-color: #2F5E44;
             color: #FFF;}
         .rightSide :global(.fc-direction-ltr .fc-daygrid-event.fc-event-end) {
+            overflow: hidden;
             background-color: #D5F35F;}
         .rightSide :global(.fc-h-event) {
             background-color: #D5F35F;
