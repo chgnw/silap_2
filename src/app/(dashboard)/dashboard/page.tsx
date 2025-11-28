@@ -433,7 +433,7 @@ export default function DashboardPage() {
                 </div>
               </>
             ) : (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+              <div className={styles.emptyChart}>
                 <p>{loading ? 'Memuat data...' : 'No data available for this period.'}</p>
               </div>
             )}
@@ -496,7 +496,7 @@ export default function DashboardPage() {
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+            <div className={styles.emptyChart}>
               <p>{loading ? 'Memuat data...' : 'No data available for this period.'}</p>
             </div>
           )}

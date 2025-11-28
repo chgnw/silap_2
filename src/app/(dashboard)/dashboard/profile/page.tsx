@@ -285,7 +285,7 @@ export default function ProfilePage() {
     }
     
     if (formData.phoneNumber.length < 9 || formData.phoneNumber.length > 15) {
-      alert("Nomor telepon tidak valid (minimal 9 angka).");
+      alert("Nomor telepon tidak valid.");
       return;
     }
 

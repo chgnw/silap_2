@@ -20,6 +20,6 @@ export async function getPool() {
 
 export async function query<T = any>(sql: string, params: any[] = []): Promise<T[]> {
   const p = await getPool();
-  const [rows] = await p.execute(sql, params);
+  const [rows] = await p.query(sql, params);
   return rows as T[];
 }
