@@ -1,0 +1,120 @@
+/* Sidebar */
+.sidebar {
+  width: 300px;
+  background-color: #A4B465;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+.sidebarHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.closeButton {
+  display: none;
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.navLink:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  color: #000000;
+}
+
+.iconContainer{
+  background: #FFFFFF;
+  color: #A4B465;
+  padding: 0.875rem;
+  border-radius: 0.75rem;
+}
+
+.isSelected, .isSelected:hover {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+.isSelected .iconContainer{
+  background-color: #A4B465;
+  color: #FFFFFF;
+}
+
+.sidebarFooter {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoutButton {
+  background-color: transparent;
+}
+.logoutButton:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ED1C24;
+}
+
+/* Responsive */
+@media (max-width: 996px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    z-index: 1001;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+  .sidebarHeader{
+    justify-content: space-between;
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .closeButton {
+    display: block;
+  }
+}

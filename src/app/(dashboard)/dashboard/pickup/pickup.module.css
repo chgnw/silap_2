@@ -223,8 +223,11 @@
             border-radius: 4px;}
         .rightSide :global(.fc .fc-daygrid-day.fc-day-today) {
             background-color: transparent;}
+        .rightSide :global(.fc .fc-daygrid-day-number) {
+            width: 40px;
+            text-align: center;}
         .rightSide :global(.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number) {
-            padding: 4px 7px;
+            padding: 0.5rem;
             border-radius: 100%;
             background-color: #2F5E44;
             color: #FFF;}

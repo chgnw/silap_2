@@ -15,7 +15,7 @@ export async function POST (req: NextRequest) {
             WHERE id = ? 
             AND user_id = ?;
         `
-        const [result] = await query(sql, [new_address, new_date, new_time, event_id, user_id]);
+        const result = await query(sql, [new_address, new_date, new_time, event_id, user_id]) as any;
         if(result.affectedRows == 0) {
             return NextResponse.json({
                 message: "FAILED",
