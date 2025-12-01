@@ -44,9 +44,9 @@ export default function Header({ theme = 'dark' }: HeaderProps) {
               {theme === 'dark' ? (
                 <>
                   <Nav.Link href="/" className="fw-bold">HOME</Nav.Link>
-                  <Nav.Link href="#services" className="fw-bold">SERVICES</Nav.Link>
-                  <Nav.Link href="#order" className="fw-bold">ORDER</Nav.Link>
-                  <Nav.Link href="#history" className="fw-bold">HISTORY</Nav.Link>
+                  <Nav.Link href="/services" className="fw-bold">SERVICES</Nav.Link>
+                  <Nav.Link href="/pricing" className="fw-bold">PRICING</Nav.Link>
+                  <Nav.Link href="/about" className="fw-bold">ABOUT</Nav.Link>
                   {status === 'authenticated' ? (
                     <NavDropdown title={`${session?.user?.first_name} ${session?.user?.last_name}` || 'User'} id="basic-nav-dropdown" className={`${styles.login} fw-bold`}>
                       <NavDropdown.Item href="#profile">Profile</NavDropdown.Item>

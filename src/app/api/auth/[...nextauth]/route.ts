@@ -17,6 +17,7 @@ interface DBUser {
   province?: string | null,
   regency?: string | null,
   subdistrict?: string | null,
+  village?: string | null,
   address?: string | null;
   postal_code?: string | null;
   points?: number;
@@ -92,6 +93,7 @@ const authOptions: NextAuthOptions = {
             ms_users.province,
             ms_users.regency,
             ms_users.subdistrict,
+            ms_users.village,
             ms_users.address,
             ms_users.postal_code,
             ms_users.points,
@@ -101,7 +103,7 @@ const authOptions: NextAuthOptions = {
             ms_users.current_streak
           FROM ms_users
           JOIN ms_role ON ms_users.role_id = ms_role.id
-          JOIN ms_tier_list ON ms_users.tier_list_id = ms_tier_list.id
+          LEFT JOIN ms_tier_list ON ms_users.tier_list_id = ms_tier_list.id
           WHERE ms_users.email = ?
           LIMIT 1;
         `
@@ -200,6 +202,7 @@ const authOptions: NextAuthOptions = {
               ms_users.province,
               ms_users.regency,
               ms_users.subdistrict,
+              ms_users.village,
               ms_users.address,
               ms_users.postal_code,
               ms_users.points,
@@ -230,6 +233,7 @@ const authOptions: NextAuthOptions = {
               province: dbUser.province,
               regency: dbUser.regency,
               subdistrict: dbUser.subdistrict,
+              village: dbUser.village,
               address: dbUser.address,
               postalCode: dbUser.postal_code,
               points: dbUser.points,
@@ -272,6 +276,7 @@ const authOptions: NextAuthOptions = {
               ms_users.province,
               ms_users.regency,
               ms_users.subdistrict,
+              ms_users.village,
               ms_users.address,
               ms_users.postal_code,
               ms_users.points,
@@ -304,6 +309,7 @@ const authOptions: NextAuthOptions = {
               province: dbUser.province,
               regency: dbUser.regency,
               subdistrict: dbUser.subdistrict,
+              village: dbUser.village,
               address: dbUser.address,
               postal_code: dbUser.postal_code,
               points: dbUser.points,
@@ -334,6 +340,7 @@ const authOptions: NextAuthOptions = {
         province: token.province,
         regency: token.regency,
         subdistrict: token.subdistrict,
+        village: token.village,
         address: token.address,
         postal_code: token.postal_code,
         points: token.points,

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { MdDashboard } from "react-icons/md";
 import { IoIosGift } from "react-icons/io";
+import { FaRankingStar } from "react-icons/fa6";
 import { 
   FaCalendar,
   FaHistory,
@@ -13,7 +14,7 @@ import {
   FaUser, 
   FaSignOutAlt 
 } from 'react-icons/fa';
-import styles from './sidebar.module.css';
+import styles from './sidebarAdmin.module.css';
 
 type DashboardSidebarProps = {
   isOpen: boolean;
@@ -46,57 +47,57 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
       
       <nav className={styles.sidebarNav}>
         <Link 
-          href="/dashboard" 
+          href="/admin" 
           className={`${styles.navLink} ${
-            pathname === '/dashboard' ? styles.isSelected : ''
+            pathname === '/admin' ? styles.isSelected : ''
           }`}
           onClick={handleLinkClick}
         >
           <div className={styles.iconContainer}>
             <MdDashboard size={24}/>
           </div>
-          <span>Dashboard</span>
+          <span>Home</span>
         </Link>
         
-        <Link href="/dashboard/pickup" 
+        <Link href="/admin/waste" 
           className={`${styles.navLink} ${
-            pathname === '/dashboard/pickup' ? styles.isSelected : ''
+            pathname === '/admin/waste' ? styles.isSelected : ''
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <FaCalendar size={24}/>
           </div>
-          <span>Jadwal Pick Up</span>
+          <span>Master Waste</span>
         </Link>
 
-        <Link href="/dashboard/point" className={`${styles.navLink} ${
-            pathname === '/dashboard/point' ? styles.isSelected : ''
+        <Link href="/admin/rewards" className={`${styles.navLink} ${
+            pathname === '/admin/rewards' ? styles.isSelected : ''
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <IoIosGift size={24}/>
           </div>
-          <span>Point & Reward</span>
+          <span>Master Reward</span>
         </Link>
 
-        <Link href="/dashboard/order" className={`${styles.navLink} ${
-            pathname === '/dashboard/order' ? styles.isSelected : ''
+        <Link href="/admin/vehicles" className={`${styles.navLink} ${
+            pathname === '/admin/vehicles' ? styles.isSelected : ''
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <FaHistory size={24}/>
           </div>
-          <span>Pesanan Saya</span>
+          <span>Master Vehicle</span>
         </Link>
 
-        <Link href="/dashboard/profile" className={`${styles.navLink} ${
-            pathname === '/dashboard/profile' ? styles.isSelected : ''
+        <Link href="/admin/others" className={`${styles.navLink} ${
+            pathname === '/admin/others' ? styles.isSelected : ''
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
-            <FaUser size={24}/>
+            <FaRankingStar size={24}/>
           </div>
-          <span>Profile</span>
+          <span>Other Configuration</span>
         </Link>
       </nav>
 

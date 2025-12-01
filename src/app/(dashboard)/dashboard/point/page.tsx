@@ -251,20 +251,6 @@ export default function PointPage() {
             <p>Poin</p>
           </div>
         </div>
-
-        <div className={styles.poinCard}>
-          <div className={styles.poinCardHeaderContainer}>
-            <div className={styles.poinCardLogoContainer}>
-              <FaStar />
-            </div>
-            <p>Jumlah poin yang dikumpulkan</p>
-          </div>
-
-          <div className={styles.poinCardContent}>
-            <h1>50</h1>
-            <p>Poin</p>
-          </div>
-        </div>
       </div>
 
       <div className={styles.filterGroup}>

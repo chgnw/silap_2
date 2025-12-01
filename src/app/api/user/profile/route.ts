@@ -12,11 +12,11 @@ export async function POST(req: Request) {
             lastName,
             phoneNumber, 
             address, 
-            wasteTarget,
             postalCode,
             province,
             regency,
-            subdistrict 
+            subdistrict,
+            village
         } = body;
         if (!email) {
             return NextResponse.json({ 
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
             LIMIT 1;
         `;
         const [userExists] = await query(checkSql, [email]);
-        // console.log("userExists: ", userExists);
+        console.log("userExists: ", userExists);
         if (!userExists) {
             return NextResponse.json({ 
                 message: 'Error checking user' 
@@ -40,14 +40,13 @@ export async function POST(req: Request) {
         }
 
         // Cek ada yang berubah gak
-        const wasteTargetDB = parseFloat(userExists.waste_target);
         const addressDB = userExists.address ?? "";
         if (
             userExists.first_name === firstName &&
             userExists.last_name === lastName &&
             userExists.phone_number === phoneNumber &&
             addressDB === address &&
-            wasteTargetDB === wasteTarget && 
+            userExists.village === village && 
             userExists.postal_code === postalCode &&
             userExists.province === province &&
             userExists.regency === regency &&
@@ -59,7 +58,7 @@ export async function POST(req: Request) {
             }, { status: 200 });
         }
 
-        console.log("update...")
+        // console.log("update...")
         // Update profile kalau ada yang berubah
         let updateSql = `
             UPDATE ms_users
@@ -72,7 +71,7 @@ export async function POST(req: Request) {
                 province = ?,
                 regency = ?,
                 subdistrict = ?,
-                waste_target = ?
+                village = ?
             WHERE email = ?;
         `
         const updateUser = await query(updateSql, [
@@ -84,15 +83,15 @@ export async function POST(req: Request) {
             province,
             regency,
             subdistrict,
-            wasteTarget,
+            village,
             email
-        ]);
-        if (!updateUser) {
+        ]) as any;
+        if (!updateUser || updateUser.affectedRows == 0) {
             return NextResponse.json({ 
                 message: 'Error updating user' 
             }, { status: 500 });
         }
-        // console.log("updateUser: ", updateUser);
+        console.log("updateUser: ", updateUser);
 
         // Jika berhasil update, kirim respons sukses
         return NextResponse.json({
@@ -107,12 +106,13 @@ export async function POST(req: Request) {
                 province: province,
                 regency: regency,
                 subdistrict: subdistrict,
-                waste_target: wasteTarget,
+                village: village,
             }
         }, { status: 200 });
     } catch (error) {
+        console.error("error in /profile: ", error);
         return NextResponse.json({ 
-            message: 'An error occurred', 
+            message: "FAILED", 
             error : error,
         }, { status: 500 });
     }

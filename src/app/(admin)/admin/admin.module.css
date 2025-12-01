@@ -1,43 +1,714 @@
-.layoutContainer {
+.dashboardContainer {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background-color: #E2EBC0;}
+
+.contentWrapper {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: #f3f4f6;
-  font-family: 'Inter', sans-serif;
+  overflow-y: auto;
+  scrollbar-width: none;
+  height: 100%;}
+  .mainHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background-color: #E2EBC0;
+    position: sticky;
+    top: 0;
+    z-index: 0;}
+    .hamburgerButton {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #A4B465;
+      cursor: pointer;}
+    /* Breadcrumbs */
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #000000;}
+      .breadcrumbLink {
+        color: #000000;
+        text-decoration: none;}
+        .breadcrumbLink:hover {
+          text-decoration: underline;}
+      .breadcrumbActive {
+        color: #000000;
+        font-weight: 600;}
+      .breadcrumbSeparator {
+        color: #AAAAAA;}
+    /* Notification Button */
+    .notificationButton {
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 1.25rem;
+      cursor: pointer;
+      position: relative;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;}
+      .notificationDot {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 8px;
+        height: 8px;
+        background-color: #ED1C24;
+        border-radius: 50%;
+        border: 1px solid #fff;}
+  /* Content */
+  .pageContent {
+    height: calc(100vh - 78px);
+    padding: 0 2rem;
+    padding-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex: 1;
+    background-color: #E2EBC0;}
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;}
+      .title {
+        font-size: 1.8rem;
+        font-weight: 700;}
+
+
+/* === TOP ROW WRAPPER === */
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: stretch;}
+
+/* === FILTER SECTION === */
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #FFFFFF;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
-.navbar {
-  background-color: #3a4b23;
-  color: white;
-  padding: 1rem 2rem;
+.filterSectionHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.logo {
+  gap: 0.5rem;
+  font-size: 1rem;
   font-weight: 600;
-  font-size: 1.2rem;
 }
 
-.navLinks {
-  list-style: none;
+.filterGroup {
   display: flex;
-  gap: 1.5rem;
-  margin: 0;
-  padding: 0;
+  flex-direction: row;
+  gap: 0.75rem;
 }
 
-.navLinks li {
+.filterContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.filterContainer > div {
+  flex: 1 1 48%;
+  min-width: 140px;
+}
+
+.filterLabel {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.filterInput {
+  width: 100%;
+  border: 1px solid #A4B465;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  background-color: #FFFFFF;
+  transition: border-color 0.2s ease;
+}
+
+.filterInput:focus {
+  outline: none;
+  border-color: #2F5E44;
+}
+
+.resetButton {
+  height: 100%;
+  align-self: flex-start;
+  background: none;
+  border: 1px solid #A4B465;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  color: #555;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease;
 }
 
-.navLinks li:hover {
-  opacity: 0.8;
+.resetButton:hover {
+  background: #A4B465;
+  color: #fff;
 }
 
-.mainContent {
-  flex: 1;
-  padding: 2rem;
+/* === TIER SECTION === */
+.tierSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #FFFFFF;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.tierSection img {
+  width: 70px;
+  height: 70px;
+  border-radius: 100%;
+}
+
+.userTier {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.userTier h1 {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 0.25rem;
+}
+
+.userTier span {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #A4B465;
+}
+
+.secondRow{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;}
+
+.baseCard {
+  min-height: 178px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0.5rem;
+  gap: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
+
+/* Total Sampah Card */
+.totalSampahCard {
+  background-color: #A4B465;
+  width: calc(100% / 3);}
+  .totalSampahHeader {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;}
+    .totalSampahHeader p {
+      color: #FFFFFF;
+      font-size: 0.875rem;
+      font-weight: 500;}
+    .totalSampahSymbol {
+      background-color: #FFFFFF;
+      border-radius: 100%;
+      padding: 0.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;}
+  .totalSampahValue {
+    color: #FFFFFF;
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;}
+    .totalSampahValue h1 {
+      font-size: 3.125rem;
+      font-weight: 600;}
+    .totalSampahValue span {
+      font-size: 1.875rem;
+      font-weight: 500;}
+  .totalSampahFooter {
+    width: 100%;
+    color: #FFFFFF;
+    align-items: baseline;}
+    .totalSampahFooter h1 {
+      font-size: 0.875rem;
+      font-weight: 500;}
+
+
+/* Total Point Card */
+.totalPointCard {
+  background-color: #FFFFFF;
+  width: calc(100% / 3);}
+  .totalPointHeader {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;}
+    .totalPointSymbol {
+      background-color: #F7FFD6;
+      border-radius: 100%;
+      padding: 0.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;}
+    .totalPointHeader p {
+      color: #000000;
+      font-size: 0.875rem;
+      font-weight: 500;}
+  .totalPointValue {
+    color: #000000;
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;}
+    .totalPointValue h1 {
+      font-size: 3.125rem;
+      font-weight: 600;}
+    .totalPointValue span {
+      font-size: 1.875rem;
+      font-weight: 500;}
+  .totalPointFooter {
+    width: 100%;
+    color: #000000;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;}
+    .totalPointFooter span {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #A4B465;}
+    .totalPointFooter h1 {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #000000;}
+    
+
+/* Total Streak Card */
+.totalStreakCard {
+  background-color: #FFFFFF;
+  width: calc(100% / 3);}
+  .totalStreakHeader {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;}
+    .totalStreakSymbol {
+      background-color: #F7FFD6;
+      border-radius: 100%;
+      padding: 0.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;}
+    .totalStreakHeader p {
+      color: #000000;
+      font-size: 0.875rem;
+      font-weight: 500;}
+  .totalStreakValue {
+    color: #000000;
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;}
+    .totalStreakValue h1 {
+      font-size: 3.125rem;
+      font-weight: 600;}
+    .totalStreakValue span {
+      font-size: 1.875rem;
+      font-weight: 500;}
+  .totalStreakFooter {
+    width: 100%;
+    color: #000000;
+    align-items: baseline;}
+    .totalStreakFooter h1 {
+      font-size: 0.875rem;
+      font-weight: 500;}
+
+
+/* Last Row */
+.lastRow {
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  display: flex;
+  gap: 1rem;}
+  .leftCol {
+    width: calc(100% / 3);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;}
+    /* Target Card */
+    .leftTargetCard {
+      background: #FFFFFF;
+      height: calc(100% / 4);}
+      .leftTargetHeader {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;}
+        .leftTargetSymbol {
+          background-color: #F7FFD6;
+          border-radius: 100%;
+          padding: 0.5rem;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;}
+          .leftTargetHeader p {
+            color: #000000;
+            font-size: 0.875rem;
+            font-weight: 500;}
+      .leftTargetProgressContainer {
+        width: 100%;
+        height: 26px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;}
+        .leftTargetProgressPercentage p {
+          width: 100px;
+          font-size: 1.275rem;
+          font-weight: 500;
+          color: #000000;}
+        .leftTargetProgressBarContainer{
+          width: 100%;
+          height: 100%;
+          background: #E2EBC0;
+          border-radius: 1rem;}
+          .leftTargetProgressBarOverlay {
+            height: 100%;
+            background-color: #A4B465;
+            text-align: center;
+            border-radius: 1rem;
+            overflow: hidden;
+            text-wrap: nowrap;}
+        .progressTarget {
+          width: 100%;}
+          .progressTarget p {
+            float: right;}
+        .progressFooter {
+          width: 100%;}
+          .progressFooter p {
+            color: #000;
+            font-size: 0.875rem;
+            font-weight: 500;}
+
+    /* Pie Chart */
+    .pieChartCard {
+      background-color: #FFFFFF;
+      height: 100%;
+      justify-content: space-between;}
+      .pieChartHeader {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;}
+        .pieChartSymbol {
+          background-color: #F7FFD6;
+          border-radius: 100%;
+          padding: 0.5rem;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;}
+        .pieChartHeader p {
+          color: #000000;
+          font-size: 0.875rem;
+          font-weight: 500;}
+      .pieChartFooter {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;}
+        .pieChartDataInfo {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 0.5rem}
+          .pieChartColorInfo {
+            width: 10px;
+            height: 10px;
+            border-radius: 100%;}
+          .pieChartDataInfo span {
+            font-size: 0.875rem;
+            font-weight: 400;
+            color: #000000}
+  
+    /* Line Chart Card */
+    .lineChartCard {
+      background-color: #FFFFFF;
+      width: calc(200% / 3);
+      justify-content: space-between;}
+      .infoContainer {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1rem;}
+      .lineChartHeader {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;}
+        .lineChartHeader p {
+          color: #000000;
+          font-size: 0.875rem;
+          font-weight: 500;}
+        .lineChartSymbol {
+          background-color: #F7FFD6;
+          border-radius: 100%;
+          padding: 0.5rem;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;}
+      .lineChartBodyContainer {
+        width: 100%;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;}
+        .lineChartDataCard {
+          background-color: #2F5E44;
+          border-radius: 0.5rem;
+          text-align: center;
+          padding: 1rem 2rem;}
+          .lineChartDataCard p {
+            color: #FFFFFF;
+            font-size: 0.875rem;
+            font-weight: 500;}
+          .lineChartDataCard h2 {
+            color: #FFFFFF;
+            font-size: 1.75rem;
+            font-weight: 600;}
+        .lineChart {
+          width: 100%;
+          height: 30%;}
+
+/* Others */
+.overlay {
+  display: none;}
+.emptyChart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 270px;
+}
+
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .leftTargetProgressPercentage p {
+    width: 80px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .totalSampahValue h1,
+  .totalPointValue h1,
+  .totalStreakValue h1 {
+    font-size: 2rem;
+  }
+
+  .totalSampahValue span,
+  .totalPointValue span,
+  .totalStreakValue span {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .hamburgerButton {
+    display: block;}
+
+  .filterGroup{
+    flex-direction: column;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: block;}
+  
+  .contentWrapper {
+    height: auto;
+    min-height: calc(100vh - 82px);}
+
+  .emptyChart {
+    min-height: 200px;}
+}
+
+@media (max-width: 768px) {
+  .mainHeader {
+    z-index: 2;
+  }
+
+  .pageContent {
+    height: auto;
+  }
+
+  .totalSampahSymbol,
+  .totalPointSymbol,
+  .totalStreakSymbol,
+  .leftTargetSymbol,
+  .pieChartSymbol,
+  .lineChartSymbol {
+    width: 30px;
+    height: 30px;
+  }
+
+  .totalSampahFooter h1,
+  .totalPointFooter h1,
+  .totalPointFooter span,
+  .totalStreakFooter h1 {
+    font-size: 0.75rem;
+  }
+
+  .leftTargetProgressPercentage p {
+    width: 70px;
+    font-size: 1.15rem;
+  }
+
+  .progressFooter p {
+    font-size: 0.75rem;}
+}
+
+@media (max-width: 568px) {
+  .mainHeader {
+    padding: 1rem;
+  }
+
+  .topRow {
+    grid-template-columns: 1fr;
+  } 
+
+  .secondRow,
+  .lastRow {
+    flex-direction: column;
+  }
+
+  .leftCol {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+  }
+
+  .pageContent {
+    height: auto;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .filterSection,
+  .tierSection {
+    padding: 1rem;
+  }
+
+  .baseCard {
+    width: 100%;
+    min-height: auto;
+    padding: 0.5rem;
+    justify-content: space-evenly;
+  }
+
+  .leftTargetCard,
+  .pieChartCard {
+    height: 200px;
+    width: calc(100% / 2);
+  }
+
+  .totalSampahValue h1,
+  .totalPointValue h1,
+  .totalStreakValue h1 {
+    font-size: 1.5rem;
+  }
+
+  .totalSampahValue span,
+  .totalPointValue span,
+  .totalStreakValue span {
+    font-size: 1rem;
+  }
+
+  .leftTargetProgressContainer {
+    flex-direction: column;
+    height: unset;
+  }
+
+  .leftTargetProgressPercentage p {
+    width: 100%;
+    float: right;
+  }
+
+  .progressFooter p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lineChartCard {
+    height: 450px;
+    justify-content: center;
+  }
+
+  .lineChartDataCard {
+    padding: 1rem;
+  }
+
+  .lineChartDataCard h2 {
+    font-size: 1.25rem;
+  }
+
+  .lineChart {
+    width: 100%;
+    height: 250px;
+    min-height: 250px;
+  }
+
+  .emptyChart {
+    min-height: 100px;}
 }
