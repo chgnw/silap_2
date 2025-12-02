@@ -1,0 +1,147 @@
+.tableContainer {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+}
+
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.searchWrapper {
+  position: relative;
+  width: 300px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: #2F5E44;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #2F5E44;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.addButton:hover {
+  background-color: #1b5e20;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid #E9E9E9;
+  border-radius: 6px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+.table thead {
+  background-color: #E2EBC0;
+}
+
+.table th {
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #000;
+  text-transform: uppercase;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortHeader {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #E9E9E9;
+  color: #000;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: #e2ebc030;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.paginationButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.pageButton {
+  padding: 6px 12px;
+  border: 1px solid #E9E9E9;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #333;
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageButton:hover:not(:disabled) {
+  background-color: #E9E9E9;
+}
+
+.loadingState,
+.emptyState {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
