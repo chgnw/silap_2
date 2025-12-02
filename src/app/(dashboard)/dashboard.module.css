@@ -19,7 +19,7 @@
     background-color: #E2EBC0;
     position: sticky;
     top: 0;
-    z-index: 2;}
+    z-index: 0;}
     .hamburgerButton {
       display: none;
       background: none;
@@ -584,6 +584,10 @@
 }
 
 @media (max-width: 768px) {
+  .mainHeader {
+    z-index: 2;
+  }
+
   .pageContent {
     height: auto;
   }

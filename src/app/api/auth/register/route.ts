@@ -30,11 +30,27 @@ export async function POST(req: Request) {
     const role_id = roleResult[0].id;
 
     // Insert user baru
-    await query(
+    const insertUserResult = await query(
       `INSERT INTO ms_users (role_id, provider, first_name, last_name, email, password, phone_number)
        VALUES (?, 'local', ?, ?, ?, ?, ?)`,
       [role_id, first_name, last_name, email, hashed, phone_number || null]
-    );
+    ) as any;
+
+    // Nambah insert ke ms_driver disini
+    const newUserId = insertUserResult.insertId;
+    if (role.toLowerCase() === 'driver') {
+      if (!newUserId) {
+         throw new Error("Failed to retrieve new user ID");
+      }
+
+      // Insert ke ms_driver menggunakan newUserId
+      await query(
+        `INSERT INTO ms_driver (user_id, is_verified) VALUES (?, false)`,
+        [newUserId]
+      );
+      
+      console.log('🚚 Driver profile created for user ID:', newUserId);
+    }
 
     console.log('✅ Registered user:', email);
 

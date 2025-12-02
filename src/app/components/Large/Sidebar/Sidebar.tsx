@@ -6,10 +6,8 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { MdDashboard } from "react-icons/md";
 import { IoIosGift } from "react-icons/io";
-import { FaRankingStar } from "react-icons/fa6";
 import { 
   FaCalendar,
-  FaHandHoldingUsd,
   FaHistory,
   FaTimes,
   FaUser, 
@@ -81,24 +79,14 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           <span>Point & Reward</span>
         </Link>
 
-        <Link href="/dashboard/history" className={`${styles.navLink} ${
-            pathname === '/dashboard/history' ? styles.isSelected : ''
+        <Link href="/dashboard/order" className={`${styles.navLink} ${
+            pathname === '/dashboard/order' ? styles.isSelected : ''
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
             <FaHistory size={24}/>
           </div>
-          <span>History</span>
-        </Link>
-
-        <Link href="/dashboard/ranking" className={`${styles.navLink} ${
-            pathname === '/dashboard/ranking' ? styles.isSelected : ''
-          }`} 
-          onClick={handleLinkClick}>
-          <div className={styles.iconContainer}>
-            <FaRankingStar size={24}/>
-          </div>
-          <span>Top Contributor</span>
+          <span>Pesanan Saya</span>
         </Link>
 
         <Link href="/dashboard/profile" className={`${styles.navLink} ${

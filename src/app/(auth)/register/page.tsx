@@ -7,7 +7,7 @@ import styles from '../auth.module.css';
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'mitra') => void }) {
+function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'driver') => void }) {
   return (
     <div className={styles.page}>
       <div className={styles.registerCard}>
@@ -20,9 +20,9 @@ function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'mi
             <div className={styles.roleLabel}>Customer</div>
           </div>
           
-          <div className={styles.roleCard} onClick={() => onSelectRole('mitra')}>
-            <img src="/images/mitra.svg" alt="Mitra" />
-            <div className={styles.roleLabel}>Mitra</div>
+          <div className={styles.roleCard} onClick={() => onSelectRole('driver')}>
+            <img src="/images/mitra.svg" alt="Driver" />
+            <div className={styles.roleLabel}>Driver</div>
           </div>
         </div>
         
@@ -38,7 +38,7 @@ function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'mi
 }
 
 function RegisterForm({ role, onBackToSelection }: { 
-  role: 'customer' | 'mitra',
+  role: 'customer' | 'driver',
   onBackToSelection: () => void 
 }) {
   const [firstName, setFirstName] = useState('');
@@ -386,9 +386,9 @@ function RegisterForm({ role, onBackToSelection }: {
 
 export default function RegisterPage() {
   const [step, setStep] = useState<'selection' | 'form'>('selection');
-  const [role, setRole] = useState<'customer' | 'mitra' | null>(null);
+  const [role, setRole] = useState<'customer' | 'driver' | null>(null);
 
-  const handleRoleSelect = (selectedRole: 'customer' | 'mitra') => {
+  const handleRoleSelect = (selectedRole: 'customer' | 'driver') => {
     setRole(selectedRole);
     setStep('form');
   };

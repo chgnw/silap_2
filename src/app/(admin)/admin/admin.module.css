@@ -1,43 +1,218 @@
-.layoutContainer {
+.dashboardContainer {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background-color: #E2EBC0;}
+
+.contentWrapper {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: #f3f4f6;
-  font-family: 'Inter', sans-serif;
+  overflow-y: auto;
+  scrollbar-width: none;
+  height: 100%;}
+  .mainHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background-color: #E2EBC0;
+    position: sticky;
+    top: 0;
+    z-index: 0;}
+    .hamburgerButton {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #A4B465;
+      cursor: pointer;}
+    /* Breadcrumbs */
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #000000;}
+      .breadcrumbLink {
+        color: #000000;
+        text-decoration: none;}
+        .breadcrumbLink:hover {
+          text-decoration: underline;}
+      .breadcrumbActive {
+        color: #000000;
+        font-weight: 600;}
+      .breadcrumbSeparator {
+        color: #AAAAAA;}
+    /* Notification Button */
+    .notificationButton {
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 1.25rem;
+      cursor: pointer;
+      position: relative;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;}
+      .notificationDot {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 8px;
+        height: 8px;
+        background-color: #ED1C24;
+        border-radius: 50%;
+        border: 1px solid #fff;}
+  /* Content */
+  .pageContent {
+    height: calc(100vh - 78px);
+    padding: 0 2rem;
+    padding-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex: 1;
+    background-color: #E2EBC0;}
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;}
+      .title {
+        font-size: 1.8rem;
+        font-weight: 700;}
+
+  .homeContainer {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .welcomeHeader {
+    margin-bottom: 40px;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.25);
+    border-left: 8px solid #2F5E44;
+  }
+
+  .welcomeHeader h1 {
+    font-size: 4rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #000;
+  }
+
+  .welcomeHeader p {
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 400;
+  }
+
+  .gridContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: white;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.25);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #eee;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    border-color: #2F5E44;
+  }
+
+  .iconWrapper {
+    margin-bottom: 1rem;
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cardContent h3 {
+    font-size: 1.5rem;
+    color: #000;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .cardContent p {
+    font-size: 1rem;
+    color: #333;
+  }
+
+/* Others */
+.overlay {
+  display: none;}
+
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .welcomeHeader h1 {
+    font-size: 3rem;
+  }
+
+  .welcomeHeader p {
+    font-size: 1rem;
+  }
 }
 
-.navbar {
-  background-color: #3a4b23;
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+@media (max-width: 1200px) {
+  
 }
 
-.logo {
-  font-weight: 600;
-  font-size: 1.2rem;
+@media (max-width: 992px) {
+  .hamburgerButton {
+    display: block;}
+
 }
 
-.navLinks {
-  list-style: none;
-  display: flex;
-  gap: 1.5rem;
-  margin: 0;
-  padding: 0;
+@media (max-width: 768px) {
+  .mainHeader {
+    z-index: 2;
+  }
+
+  .pageContent {
+    height: auto;
+  }
+
+  .gridContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.navLinks li {
-  cursor: pointer;
-  transition: opacity 0.2s;
+@media (max-width: 568px) {
+  .mainHeader {
+    padding: 1rem;
+  }
+
+  .pageContent {
+    height: auto;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+  }
+
 }
 
-.navLinks li:hover {
-  opacity: 0.8;
-}
-
-.mainContent {
-  flex: 1;
-  padding: 2rem;
+@media (max-width: 368px) {
+  .gridContainer {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
