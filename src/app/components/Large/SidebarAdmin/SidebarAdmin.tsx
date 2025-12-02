@@ -4,16 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { MdDashboard } from "react-icons/md";
-import { IoIosGift } from "react-icons/io";
-import { FaRankingStar } from "react-icons/fa6";
-import { 
-  FaCalendar,
-  FaHistory,
-  FaTimes,
-  FaUser, 
-  FaSignOutAlt 
-} from 'react-icons/fa';
+import { FaHome, FaRecycle, FaGift, FaTruck,  FaCogs, FaTimes, FaSignOutAlt } from 'react-icons/fa';
 import styles from './sidebarAdmin.module.css';
 
 type DashboardSidebarProps = {
@@ -54,7 +45,7 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           onClick={handleLinkClick}
         >
           <div className={styles.iconContainer}>
-            <MdDashboard size={24}/>
+            <FaHome size={24}/>
           </div>
           <span>Home</span>
         </Link>
@@ -65,7 +56,7 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
-            <FaCalendar size={24}/>
+            <FaRecycle size={24}/>
           </div>
           <span>Master Waste</span>
         </Link>
@@ -75,7 +66,7 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
-            <IoIosGift size={24}/>
+            <FaGift size={24}/>
           </div>
           <span>Master Reward</span>
         </Link>
@@ -85,7 +76,7 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
-            <FaHistory size={24}/>
+            <FaTruck size={24}/>
           </div>
           <span>Master Vehicle</span>
         </Link>
@@ -95,7 +86,7 @@ export default function DashboardSidebar({ isOpen, toggleSidebar }: DashboardSid
           }`} 
           onClick={handleLinkClick}>
           <div className={styles.iconContainer}>
-            <FaRankingStar size={24}/>
+            <FaCogs size={24}/>
           </div>
           <span>Other Configuration</span>
         </Link>

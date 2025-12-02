@@ -1,0 +1,258 @@
+.pageContainer {
+  padding: 1.5rem;
+  background-color: #FFF;
+  border-radius: 1rem;
+}
+
+.pageHeader {
+  margin-bottom: 1.5rem;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  color: #666;
+  font-size: 1rem;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #E9E9E9;
+}
+
+.tabButton {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.tabButton:hover {
+  color: #2E7D32;
+  background-color: #F0FDF4;
+  border-radius: 6px 6px 0 0;
+}
+
+.activeTab {
+  color: #2F5E44;
+  font-weight: 600;
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #2E7D32;
+}
+
+.splitLayout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* Layout 2: Single Column (Delete Modal) */
+.singleLayout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 0;
+  gap: 1rem;
+}
+
+/* --- Image Sidebar Component --- */
+.imageSection {
+  flex-shrink: 0;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.imagePreview {
+  width: 140px;
+  height: 140px;
+  border-radius: 0.5rem;
+  border: 2px dashed #E9E9E9;
+  background-color: #FAFAFA;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.placeholderText {
+  font-size: 0.75rem;
+  color: #999;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.uploadBtn {
+  font-size: 0.9rem;
+  color: #2F5E44;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-align: center;
+  padding: 5px;
+}
+.uploadBtn:hover {
+  color: #1b5e20;
+}
+
+/* --- Form Components --- */
+.formSection {
+  flex: 1; /* Mengambil sisa ruang */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Class baru untuk input yang bersebelahan (2 kolom) */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.formInput, .formSelect {
+  padding: 0.6rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+  width: 100%; /* Pastikan full width parent */
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box; /* Agar padding tidak menambah width */
+}
+
+.formInput:focus, .formSelect:focus {
+  border-color: #2F5E44;
+  box-shadow: 0 0 0 3px rgba(47, 94, 68, 0.1);
+}
+
+.formInput:disabled, .formSelect:disabled {
+  background-color: #f3f4f6;
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* --- Buttons & Footer --- */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Button Base Styles */
+.btnBase {
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnCancel {
+  background: #FFF;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+.btnCancel:hover { background-color: #f9fafb; }
+
+.btnSave {
+  background-color: #2F5E44;
+  color: #FFF;
+  border: 1px solid transparent;
+}
+.btnSave:hover { background-color: #1b5e20; }
+.btnSave:disabled { opacity: 0.7; cursor: wait; }
+
+.btnDeleteConfirm {
+  background-color: #dc2626;
+  color: #FFF;
+  border: 1px solid transparent;
+}
+.btnDeleteConfirm:hover { background-color: #b91c1c; }
+.btnDeleteConfirm:disabled { opacity: 0.7; cursor: wait; }
+
+.actionRow {
+  display: flex;
+  gap: 0.5rem;
+}
+.btnAction {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  transition: transform 0.1s;
+  border-radius: 4px;
+}
+.btnAction:hover { background-color: rgba(0,0,0,0.05); }
+
+.btnView { color: #6b7280; }
+.btnView:hover { color: #2563EB; }
+
+.btnEdit { color: #6b7280; }
+.btnEdit:hover { color: #2F5E44; }
+
+.btnDelete { color: #6b7280; }
+.btnDelete:hover { color: #ED1C24; }
+
+@media (max-width: 600px) {
+  .splitLayout {
+    flex-direction: column;
+    align-items: center;
+  }
+  .imageSection {
+    width: 100%;
+    align-items: center;
+  }
+  .formRow {
+    grid-template-columns: 1fr; 
+  }
+}
