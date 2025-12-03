@@ -133,7 +133,7 @@ export default function WastePage() {
         setIsCatModalOpen(false);
         fetchWasteCategories();
       } else {
-        showToast("failed", `Failed: ${result.message}`)
+        showToast("failed", `Failed: ${result.detail}`)
       }
     } catch (error) {
       console.error("Error saving category:", error);
@@ -150,10 +150,8 @@ export default function WastePage() {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    console.log("delete target: ",deleteTarget);
 
     setIsSubmitting(true);
-
     try {
       const endpoint = deleteTarget.type === 'category' 
         ? "/api/admin/waste-category/delete-waste-cat" 
@@ -308,7 +306,7 @@ export default function WastePage() {
         setIsItemModalOpen(false);
         fetchWasteItems();
       } else {
-        showToast("error", `Failed: ${result.message}`);
+        showToast("error", `Failed: ${result.detail}`);
       }
     } catch (error) {
       console.error("Error saving item:", error);
@@ -320,7 +318,8 @@ export default function WastePage() {
     () => [
       { 
         header: 'No', 
-        accessorFn: (_, i) => i + 1, size: 50 
+        accessorFn: (_, i) => i + 1, 
+        size: 50 
       },
       { 
         header: 'Item Name', 
@@ -408,7 +407,7 @@ export default function WastePage() {
             
             <div className={styles.imagePreview}>
               {catIconPreview ? (
-                <img src={catIconPreview} alt="Preview" />
+                <img src={`/upload/${catIconPreview}`} alt="Preview" />
               ) : (
                 selectedCat?.icon_name ? <span style={{fontSize: 30}}>📦</span> : <span className={styles.placeholderText}>No Icon</span>
               )}
@@ -587,7 +586,7 @@ export default function WastePage() {
                 </p>
             </div>
 
-            <div className={styles.modalFooter} style={{ width: '100%', justifyContent: 'center', borderTop: 'none' }}>
+            <div className={styles.modalFooter} style={{ width: '100%', borderTop: 'none' }}>
                 <button 
                     type="button" 
                     onClick={() => setIsDeleteModalOpen(false)} 

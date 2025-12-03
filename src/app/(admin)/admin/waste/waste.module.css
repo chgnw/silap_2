@@ -9,38 +9,39 @@
 }
 
 .pageTitle {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #000;
   margin-bottom: 0.5rem;
 }
 
 .pageSubtitle {
-  color: #666;
   font-size: 1rem;
+  color: #666;
+  font-style: italic;
 }
 
 .tabsContainer {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #E9E9E9;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .tabButton {
-  padding: 10px 20px;
-  border: none;
+  padding: 0.75rem 1.5rem;
   background: none;
-  font-size: 14px;
+  border: none;
+  font-size: 0.95rem;
   font-weight: 500;
   color: #666;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s;
+  transition: color 0.2s;
 }
 
 .tabButton:hover {
-  color: #2E7D32;
+  color: #2F5E44;
   background-color: #F0FDF4;
   border-radius: 6px 6px 0 0;
 }
@@ -53,49 +54,41 @@
 .activeTab::after {
   content: '';
   position: absolute;
-  bottom: -1px;
+  bottom: -2px;
   left: 0;
-  width: 100%;
+  right: 0;
   height: 2px;
-  background-color: #2E7D32;
+  background-color: #2F5E44;
 }
 
 .splitLayout {
-  display: flex;
-  gap: 1.5rem;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 2rem;
 }
 
-/* Layout 2: Single Column (Delete Modal) */
 .singleLayout {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 1rem 0;
+  gap: 1.5rem;
+}
+
+.imageSection {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
-/* --- Image Sidebar Component --- */
-.imageSection {
-  flex-shrink: 0;
-  width: 140px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .imagePreview {
-  width: 140px;
-  height: 140px;
-  border-radius: 0.5rem;
-  border: 2px dashed #E9E9E9;
-  background-color: #FAFAFA;
-  overflow: hidden;
+  width: 100%;
+  height: 250px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  overflow: hidden;
+  background-color: #f9f9f9;
 }
 
 .imagePreview img {
@@ -112,22 +105,17 @@
 }
 
 .uploadBtn {
-  font-size: 0.9rem;
-  color: #2F5E44;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-  text-align: center;
-  padding: 5px;
-}
-.uploadBtn:hover {
-  color: #1b5e20;
+  background-color: #2F5E44;
+  color: white;
+  width: 100%;
 }
 
-/* --- Form Components --- */
+.uploadBtn:hover:not(:disabled) {
+  background-color: #1b5e20;
+}
+
 .formSection {
-  flex: 1; /* Mengambil sisa ruang */
+  flex: 1; 
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -139,7 +127,6 @@
   gap: 0.5rem;
 }
 
-/* Class baru untuk input yang bersebelahan (2 kolom) */
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -158,9 +145,9 @@
   border-radius: 0.5rem;
   font-size: 0.95rem;
   outline: none;
-  width: 100%; /* Pastikan full width parent */
+  width: 100%;
   transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box; /* Agar padding tidak menambah width */
+  box-sizing: border-box;
 }
 
 .formInput:focus, .formSelect:focus {
@@ -174,7 +161,6 @@
   cursor: not-allowed;
 }
 
-/* --- Buttons & Footer --- */
 .modalFooter {
   display: flex;
   justify-content: flex-end;
@@ -184,7 +170,6 @@
   border-top: 1px solid #f0f0f0;
 }
 
-/* Button Base Styles */
 .btnBase {
   padding: 0.6rem 1.2rem;
   border-radius: 0.5rem;
@@ -234,14 +219,32 @@
 }
 .btnAction:hover { background-color: rgba(0,0,0,0.05); }
 
-.btnView { color: #6b7280; }
+.btnView { 
+  padding: 0.5rem 0.75rem;
+  cursor: pointer; 
+  border: 1px solid #DDD; 
+  border-radius: 0.25rem; 
+  background-color: #F8F9FA;
+}
 .btnView:hover { color: #2563EB; }
 
-.btnEdit { color: #6b7280; }
+.btnEdit { 
+  padding: 0.5rem 0.75rem;
+  cursor: pointer; 
+  border: 1px solid #DDD; 
+  border-radius: 0.25rem; 
+  background-color: #FFF3CD;
+}
 .btnEdit:hover { color: #2F5E44; }
 
-.btnDelete { color: #6b7280; }
-.btnDelete:hover { color: #ED1C24; }
+.btnDelete { 
+  padding: 0.5rem 0.75rem;
+  cursor: pointer; 
+  border: 1px solid #DDD; 
+  border-radius: 0.25rem; 
+  background-color: #F8D7DA;
+}
+.btnEdit:hover { color: #ED1C24; }
 
 @media (max-width: 600px) {
   .splitLayout {

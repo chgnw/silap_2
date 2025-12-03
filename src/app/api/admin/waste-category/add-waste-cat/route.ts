@@ -11,13 +11,26 @@ export async function POST (req: NextRequest) {
 
         if (!wasteCategoryName) {
             return NextResponse.json({ 
-                message: "Category name is required" 
+                message: "Nama kategori tidak ditemukan!" 
             }, { status: 400 });
         }
-        let dbImagePath = null;
 
+        const checkSql = `
+            SELECT id FROM ms_waste_category 
+            WHERE waste_category_name = ? 
+            LIMIT 1;
+        `;
+        const checkResult = await query(checkSql, [wasteCategoryName]) as any[];
+        if (checkResult && checkResult.length > 0) {
+            return NextResponse.json({
+                message: "DUPLICATE",
+                detail: `Category '${wasteCategoryName}' sudah ada.`
+            }, { status: 409 });
+        }
+
+        let dbImagePath = null;
         if (imageFile && imageFile.size > 0) {
-            const uploadDir = path.join(process.cwd(), "public", "wasteCatIcon");
+            const uploadDir = path.join(process.cwd(), "public", "upload", "wasteCatIcon");
             await fs.mkdir(uploadDir, { recursive: true });
             
             const timestamp = Date.now();
@@ -41,13 +54,13 @@ export async function POST (req: NextRequest) {
         if(result.affectedRows == 0) {
             return NextResponse.json({
                 message: "FAILED",
-                detail: "Failed inserting new waste category"
+                detail: "Gagal menambahkan kategori sampah!"
             }, { status: 400 });
         }
         
         return NextResponse.json({
             message: "SUCCESS",
-            detail: "New waste category added",
+            detail: "Berhasil menambahkan kategori sampah!",
             data: {
                 waste_category_name: wasteCategoryName,
                 icon_name: dbImagePath
