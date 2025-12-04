@@ -186,7 +186,7 @@ export default function PointPage() {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchQuery);
       setCurrentPage(1);
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(handler);
@@ -323,7 +323,7 @@ export default function PointPage() {
             return (
               <div key={item.id} className={styles.itemsCard}>
                 <div className={styles.cardImageContainer}>
-                  <img src={item.image_path ? item.image_path : "/images/dummy.png"} alt={item.reward_name} />
+                  <img src={item.image_path ? `/upload/${item.image_path}` : "/images/dummy.png"} alt={item.reward_name} />
                 </div>
 
                 <div className={styles.cardContentContainer}>

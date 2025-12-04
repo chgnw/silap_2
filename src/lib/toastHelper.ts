@@ -2,10 +2,7 @@ import toast from "react-hot-toast";
 
 type ToastStatus = "success" | "error" | "failed" | "OK" | number | boolean;
 
-export const showToast = (status: ToastStatus, message: string) => {
-    console.log("Received: ", status);
-    console.log("Message: ", message);
-    
+export const showToast = (status: ToastStatus, message: string) => {    
     let isSuccess = false;
 
     if (typeof status === "number") {

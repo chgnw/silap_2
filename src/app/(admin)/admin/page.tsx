@@ -1,10 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
-import { FaRecycle, FaGift, FaTruck,  FaCogs } from 'react-icons/fa';
+import { FaUser, FaRecycle, FaGift, FaTruck,  FaCogs } from 'react-icons/fa';
 import styles from './admin.module.css';
 
 export default function AdminHomePage() {
   const quickLinks = [
+    {
+      title: 'User Management',
+      desc: 'Atur admin yang dapat mengakses sistem.',
+      icon: <FaUser size={40} />,
+      href: '/admin/admins',
+      color: '#FAD25A'
+    },
     {
       title: 'Manage Waste',
       desc: 'Atur kategori dan poin sampah per unit.',
