@@ -1,3 +1,4 @@
+import "bootstrap/dist/css/bootstrap.min.css";
 import Navbar from "../components/Large/Navbar/Navbar";
 import RoleRedirect from "../(auth)/RoleRedirect";
 
