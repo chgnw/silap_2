@@ -1,8 +1,23 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
-export async function GET() {
+export async function POST(request: Request) {
   try {
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Driver ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const driverId = parseInt(id);
+
+    if (isNaN(driverId)) {
+      return NextResponse.json({ error: "Invalid driver ID" }, { status: 400 });
+    }
+
     const sql = `
       SELECT 
         d.id,
@@ -22,13 +37,17 @@ export async function GET() {
         u.address
       FROM ms_driver d
       INNER JOIN ms_users u ON d.user_id = u.id
-      WHERE u.role_id = 2
-      ORDER BY d.id DESC
+      WHERE d.id = ?
     `;
 
-    const results = await query(sql);
+    const results = await query(sql, [driverId]);
 
-    const drivers = results.map((row: any) => ({
+    if (!results || results.length === 0) {
+      return NextResponse.json({ error: "Driver not found" }, { status: 404 });
+    }
+
+    const row = results[0];
+    const driver = {
       id: row.id,
       user_id: row.user_id,
       license_number: row.license_number,
@@ -46,19 +65,19 @@ export async function GET() {
         phone_number: row.phone_number,
         address: row.address,
       },
-    }));
+    };
 
     return NextResponse.json(
       {
         message: "SUCCESS",
-        data: drivers,
+        data: driver,
       },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("Error fetching drivers:", error);
+    console.error("Error fetching driver:", error);
     return NextResponse.json(
-      { error: "Failed to fetch drivers", detail: error.message },
+      { error: "Failed to fetch driver", detail: error.message },
       { status: 500 }
     );
   }

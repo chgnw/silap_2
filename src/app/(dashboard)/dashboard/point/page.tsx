@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-import { showToast } from '@/lib/toastHelper';
-import styles from './point.module.css'
+import { showToast } from "@/lib/toastHelper";
+import styles from "./point.module.css";
 
 import { FaStar, FaSearch, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { IoRefreshOutline } from "react-icons/io5";
@@ -45,29 +45,29 @@ export default function PointPage() {
   const { data: session, update } = useSession();
   const router = useRouter();
   useEffect(() => {
-    if (!session) router.push('/login')
-  }, [session])
+    if (!session) router.push("/login");
+  }, [session]);
 
   const [cartItems, setCartItems] = useState<Record<string, number>>({});
   const [filterCategories, setFilterCategories] = useState<FilterItem[]>([]);
   const [rewardItems, setRewardItems] = useState<RewardItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [isLoadingFilters, setIsLoadingFilters] = useState<boolean>(true);
   const [isLoadingItems, setIsLoadingItems] = useState<boolean>(true);
 
   const handleAddItem = (itemId: number) => {
-    setCartItems(prev => ({
+    setCartItems((prev) => ({
       ...prev,
-      [itemId]: Math.min((prev[itemId] || 0) + 1, MAX_QUANTITY)
+      [itemId]: Math.min((prev[itemId] || 0) + 1, MAX_QUANTITY),
     }));
   };
 
   const handleRemoveItem = (itemId: number) => {
-    setCartItems(prev => {
+    setCartItems((prev) => {
       const newCount = (prev[itemId] || 0) - 1;
       if (newCount <= 0) {
         const { [itemId]: _, ...rest } = prev;
@@ -78,25 +78,25 @@ export default function PointPage() {
   };
 
   const handleQuantityChange = (itemId: number, value: string) => {
-    if (value === '') {
-      setCartItems(prev => ({
+    if (value === "") {
+      setCartItems((prev) => ({
         ...prev,
-        [itemId]: 0
+        [itemId]: 0,
       }));
       return;
     }
 
     const numValue = parseInt(value);
-    
+
     if (isNaN(numValue)) {
       return;
     }
 
     if (numValue >= 0) {
       const finalValue = Math.min(Math.max(numValue, 0), MAX_QUANTITY);
-      setCartItems(prev => ({
+      setCartItems((prev) => ({
         ...prev,
-        [itemId]: finalValue
+        [itemId]: finalValue,
       }));
     }
   };
@@ -119,25 +119,28 @@ export default function PointPage() {
     } finally {
       setIsLoadingFilters(false);
     }
-  }
+  };
 
   // Fetch API buat data item yang bakal ditampilin (include filter, search dan pagination)
   const getRewardItems = async () => {
     try {
       setIsLoadingItems(true);
-      const response = await fetch("/api/dashboard/point-reward/get-reward-items", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          page: currentPage,
-          limit: ITEMS_PER_PAGE,
-          categoryId: selectedCategory,
-          search: debouncedSearch 
-        })
-      });
-      
+      const response = await fetch(
+        "/api/dashboard/point-reward/get-reward-items",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            page: currentPage,
+            limit: ITEMS_PER_PAGE,
+            categoryId: selectedCategory,
+            search: debouncedSearch,
+          }),
+        }
+      );
+
       const result = await response.json();
       setRewardItems(result.data);
       setPagination(result.pagination);
@@ -146,41 +149,41 @@ export default function PointPage() {
     } finally {
       setIsLoadingItems(false);
     }
-  }
+  };
 
   // Insert redemption
   const inputRedeemTransaction = async () => {
     try {
-      const payloadItems = Object.keys(cartItems).map(key => ({
+      const payloadItems = Object.keys(cartItems).map((key) => ({
         reward_id: parseInt(key),
-        quantity: cartItems[key]
+        quantity: cartItems[key],
       }));
 
       const response = await fetch("/api/dashboard/point-reward/redeem", {
         method: "POST",
-        headers: {"Content-Type": "appplication/json"},
+        headers: { "Content-Type": "appplication/json" },
         body: JSON.stringify({
           user_id: session?.user?.id,
           items: payloadItems,
-        })
+        }),
       });
-      
+
       const result = await response.json();
       showToast(result.message, result.detail);
-      if(result.message === "SUCCESS") {
+      if (result.message === "SUCCESS") {
         await update({
           ...session,
           user: {
             ...session?.user,
-            points: result.data.new_point_balance
-          }
+            points: result.data.new_point_balance,
+          },
         });
         setCartItems({});
       }
     } catch (error) {
       console.error("Error saat mengambil data reward item: ", error);
     }
-  }
+  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -200,8 +203,8 @@ export default function PointPage() {
 
   const handleResetFilter = () => {
     setSelectedCategory(null);
-    setSearchQuery('');
-    setDebouncedSearch('');
+    setSearchQuery("");
+    setDebouncedSearch("");
     setCurrentPage(1);
   };
 
@@ -217,18 +220,19 @@ export default function PointPage() {
 
   const handleRedeemItem = () => {
     inputRedeemTransaction();
-  }
+  };
 
   useEffect(() => {
     getFilterCategories();
   }, []);
 
   useEffect(() => {
-    getRewardItems();
-  }, [currentPage, selectedCategory, debouncedSearch]);
+    if (session?.user?.id) {
+      getRewardItems();
+    }
+  }, [currentPage, selectedCategory, debouncedSearch, session?.user?.id]);
 
   const hasItems = Object.keys(cartItems).length > 0;
-  console.log("cart items: ", cartItems);
 
   return (
     <>
@@ -254,21 +258,23 @@ export default function PointPage() {
       </div>
 
       <div className={styles.filterGroup}>
-        <button 
-          className={`${styles.filterContainer} `} 
+        <button
+          className={`${styles.filterContainer} `}
           onClick={handleResetFilter}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         >
-          <IoRefreshOutline style={{color: '#A4B465'}}/> Reset
+          <IoRefreshOutline style={{ color: "#A4B465" }} /> Reset
         </button>
 
         {isLoadingFilters ? (
           <p>Loading filters...</p>
         ) : (
           filterCategories.map((category) => (
-            <button 
+            <button
               key={category.id}
-              className={`${styles.filterContainer} ${selectedCategory === category.id ? styles.active : ''}`}
+              className={`${styles.filterContainer} ${
+                selectedCategory === category.id ? styles.active : ""
+              }`}
               onClick={() => handleCategoryFilter(category.id)}
             >
               {category.category_name}
@@ -279,25 +285,23 @@ export default function PointPage() {
 
       <div className={styles.itemsGroup}>
         <div className={styles.itemsHeaderContainer}>
-          <form 
-            className={styles.searchBar}
-            onSubmit={handleSearchSubmit}
-          >
-            <FaSearch style={{color: '#999'}}/>
-            <input 
-              type="text" 
+          <form className={styles.searchBar} onSubmit={handleSearchSubmit}>
+            <FaSearch style={{ color: "#999" }} />
+            <input
+              type="text"
               name="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder='Cari barang yang anda diinginkan'
+              placeholder="Cari barang yang anda diinginkan"
             />
-            <button type="submit" style={{display: 'none'}}>Search</button>
+            <button type="submit" style={{ display: "none" }}>
+              Search
+            </button>
           </form>
 
-
-          <button 
+          <button
             className={styles.redeemButton}
-            style={{ display: hasItems ? 'block' : 'none' }}
+            style={{ display: hasItems ? "block" : "none" }}
             onClick={handleRedeemItem}
           >
             Redeem Items
@@ -313,95 +317,112 @@ export default function PointPage() {
             <p>Tidak ada item yang ditemukan</p>
           </div>
         ) : (
-          <>
-          </>
+          <></>
         )}
         <div className={styles.itemsContainer}>
-          {!isLoadingItems && rewardItems.length > 0 && rewardItems.map((item) => {
-            const quantity = cartItems[item.id] || 0;
-            
-            return (
-              <div key={item.id} className={styles.itemsCard}>
-                <div className={styles.cardImageContainer}>
-                  <img src={item.image_path ? `/upload/${item.image_path}` : "/images/dummy.png"} alt={item.reward_name} />
-                </div>
+          {!isLoadingItems &&
+            rewardItems.length > 0 &&
+            rewardItems.map((item) => {
+              const quantity = cartItems[item.id] || 0;
 
-                <div className={styles.cardContentContainer}>
-                  <div className={styles.contentTitle}>
-                    <h1>{item.reward_name}</h1>
-                    <p>by {item.vendor_name}</p>
+              return (
+                <div key={item.id} className={styles.itemsCard}>
+                  <div className={styles.cardImageContainer}>
+                    <img
+                      src={
+                        item.image_path
+                          ? `/upload/${item.image_path}`
+                          : "/images/dummy.png"
+                      }
+                      alt={item.reward_name}
+                    />
                   </div>
 
-                  <div className={styles.contentPoint}>
-                    <h1>{item.points_required} Points</h1>
-                  </div>
-
-                  <div className={styles.contentFooter}>
-                    <div className={styles.contentInfo}>
-                      <p>Sudah ditukar 1x</p>
-                      <p>{item.total_redeemed}+ ditukar</p>
+                  <div className={styles.cardContentContainer}>
+                    <div className={styles.contentTitle}>
+                      <h1>{item.reward_name}</h1>
+                      <p>by {item.vendor_name}</p>
                     </div>
 
-                    <div className={styles.buttonContainer}>
-                      {quantity === 0 && !cartItems.hasOwnProperty(item.id) ? (
-                        <button 
-                          className={styles.addButton}
-                          onClick={() => handleAddItem(item.id)}
-                        >
-                          <FaCirclePlus style={{color: '#A4B465'}}/>
-                        </button>
-                      ) : (
-                        <div className={styles.quantityControls}>
-                          <div className={styles.quantityControlsContainer}>
-                            <button 
-                              className={styles.minusButton}
-                              onClick={() => handleRemoveItem(item.id)}
-                            >
-                              <FaCircleMinus style={{color: '#A4B465'}}/>
-                            </button>
-                            <input 
-                              type="text"
-                              className={styles.quantityInput}
-                              value={quantity === 0 ? '' : quantity}
-                              onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                              onBlur={(e) => {
-                                if (e.target.value === '' || parseInt(e.target.value) === 0) {
-                                  setCartItems(prev => ({
-                                    ...prev,
-                                    [item.id]: 1
-                                  }));
+                    <div className={styles.contentPoint}>
+                      <h1>{item.points_required} Points</h1>
+                    </div>
+
+                    <div className={styles.contentFooter}>
+                      <div className={styles.contentInfo}>
+                        <p>Sudah ditukar 1x</p>
+                        <p>{item.total_redeemed}+ ditukar</p>
+                      </div>
+
+                      <div className={styles.buttonContainer}>
+                        {quantity === 0 &&
+                        !cartItems.hasOwnProperty(item.id) ? (
+                          <button
+                            className={styles.addButton}
+                            onClick={() => handleAddItem(item.id)}
+                          >
+                            <FaCirclePlus style={{ color: "#A4B465" }} />
+                          </button>
+                        ) : (
+                          <div className={styles.quantityControls}>
+                            <div className={styles.quantityControlsContainer}>
+                              <button
+                                className={styles.minusButton}
+                                onClick={() => handleRemoveItem(item.id)}
+                              >
+                                <FaCircleMinus style={{ color: "#A4B465" }} />
+                              </button>
+                              <input
+                                type="text"
+                                className={styles.quantityInput}
+                                value={quantity === 0 ? "" : quantity}
+                                onChange={(e) =>
+                                  handleQuantityChange(item.id, e.target.value)
                                 }
-                              }}
-                            />
-                            <button 
-                              className={styles.plusButton}
-                              onClick={() => handleAddItem(item.id)}
-                            >
-                              <FaCirclePlus style={{color: '#A4B465'}}/>
-                            </button>
-                          </div>
+                                onBlur={(e) => {
+                                  if (
+                                    e.target.value === "" ||
+                                    parseInt(e.target.value) === 0
+                                  ) {
+                                    setCartItems((prev) => ({
+                                      ...prev,
+                                      [item.id]: 1,
+                                    }));
+                                  }
+                                }}
+                              />
+                              <button
+                                className={styles.plusButton}
+                                onClick={() => handleAddItem(item.id)}
+                              >
+                                <FaCirclePlus style={{ color: "#A4B465" }} />
+                              </button>
+                            </div>
 
-                          {quantity >= MAX_QUANTITY && (
-                            <p className={styles.maxNotice}>Max. {MAX_QUANTITY} items</p>
-                          )}
-                        </div>
-                      )}
+                            {quantity >= MAX_QUANTITY && (
+                              <p className={styles.maxNotice}>
+                                Max. {MAX_QUANTITY} items
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
 
         {pagination && pagination.totalPages > 1 && (
           <div className={styles.paginationContainer}>
             <p className={styles.totalItems}>
-              Menampilkan {pagination.entryFrom} - {pagination.entryTo} dari {pagination.totalItems} items
+              Menampilkan {pagination.entryFrom} - {pagination.entryTo} dari{" "}
+              {pagination.totalItems} items
             </p>
 
             <div className={styles.paginationButtonContainer}>
-              <button 
+              <button
                 className={styles.paginationButton}
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={!pagination.hasPrevPage}
@@ -415,7 +436,7 @@ export default function PointPage() {
                 </span>
               </div>
 
-              <button 
+              <button
                 className={styles.paginationButton}
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={!pagination.hasNextPage}

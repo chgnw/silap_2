@@ -1,31 +1,41 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
-import styles from '../auth.module.css';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import styles from "../auth.module.css";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'driver') => void }) {
+function RoleSelection({
+  onSelectRole,
+}: {
+  onSelectRole: (role: "customer" | "driver") => void;
+}) {
   return (
     <div className={styles.page}>
       <div className={styles.registerCard}>
         <p>Hola,</p>
         <h2>Selamat Datang</h2>
-        
+
         <div className={styles.roleSelection}>
-          <div className={styles.roleCard} onClick={() => onSelectRole('customer')}>
+          <div
+            className={styles.roleCard}
+            onClick={() => onSelectRole("customer")}
+          >
             <img src="/images/customer.svg" alt="Customer" />
             <div className={styles.roleLabel}>Customer</div>
           </div>
-          
-          <div className={styles.roleCard} onClick={() => onSelectRole('driver')}>
+
+          <div
+            className={styles.roleCard}
+            onClick={() => onSelectRole("driver")}
+          >
             <img src="/images/mitra.svg" alt="Driver" />
             <div className={styles.roleLabel}>Driver</div>
           </div>
         </div>
-        
+
         <div className={styles.registerFooter}>
           Sudah punya akun?{" "}
           <a href="/login" className={styles.linkRegister}>
@@ -37,56 +47,62 @@ function RoleSelection({ onSelectRole }: { onSelectRole: (role: 'customer' | 'dr
   );
 }
 
-function RegisterForm({ role, onBackToSelection }: { 
-  role: 'customer' | 'driver',
-  onBackToSelection: () => void 
+function RegisterForm({
+  role,
+  onBackToSelection,
+}: {
+  role: "customer" | "driver";
+  onBackToSelection: () => void;
 }) {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
 
-  const [countryCode, setCountryCode] = useState('+62'); 
+  const [countryCode, setCountryCode] = useState("+62");
   const [countryOptions, setCountryOptions] = useState([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(true);
 
-  // Fetch data kode telepon tiap negara 
+  // Fetch data kode telepon tiap negara
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await fetch('https://restcountries.com/v3.1/all?fields=name,idd,cca2');
+        const res = await fetch(
+          "https://restcountries.com/v3.1/all?fields=name,idd,cca2"
+        );
         const data = await res.json();
 
         const formattedCountries = data
           .filter((country: any) => country.idd?.root)
           .map((country: any) => {
-            const code = `${country.idd.root}${country.idd.suffixes ? country.idd.suffixes[0] : ''}`;
-            
+            const code = `${country.idd.root}${
+              country.idd.suffixes ? country.idd.suffixes[0] : ""
+            }`;
+
             return {
               name: country.name.common,
               code: code,
-              flag: country.cca2
+              flag: country.cca2,
             };
           })
           .sort((a: any, b: any) => a.name.localeCompare(b.name));
 
         setCountryOptions(formattedCountries);
-        
-        const indonesia = formattedCountries.find((c: any) => c.name === 'Indonesia');
-        if(indonesia) setCountryCode(indonesia.code);
 
+        const indonesia = formattedCountries.find(
+          (c: any) => c.name === "Indonesia"
+        );
+        if (indonesia) setCountryCode(indonesia.code);
       } catch (error) {
         console.error("Gagal ambil data negara:", error);
-        setCountryOptions([
-            { name: 'Indonesia', code: '+62' }
-        ] as any);
+        setCountryOptions([{ name: "Indonesia", code: "+62" }] as any);
       } finally {
         setIsLoadingCountries(false);
       }
@@ -97,13 +113,13 @@ function RegisterForm({ role, onBackToSelection }: {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
-    val = val.replace(/\D/g, '');
+    val = val.replace(/\D/g, "");
 
-    if (val.startsWith('0')) {
+    if (val.startsWith("0")) {
       val = val.substring(1);
     }
 
-    const codeNumber = countryCode.replace('+', '');
+    const codeNumber = countryCode.replace("+", "");
     if (val.startsWith(codeNumber)) {
       val = val.substring(codeNumber.length);
     }
@@ -134,7 +150,7 @@ function RegisterForm({ role, onBackToSelection }: {
       setError("Kata sandi minimal harus 8 karakter!");
       return;
     }
-    
+
     if (!/[A-Z]/.test(password)) {
       setError("Kata sandi harus mengandung minimal 1 huruf kapital!");
       return;
@@ -155,9 +171,9 @@ function RegisterForm({ role, onBackToSelection }: {
 
     const fullPhoneNumber = `${countryCode} ${phoneNumber}`;
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           first_name: firstName,
           last_name: lastName,
@@ -169,11 +185,11 @@ function RegisterForm({ role, onBackToSelection }: {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Gagal mendaftar');
+      if (!res.ok) throw new Error(data.error || "Gagal mendaftar");
 
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
-      const loginResult = await signIn('credentials', {
+      const loginResult = await signIn("credentials", {
         redirect: false,
         email,
         password,
@@ -183,7 +199,16 @@ function RegisterForm({ role, onBackToSelection }: {
       if (loginResult?.error) {
         setError("Login otomatis gagal, silakan login manual.");
       } else {
-        router.push('/dashboard');
+        const sessionRes = await fetch("/api/auth/session");
+        const session = await sessionRes.json();
+
+        if (session?.user?.role_id === 3) {
+          router.push("/admin"); // Admin
+        } else if (session?.user?.role_id === 2) {
+          router.push("/driver"); // Driver
+        } else {
+          router.push("/dashboard"); // Customer
+        }
         router.refresh();
       }
     } catch (err: any) {
@@ -219,7 +244,8 @@ function RegisterForm({ role, onBackToSelection }: {
                 <div className={styles.formGroup}>
                   <div className={styles.formContainer}>
                     <label className={styles.formLabel}>
-                      Nama Belakang <span className={styles.requiredField}>*</span>
+                      Nama Belakang{" "}
+                      <span className={styles.requiredField}>*</span>
                     </label>
                     <input
                       type="text"
@@ -236,62 +262,76 @@ function RegisterForm({ role, onBackToSelection }: {
 
             <div className={styles.formContainer}>
               <label className={styles.formLabel}>
-                  Nomor Telepon <span className={styles.requiredField}>*</span>
+                Nomor Telepon <span className={styles.requiredField}>*</span>
               </label>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                  <div 
-                    className={styles.formInput}
-                    style={{ 
-                      position: 'relative', 
-                      width: '100px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: 0,
-                      overflow: 'hidden'
+              <div style={{ display: "flex", gap: "10px" }}>
+                <div
+                  className={styles.formInput}
+                  style={{
+                    position: "relative",
+                    width: "100px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 0,
+                    overflow: "hidden",
+                  }}
+                >
+                  <span
+                    style={{
+                      pointerEvents: "none",
+                      fontWeight: "medium",
+                      color: "#000000",
                     }}
                   >
-                    <span style={{ pointerEvents: 'none', fontWeight: 'medium', color: '#000000' }}>
-                      {countryCode}
-                    </span>
-                    
-                    <span style={{ fontSize: '10px', marginLeft: '4px', pointerEvents: 'none' }}>▼</span>
+                    {countryCode}
+                  </span>
 
-                    <select
-                      value={countryCode}
-                      onChange={(e) => setCountryCode(e.target.value)}
-                      disabled={isLoadingCountries}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        opacity: 0,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {isLoadingCountries ? (
-                        <option>Loading...</option>
-                      ) : (
-                        countryOptions.map((option: any, index) => (
-                          <option key={index} value={option.code}>
-                            {option.name} ({option.code})
-                          </option>
-                        ))
-                      )}
-                    </select>
-                  </div>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      marginLeft: "4px",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    ▼
+                  </span>
 
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    value={phoneNumber}
-                    onChange={handlePhoneChange}
-                    required
-                    className={styles.formInput}
-                    style={{ flexGrow: 1 }}
-                  />
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    disabled={isLoadingCountries}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      opacity: 0,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {isLoadingCountries ? (
+                      <option>Loading...</option>
+                    ) : (
+                      countryOptions.map((option: any, index) => (
+                        <option key={index} value={option.code}>
+                          {option.name} ({option.code})
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                <input
+                  type="tel"
+                  placeholder="Phone Number"
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  required
+                  className={styles.formInput}
+                  style={{ flexGrow: 1 }}
+                />
               </div>
             </div>
 
@@ -323,16 +363,23 @@ function RegisterForm({ role, onBackToSelection }: {
                   className={styles.formInput}
                 />
                 {showPassword ? (
-                  <FaEyeSlash className={styles.eyeIcon} onClick={() => setShowPassword(false)} />
+                  <FaEyeSlash
+                    className={styles.eyeIcon}
+                    onClick={() => setShowPassword(false)}
+                  />
                 ) : (
-                  <FaEye className={styles.eyeIcon} onClick={() => setShowPassword(true)} />
+                  <FaEye
+                    className={styles.eyeIcon}
+                    onClick={() => setShowPassword(true)}
+                  />
                 )}
               </div>
             </div>
 
             <div className={styles.formContainer}>
               <label className={styles.formLabel}>
-                Tulis Ulang Kata Sandi <span className={styles.requiredField}>*</span>
+                Tulis Ulang Kata Sandi{" "}
+                <span className={styles.requiredField}>*</span>
               </label>
               <div className={styles.passwordWrapper}>
                 <input
@@ -344,21 +391,27 @@ function RegisterForm({ role, onBackToSelection }: {
                   className={styles.formInput}
                 />
                 {showConfirm ? (
-                  <FaEyeSlash className={styles.eyeIcon} onClick={() => setShowConfirm(false)} />
+                  <FaEyeSlash
+                    className={styles.eyeIcon}
+                    onClick={() => setShowConfirm(false)}
+                  />
                 ) : (
-                  <FaEye className={styles.eyeIcon} onClick={() => setShowConfirm(true)} />
+                  <FaEye
+                    className={styles.eyeIcon}
+                    onClick={() => setShowConfirm(true)}
+                  />
                 )}
               </div>
             </div>
 
             {error && <div className={styles.alert}>{error}</div>}
 
-            <button type="submit" className={styles.submitButton} disabled={loading}>
-              {loading ? (
-                <div className={styles.spinner}></div>
-              ) : (
-                "Daftar →"
-              )}
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={loading}
+            >
+              {loading ? <div className={styles.spinner}></div> : "Daftar →"}
             </button>
 
             <p className={styles.footer}>
@@ -373,7 +426,9 @@ function RegisterForm({ role, onBackToSelection }: {
         <div className={styles.registerRight}>
           <p className={styles.subtitle}>Yuk,</p>
           <h1>
-            Buat<br />Akunmu
+            Buat
+            <br />
+            Akunmu
           </h1>
           <div className={styles.roleImage}>
             <img src="/images/create-account.svg" />
@@ -385,21 +440,25 @@ function RegisterForm({ role, onBackToSelection }: {
 }
 
 export default function RegisterPage() {
-  const [step, setStep] = useState<'selection' | 'form'>('selection');
-  const [role, setRole] = useState<'customer' | 'driver' | null>(null);
+  const [step, setStep] = useState<"selection" | "form">("selection");
+  const [role, setRole] = useState<"customer" | "driver" | null>(null);
 
-  const handleRoleSelect = (selectedRole: 'customer' | 'driver') => {
+  const handleRoleSelect = (selectedRole: "customer" | "driver") => {
     setRole(selectedRole);
-    setStep('form');
+    setStep("form");
   };
 
   const handleBackToSelection = () => {
-    setStep('selection');
+    setStep("selection");
     setRole(null);
   };
 
-  if (step === 'selection') return <RoleSelection onSelectRole={handleRoleSelect} />;
-  if (step === 'form' && role) return <RegisterForm role={role} onBackToSelection={handleBackToSelection} />;
-  
+  if (step === "selection")
+    return <RoleSelection onSelectRole={handleRoleSelect} />;
+  if (step === "form" && role)
+    return (
+      <RegisterForm role={role} onBackToSelection={handleBackToSelection} />
+    );
+
   return null;
 }

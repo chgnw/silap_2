@@ -30,7 +30,7 @@ export default function AdminHomePage() {
       title: 'Fleet & Drivers',
       desc: 'Verifikasi driver dan kelola kendaraan.',
       icon: <FaTruck size={40} />,
-      href: '/admin/fleet',
+      href: '/admin/drivers-vehicles',
       color: '#1565C0'
     },
     {

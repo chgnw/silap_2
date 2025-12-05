@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
                     ) AS details,
                     CONCAT('Rp ', FORMAT(py.total_payment, 0)) AS amount_display
                 FROM tr_payment_history py
-                WHERE user_id = ?
+                WHERE users_id = ?
             ) AS all_transactions
             ORDER BY date DESC;
         `;

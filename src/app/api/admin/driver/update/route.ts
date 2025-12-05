@@ -1,116 +1,45 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
-import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
-    const {
-      id,
-      first_name,
-      last_name,
-      email,
-      password,
-      phone_number,
-      address,
-      license_number,
-      id_card_number,
-      is_verified,
-      is_available,
-      assigned_vehicle_id,
-      notes,
-    } = await req.json();
+    const { id, license_number, is_verified } = await req.json();
 
-    if (!id || !first_name || !email) {
+    if (!id) {
       return NextResponse.json(
-        { error: "ID, first name, and email are required" },
+        { error: "Driver ID is required" },
         { status: 400 }
       );
     }
 
-    // Check if email exists for another user
-    const existingUser = await query(
-      "SELECT id FROM ms_users WHERE email = ? AND id != ?",
-      [email, id]
+    const existingDriver = await query(
+      "SELECT id FROM ms_driver WHERE id = ?",
+      [id]
     );
 
-    if (existingUser.length > 0) {
+    if (existingDriver.length === 0) {
       return NextResponse.json(
         {
-          error: "Email already exists",
-          detail: "This email is already registered to another user",
+          error: "Driver not found",
+          detail: "The specified driver does not exist",
         },
-        { status: 409 }
+        { status: 404 }
       );
     }
 
-    // Update ms_users
-    let userSql: string;
-    let userParams: any[];
-
-    if (password && password.trim() !== "") {
-      // Update with new password
-      const hashedPassword = await bcrypt.hash(password, 10);
-      userSql = `
-        UPDATE ms_users
-        SET first_name = ?, last_name = ?, email = ?, password = ?, phone_number = ?, address = ?
-        WHERE id = ?
-      `;
-      userParams = [
-        first_name,
-        last_name || null,
-        email,
-        hashedPassword,
-        phone_number || null,
-        address || null,
-        id,
-      ];
-    } else {
-      // Update without changing password
-      userSql = `
-        UPDATE ms_users
-        SET first_name = ?, last_name = ?, email = ?, phone_number = ?, address = ?
-        WHERE id = ?
-      `;
-      userParams = [
-        first_name,
-        last_name || null,
-        email,
-        phone_number || null,
-        address || null,
-        id,
-      ];
-    }
-
-    await query(userSql, userParams);
-
     // Update ms_driver
     const driverSql = `
-      INSERT INTO ms_driver (
-        user_id,
-        license_number,
-        id_card_number,
-        is_verified,
-        is_available,
-        assigned_vehicle_id,
-        notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-        license_number = VALUES(license_number),
-        id_card_number = VALUES(id_card_number),
-        is_verified = VALUES(is_verified),
-        is_available = VALUES(is_available),
-        assigned_vehicle_id = VALUES(assigned_vehicle_id),
-        notes = VALUES(notes)
+      UPDATE ms_driver
+      SET 
+        license_number = ?,
+        is_verified = ?
+      WHERE id = ?
     `;
 
     await query(driverSql, [
-      id,
       license_number || null,
-      id_card_number || null,
       is_verified !== undefined ? is_verified : false,
-      is_available !== undefined ? is_available : true,
-      assigned_vehicle_id || null,
-      notes || null,
+      id,
     ]);
 
     return NextResponse.json(

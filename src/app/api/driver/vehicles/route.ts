@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { query } from "@/lib/db";
 
 export async function GET() {
   try {
+    const session = await getServerSession();
+
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const sql = `
       SELECT 
         id,
@@ -12,11 +19,10 @@ export async function GET() {
         license_plate,
         vin,
         max_weight,
-        status,
-        created_at,
-        updated_at
+        status
       FROM ms_vehicle
-      ORDER BY id ASC
+      WHERE status = 'available'
+      ORDER BY vehicle_name ASC, license_plate ASC
     `;
 
     const vehicles = await query(sql);

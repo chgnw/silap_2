@@ -15,10 +15,9 @@ export async function POST(req: Request) {
     }
 
     const driverCheckSql = `
-        SELECT u.id 
-        FROM ms_users u
-        INNER JOIN ms_role r ON u.role_id = r.id
-        WHERE u.id = ? AND r.role_name = 'driver'
+      SELECT user_id 
+      FROM ms_driver
+      WHERE id = ?
     `;
     const driverCheck = await query(driverCheckSql, [id]);
     if (driverCheck.length === 0) {
@@ -30,21 +29,20 @@ export async function POST(req: Request) {
       );
     }
 
-    const sql = `DELETE FROM ms_users WHERE id = ?`;
-    await query(sql, [id]);
+    const userId = driverCheck[0].user_id;
+    await query("DELETE FROM ms_driver WHERE id = ?", [id]);
+    await query("DELETE FROM ms_users WHERE id = ?", [userId]);
 
-    return NextResponse.json(
-      {
+    return NextResponse.json({
         message: "SUCCESS",
         detail: "Driver deleted successfully",
-      },
-      { status: 200 }
+      }, { status: 200 }
     );
   } catch (error: any) {
     console.error("Error deleting driver:", error);
-    return NextResponse.json(
-      { error: "Failed to delete driver", detail: error.message },
-      { status: 500 }
+    return NextResponse.json({ 
+      error: "Failed to delete driver", detail: error.message 
+    }, { status: 500 }
     );
   }
 }
