@@ -6,32 +6,31 @@ export async function GET() {
     const sql = `
       SELECT 
         id,
-        vehicle_name,
-        brand,
-        model,
-        license_plate,
-        vin,
+        tier_name,
+        min_weight,
         max_weight,
-        status,
+        target_weight,
+        description,
+        benefit,
         created_at,
         updated_at
-      FROM ms_vehicle
-      ORDER BY id ASC
+      FROM ms_tier_list
+      ORDER BY min_weight ASC
     `;
 
-    const vehicles = await query(sql);
+    const tiers = await query(sql);
 
     return NextResponse.json(
       {
         message: "SUCCESS",
-        data: vehicles,
+        data: tiers,
       },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("Error fetching vehicles:", error);
+    console.error("Error fetching tiers:", error);
     return NextResponse.json(
-      { error: "Failed to fetch vehicles", detail: error.message },
+      { error: "Failed to fetch tiers", detail: error.message },
       { status: 500 }
     );
   }

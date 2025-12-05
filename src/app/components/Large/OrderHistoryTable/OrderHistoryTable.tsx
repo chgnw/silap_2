@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -47,6 +47,7 @@ export interface UnifiedTransaction {
 export default function OrderHistoryTable() {
   const { data: session } = useSession();
   const router = useRouter();
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
     if (!session) router.push("/login");
@@ -63,16 +64,18 @@ export default function OrderHistoryTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchTransactionData = async () => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
     try {
       setIsLoading(true);
       const response = await fetch("/api/dashboard/order-history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: session?.user?.id }),
+        body: JSON.stringify({ user_id: userId }),
       });
 
       const result = await response.json();
-      console.log("raw data: ", result.data);
 
       if (result && Array.isArray(result.data)) {
         const cleanData: UnifiedTransaction[] = result.data.map(
@@ -85,7 +88,6 @@ export default function OrderHistoryTable() {
             amount_display: String(item.amount_display),
           })
         );
-        console.log("clean data: ", cleanData);
         setTableData(cleanData);
       }
     } catch (error) {
@@ -96,10 +98,12 @@ export default function OrderHistoryTable() {
   };
 
   useEffect(() => {
-    if (session?.user?.id) {
+    const userId = session?.user?.id;
+    if (userId && !hasFetchedRef.current) {
       fetchTransactionData();
+      hasFetchedRef.current = true;
     }
-  }, [session]);
+  }, [session?.user?.id]);
 
   const columns = useMemo<ColumnDef<UnifiedTransaction>[]>(
     () => [

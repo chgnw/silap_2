@@ -10,8 +10,10 @@ import { MdEmail } from "react-icons/md";
 import styles from "../auth.module.css";
 
 export default function LoginPage() {
-  const [step, setStep] = useState<"method" | "login" | "forgot" | "otp" | "reset">("method");
-  
+  const [step, setStep] = useState<
+    "method" | "login" | "forgot" | "otp" | "reset"
+  >("method");
+
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -29,15 +31,15 @@ export default function LoginPage() {
 
   const fadeSlide = {
     initial: { opacity: 0, y: 15 },
-    animate: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.25, ease: "easeOut" as const } 
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.25, ease: "easeOut" as const },
     },
-    exit: { 
-      opacity: 0, 
-      y: -15, 
-      transition: { duration: 0.2, ease: "easeIn" as const } 
+    exit: {
+      opacity: 0,
+      y: -15,
+      transition: { duration: 0.2, ease: "easeIn" as const },
     },
   };
 
@@ -48,7 +50,7 @@ export default function LoginPage() {
 
     const email = emailRef.current?.value || "";
     const password = passwordRef.current?.value || "";
-    
+
     if (!validateEmail(email)) {
       setError("Format email tidak valid, mohon periksa kembali.");
       setLoading(false);
@@ -60,7 +62,7 @@ export default function LoginPage() {
         redirect: false,
         email,
         password,
-        rememberMe
+        rememberMe,
       });
       console.log(result);
 
@@ -70,8 +72,14 @@ export default function LoginPage() {
         const sessionRes = await fetch("/api/auth/session");
         const session = await sessionRes.json();
 
-        if (session?.user?.role_id === 3) router.push("/admin");
-        else router.push("/dashboard");
+        // Redirect based on role_id
+        if (session?.user?.role_id === 3) {
+          router.push("/admin"); // Admin
+        } else if (session?.user?.role_id === 2) {
+          router.push("/driver"); // Driver
+        } else {
+          router.push("/dashboard"); // Customer
+        }
         router.refresh();
       }
     } catch (err: any) {
@@ -92,15 +100,23 @@ export default function LoginPage() {
     return emailRegex.test(email);
   };
 
-  const validatePassword = (password: string): { valid: boolean; message?: string } => {
+  const validatePassword = (
+    password: string
+  ): { valid: boolean; message?: string } => {
     if (password.length < 8) {
       return { valid: false, message: "Kata sandi harus minimal 8 karakter." };
     }
     if (!/[A-Z]/.test(password)) {
-      return { valid: false, message: "Kata sandi harus mengandung minimal 1 huruf kapital." };
+      return {
+        valid: false,
+        message: "Kata sandi harus mengandung minimal 1 huruf kapital.",
+      };
     }
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      return { valid: false, message: "Kata sandi harus mengandung minimal 1 karakter spesial." };
+      return {
+        valid: false,
+        message: "Kata sandi harus mengandung minimal 1 karakter spesial.",
+      };
     }
     return { valid: true };
   };
@@ -201,7 +217,8 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Gagal mengirim ulang kode.");
+      if (!res.ok)
+        throw new Error(data.message || "Gagal mengirim ulang kode.");
 
       setResendCooldown(30);
       setError(null);
@@ -226,9 +243,11 @@ export default function LoginPage() {
       return;
     }
 
-   const passwordValidation = validatePassword(newPassword);
+    const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.valid) {
-      setError(passwordValidation.message || "Kata sandi tidak memenuhi syarat.");
+      setError(
+        passwordValidation.message || "Kata sandi tidak memenuhi syarat."
+      );
       setLoading(false);
       return;
     }
@@ -250,7 +269,8 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Gagal mengubah kata sandi.");
+      if (!res.ok)
+        throw new Error(data.message || "Gagal mengubah kata sandi.");
 
       setStep("login");
     } catch (err: any) {
@@ -261,9 +281,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={`${styles.page} ${
-      step === "forgot" || step === "otp" || step === "reset" ? styles.centered : ""
-    }`}>
+    <div
+      className={`${styles.page} ${
+        step === "forgot" || step === "otp" || step === "reset"
+          ? styles.centered
+          : ""
+      }`}
+    >
       {/* LEFT PANEL */}
       <AnimatePresence mode="wait">
         {(step === "method" || step === "login") && (
@@ -287,7 +311,7 @@ export default function LoginPage() {
 
       {/* RIGHT PANEL */}
       <AnimatePresence mode="wait">
-        <motion.div 
+        <motion.div
           key={step}
           className={styles.card}
           initial={{ opacity: 0, scale: 0.95 }}
@@ -296,14 +320,25 @@ export default function LoginPage() {
         >
           {step === "method" && (
             <motion.div key="method" {...fadeSlide} className="w-100">
-              <div className={styles.buttonContainer} style={{ marginBottom: '1rem' }}>
-                <button className={styles.googleBtn} onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
+              <div
+                className={styles.buttonContainer}
+                style={{ marginBottom: "1rem" }}
+              >
+                <button
+                  className={styles.googleBtn}
+                  onClick={() =>
+                    signIn("google", { callbackUrl: "/dashboard" })
+                  }
+                >
                   <img src="/icons/google-icon.svg" alt="Google" />
                   Login dengan Google
                 </button>
 
-                <button className={styles.emailBtn} onClick={() => setStep("login")}>
-                  <MdEmail size={24}/>
+                <button
+                  className={styles.emailBtn}
+                  onClick={() => setStep("login")}
+                >
+                  <MdEmail size={24} />
                   Masuk dengan Email
                 </button>
               </div>
@@ -319,19 +354,20 @@ export default function LoginPage() {
 
           {step === "login" && (
             <motion.div key="login" {...fadeSlide} className="w-100">
-              <button className={styles.closeBtn} onClick={() => {
-                setStep("method")
-                setError(null)
-              }}>
+              <button
+                className={styles.closeBtn}
+                onClick={() => {
+                  setStep("method");
+                  setError(null);
+                }}
+              >
                 ×
               </button>
 
               <form onSubmit={handleLogin} className={styles.formGroup}>
                 {/* Email Form */}
                 <div className={styles.formContainer}>
-                  <label className={styles.formLabel}>
-                    Email
-                  </label>
+                  <label className={styles.formLabel}>Email</label>
                   <input
                     ref={emailRef}
                     type="email"
@@ -341,12 +377,10 @@ export default function LoginPage() {
                     className={styles.formInput}
                   />
                 </div>
-                
+
                 {/* Password Form */}
                 <div className={styles.formContainer}>
-                  <label className={styles.formLabel}>
-                    Password
-                  </label>
+                  <label className={styles.formLabel}>Password</label>
                   <div className={styles.passwordWrapper}>
                     <input
                       ref={passwordRef}
@@ -357,9 +391,15 @@ export default function LoginPage() {
                       className={styles.formInput}
                     />
                     {showPassword ? (
-                      <FaEyeSlash className={styles.eyeIcon} onClick={() => setShowPassword(false)} />
+                      <FaEyeSlash
+                        className={styles.eyeIcon}
+                        onClick={() => setShowPassword(false)}
+                      />
                     ) : (
-                      <FaEye className={styles.eyeIcon} onClick={() => setShowPassword(true)} />
+                      <FaEye
+                        className={styles.eyeIcon}
+                        onClick={() => setShowPassword(true)}
+                      />
                     )}
                   </div>
                 </div>
@@ -367,25 +407,46 @@ export default function LoginPage() {
                 {/* Login Condition */}
                 <div className={styles.loginCondition}>
                   <div className={styles.rememberMe}>
-                    <input type="checkbox" id="rememberMeCheckbox" onChange={(e) => setRememberMe(e.target.checked)}/>
-                    <label htmlFor="rememberMeCheckbox" className={styles.rememberMeLabel}>Remember me</label>
+                    <input
+                      type="checkbox"
+                      id="rememberMeCheckbox"
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    <label
+                      htmlFor="rememberMeCheckbox"
+                      className={styles.rememberMeLabel}
+                    >
+                      Remember me
+                    </label>
                   </div>
 
-                  <button type="button" className={styles.forgotPassword} onClick={() => {
-                    setStep("forgot")
-                    setError(null)  
-                  }}>
+                  <button
+                    type="button"
+                    className={styles.forgotPassword}
+                    onClick={() => {
+                      setStep("forgot");
+                      setError(null);
+                    }}
+                  >
                     Forgot Password?
                   </button>
                 </div>
-                
+
                 {/* Error Message */}
                 {error && <div className={styles.alert}>{error}</div>}
-                
+
                 {/* Submit Button */}
                 <div className={styles.buttonContainer}>
-                  <button type="submit" className={styles.submitButton} disabled={loading}>
-                    {loading ? <div className={styles.spinner}></div> : "Sign In"}
+                  <button
+                    type="submit"
+                    className={styles.submitButton}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <div className={styles.spinner}></div>
+                    ) : (
+                      "Sign In"
+                    )}
                   </button>
                 </div>
               </form>
@@ -395,10 +456,13 @@ export default function LoginPage() {
           {/* Forgot Password */}
           {step === "forgot" && (
             <motion.div key="forgot" {...fadeSlide} className="w-100">
-              <button className={styles.closeBtn} onClick={() => {
-                setStep("login")
-                setError(null)  
-              }}>
+              <button
+                className={styles.closeBtn}
+                onClick={() => {
+                  setStep("login");
+                  setError(null);
+                }}
+              >
                 ×
               </button>
 
@@ -408,9 +472,7 @@ export default function LoginPage() {
 
               <form onSubmit={handleSendOtp} className={styles.formGroup}>
                 <div className={styles.formContainer}>
-                  <label className={styles.formLabel}>
-                    Email
-                  </label>
+                  <label className={styles.formLabel}>Email</label>
                   <input
                     ref={emailRef}
                     type="email"
@@ -422,20 +484,29 @@ export default function LoginPage() {
                 </div>
 
                 <p className={styles.smallText}>
-                  Kami akan mengirimkan kode verifikasi ke email ini jika cocok dengan akun SILAP yang ada.
+                  Kami akan mengirimkan kode verifikasi ke email ini jika cocok
+                  dengan akun SILAP yang ada.
                 </p>
 
                 {error && <div className={styles.alert}>{error}</div>}
 
                 <div className={styles.buttonContainer}>
-                  <button type="submit" className={styles.submitButton} disabled={loading}>
+                  <button
+                    type="submit"
+                    className={styles.submitButton}
+                    disabled={loading}
+                  >
                     {loading ? <div className={styles.spinner}></div> : "Next"}
                   </button>
-                  
-                  <button type="button" className={styles.backButton} onClick={() => {
-                    setStep("method")
-                    setError(null)
-                  }}>
+
+                  <button
+                    type="button"
+                    className={styles.backButton}
+                    onClick={() => {
+                      setStep("method");
+                      setError(null);
+                    }}
+                  >
                     Back
                   </button>
                 </div>
@@ -446,10 +517,13 @@ export default function LoginPage() {
           {/* State OTP */}
           {step === "otp" && (
             <motion.div key="otp" {...fadeSlide} className="w-100">
-              <button className={styles.closeBtn} onClick={() => {
-                setStep("method")
-                setError(null)  
-              }}>
+              <button
+                className={styles.closeBtn}
+                onClick={() => {
+                  setStep("method");
+                  setError(null);
+                }}
+              >
                 ×
               </button>
 
@@ -473,27 +547,39 @@ export default function LoginPage() {
                   />
                 </div>
 
-                <div style={{ width: '100%' }}>
+                <div style={{ width: "100%" }}>
                   <button
                     type="button"
                     className={styles.resendButton}
                     onClick={handleResendCode}
                     disabled={resendCooldown > 0 || loading}
                   >
-                    {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
+                    {resendCooldown > 0
+                      ? `Resend in ${resendCooldown}s`
+                      : "Resend code"}
                   </button>
                 </div>
-                
+
                 {error && <div className={styles.alert}>{error}</div>}
 
                 <div className={styles.buttonContainer}>
-                  <button type="submit" className={styles.submitButton} disabled={loading}>
-                    {loading ? <div className={styles.spinner}></div> : "Submit"}
+                  <button
+                    type="submit"
+                    className={styles.submitButton}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <div className={styles.spinner}></div>
+                    ) : (
+                      "Submit"
+                    )}
                   </button>
                 </div>
 
                 <p className={styles.smallText}>
-                  Jika kamu tidak melihat email di inbox, periksa folder spam. Jika tidak ada, alamat email mungkin tidak terkonfirmasi, atau mungkin tidak cocok dengan akun SILAP yang ada.
+                  Jika kamu tidak melihat email di inbox, periksa folder spam.
+                  Jika tidak ada, alamat email mungkin tidak terkonfirmasi, atau
+                  mungkin tidak cocok dengan akun SILAP yang ada.
                 </p>
               </form>
             </motion.div>
@@ -502,17 +588,22 @@ export default function LoginPage() {
           {/* Reset Password */}
           {step === "reset" && (
             <motion.div key="reset" {...fadeSlide} className="w-100">
-              <button className={styles.closeBtn} onClick={() => {
-                setStep("method")
-                setError(null)  
-              }}>
+              <button
+                className={styles.closeBtn}
+                onClick={() => {
+                  setStep("method");
+                  setError(null);
+                }}
+              >
                 ×
               </button>
 
               <div className={styles.headerContainer}>
                 <h2>Kata Sandi Baru</h2>
                 <p className={styles.smallText}>
-                  Untuk mengamankan akun kamu, pilih kata sandi yang kuat belum pernah menggunakan sebelumnya dan setidaknya terdiri dari 8 karakter panjang.
+                  Untuk mengamankan akun kamu, pilih kata sandi yang kuat belum
+                  pernah menggunakan sebelumnya dan setidaknya terdiri dari 8
+                  karakter panjang.
                 </p>
               </div>
 
@@ -529,13 +620,19 @@ export default function LoginPage() {
                       className={styles.formInput}
                     />
                     {showPassword ? (
-                      <FaEyeSlash className={styles.eyeIcon} onClick={() => setShowPassword(false)} />
+                      <FaEyeSlash
+                        className={styles.eyeIcon}
+                        onClick={() => setShowPassword(false)}
+                      />
                     ) : (
-                      <FaEye className={styles.eyeIcon} onClick={() => setShowPassword(true)} />
+                      <FaEye
+                        className={styles.eyeIcon}
+                        onClick={() => setShowPassword(true)}
+                      />
                     )}
                   </div>
                 </div>
-                
+
                 <div className={styles.formContainer}>
                   {/* Confirm password */}
                   <div className={styles.passwordWrapper}>
@@ -548,18 +645,33 @@ export default function LoginPage() {
                       className={styles.formInput}
                     />
                     {showConfirm ? (
-                      <FaEyeSlash className={styles.eyeIcon} onClick={() => setShowConfirm(false)} />
+                      <FaEyeSlash
+                        className={styles.eyeIcon}
+                        onClick={() => setShowConfirm(false)}
+                      />
                     ) : (
-                      <FaEye className={styles.eyeIcon} onClick={() => setShowConfirm(true)} />
+                      <FaEye
+                        className={styles.eyeIcon}
+                        onClick={() => setShowConfirm(true)}
+                      />
                     )}
                   </div>
                 </div>
 
                 {error && <div className={styles.alert}>{error}</div>}
-                
+
                 <div className={styles.buttonContainer}>
-                  <button type="submit" className={styles.submitButton} disabled={loading} style={{ margin: '0' }}>
-                    {loading ? <div className={styles.spinner}></div> : "Save Password"}
+                  <button
+                    type="submit"
+                    className={styles.submitButton}
+                    disabled={loading}
+                    style={{ margin: "0" }}
+                  >
+                    {loading ? (
+                      <div className={styles.spinner}></div>
+                    ) : (
+                      "Save Password"
+                    )}
                   </button>
                 </div>
               </form>

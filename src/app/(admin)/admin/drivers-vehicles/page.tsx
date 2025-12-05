@@ -12,20 +12,34 @@ import styles from "./driversVehicles.module.css";
 type Vehicle = {
   id: number;
   vehicle_name: string;
+  brand: string | null;
+  model: string | null;
+  license_plate: string | null;
+  vin: string | null;
   max_weight: number | null;
+  status: string | null;
   created_at?: string;
   updated_at?: string;
 };
 
 type Driver = {
   id: number;
-  first_name: string;
-  last_name: string | null;
-  email: string;
-  phone_number: string | null;
-  address: string | null;
+  user_id: number;
+  license_number: string | null;
+  is_verified: boolean;
+  is_available: boolean;
+  active_since: string | null;
+  total_deliveries: number;
+  assigned_vehicle_id: number | null;
   created_at?: string;
   updated_at?: string;
+  user?: {
+    first_name: string;
+    last_name: string | null;
+    email: string;
+    phone_number: string | null;
+    address: string | null;
+  };
 };
 
 type ModalMode = "view" | "edit" | "add";
@@ -53,12 +67,8 @@ export default function DriversVehiclesPage() {
   const [driverMode, setDriverMode] = useState<ModalMode>("add");
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [driverForm, setDriverForm] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    phone_number: "",
-    address: "",
+    license_number: "",
+    is_verified: false,
   });
 
   const fetchDrivers = async () => {
@@ -80,27 +90,41 @@ export default function DriversVehiclesPage() {
     }
   };
 
-  const handleActionDriver = (mode: ModalMode, driver?: Driver) => {
+  const handleActionDriver = async (mode: ModalMode, driver?: Driver) => {
     setDriverMode(mode);
-    setSelectedDriver(driver || null);
 
     if (driver) {
+      if (mode === "view") {
+        try {
+          const response = await fetch("/api/admin/driver/detail", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: driver.id }),
+          });
+          const result = await response.json();
+
+          if (result.message === "SUCCESS") {
+            setSelectedDriver(result.data);
+          } else {
+            setSelectedDriver(driver);
+          }
+        } catch (error) {
+          console.error("Error fetching driver details:", error);
+          setSelectedDriver(driver);
+        }
+      } else {
+        setSelectedDriver(driver);
+      }
+
       setDriverForm({
-        first_name: driver.first_name,
-        last_name: driver.last_name || "",
-        email: driver.email,
-        password: "",
-        phone_number: driver.phone_number || "",
-        address: driver.address || "",
+        license_number: driver.license_number || "",
+        is_verified: driver.is_verified,
       });
     } else {
+      setSelectedDriver(null);
       setDriverForm({
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-        phone_number: "",
-        address: "",
+        license_number: "",
+        is_verified: false,
       });
     }
 
@@ -112,19 +136,12 @@ export default function DriversVehiclesPage() {
     setIsSubmitting(true);
 
     try {
-      const url =
-        driverMode === "add"
-          ? "/api/admin/driver/add"
-          : "/api/admin/driver/update";
+      const url = "/api/admin/driver/update";
 
       const payload = {
-        first_name: driverForm.first_name,
-        last_name: driverForm.last_name || null,
-        email: driverForm.email,
-        password: driverForm.password || undefined,
-        phone_number: driverForm.phone_number || null,
-        address: driverForm.address || null,
-        ...(driverMode === "edit" && { id: selectedDriver?.id }),
+        id: selectedDriver?.id,
+        license_number: driverForm.license_number || null,
+        is_verified: driverForm.is_verified,
       };
 
       const response = await fetch(url, {
@@ -136,10 +153,7 @@ export default function DriversVehiclesPage() {
       const result = await response.json();
 
       if (result.message === "SUCCESS") {
-        showToast(
-          "success",
-          `Driver ${driverMode === "add" ? "added" : "updated"} successfully!`
-        );
+        showToast("success", "Driver updated successfully!");
         setIsDriverModalOpen(false);
         fetchDrivers();
       } else {
@@ -162,26 +176,52 @@ export default function DriversVehiclesPage() {
       },
       {
         header: "Name",
-        accessorFn: (row) => `${row.first_name} ${row.last_name || ""}`.trim(),
+        accessorFn: (row) => {
+          if (row.user) {
+            return `${row.user.first_name} ${row.user.last_name || ""}`.trim();
+          }
+          return "-";
+        },
       },
       {
         header: "Email",
-        accessorKey: "email",
+        accessorFn: (row) => row.user?.email || "-",
       },
       {
-        header: "Phone",
-        accessorKey: "phone_number",
+        header: "License Number",
+        accessorKey: "license_number",
         cell: ({ getValue }) => {
           const value = getValue() as string | null;
           return value || "-";
         },
       },
       {
-        header: "Address",
-        accessorKey: "address",
+        header: "Verified",
+        accessorKey: "is_verified",
         cell: ({ getValue }) => {
-          const value = getValue() as string | null;
-          return value || "-";
+          const value = getValue() as boolean;
+          return (
+            <span
+              style={{
+                padding: "4px 8px",
+                borderRadius: "4px",
+                fontSize: "0.85rem",
+                fontWeight: "500",
+                backgroundColor: value ? "#d4edda" : "#f8d7da",
+                color: value ? "#155724" : "#721c24",
+              }}
+            >
+              {value ? "Verified" : "Unverified"}
+            </span>
+          );
+        },
+      },
+      {
+        header: "Available",
+        accessorKey: "is_available",
+        cell: ({ getValue }) => {
+          const value = getValue() as boolean;
+          return value ? "Yes" : "No";
         },
       },
       {
@@ -223,7 +263,12 @@ export default function DriversVehiclesPage() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [vehicleForm, setVehicleForm] = useState({
     vehicle_name: "",
+    brand: "",
+    model: "",
+    license_plate: "",
+    vin: "",
     max_weight: "",
+    status: "available",
   });
 
   const fetchVehicles = async () => {
@@ -252,12 +297,22 @@ export default function DriversVehiclesPage() {
     if (vehicle) {
       setVehicleForm({
         vehicle_name: vehicle.vehicle_name,
+        brand: vehicle.brand || "",
+        model: vehicle.model || "",
+        license_plate: vehicle.license_plate || "",
+        vin: vehicle.vin || "",
         max_weight: vehicle.max_weight?.toString() || "",
+        status: vehicle.status || "available",
       });
     } else {
       setVehicleForm({
         vehicle_name: "",
+        brand: "",
+        model: "",
+        license_plate: "",
+        vin: "",
         max_weight: "",
+        status: "available",
       });
     }
 
@@ -276,9 +331,14 @@ export default function DriversVehiclesPage() {
 
       const payload = {
         vehicle_name: vehicleForm.vehicle_name,
+        brand: vehicleForm.brand || null,
+        model: vehicleForm.model || null,
+        license_plate: vehicleForm.license_plate || null,
+        vin: vehicleForm.vin || null,
         max_weight: vehicleForm.max_weight
           ? parseFloat(vehicleForm.max_weight)
           : null,
+        status: vehicleForm.status || "available",
         ...(vehicleMode === "edit" && { id: selectedVehicle?.id }),
       };
 
@@ -320,11 +380,43 @@ export default function DriversVehiclesPage() {
         accessorKey: "vehicle_name",
       },
       {
+        header: "Brand",
+        accessorKey: "brand",
+        cell: ({ getValue }) => {
+          const value = getValue() as string | null;
+          return value || "-";
+        },
+      },
+      {
+        header: "Model",
+        accessorKey: "model",
+        cell: ({ getValue }) => {
+          const value = getValue() as string | null;
+          return value || "-";
+        },
+      },
+      {
+        header: "License Plate",
+        accessorKey: "license_plate",
+        cell: ({ getValue }) => {
+          const value = getValue() as string | null;
+          return value || "-";
+        },
+      },
+      {
         header: "Max Weight (kg)",
         accessorKey: "max_weight",
         cell: ({ getValue }) => {
           const value = getValue() as number | null;
           return value !== null ? value : "-";
+        },
+      },
+      {
+        header: "Status",
+        accessorKey: "status",
+        cell: ({ getValue }) => {
+          const value = getValue() as string | null;
+          return value || "-";
         },
       },
       {
@@ -441,7 +533,6 @@ export default function DriversVehiclesPage() {
           columns={columnsDrivers}
           data={drivers}
           isLoading={isLoading}
-          onAdd={() => handleActionDriver("add")}
         />
       ) : (
         <AdminTable
@@ -456,108 +547,150 @@ export default function DriversVehiclesPage() {
       <Modal
         isOpen={isDriverModalOpen}
         onClose={() => setIsDriverModalOpen(false)}
-        title={`${
-          driverMode === "add"
-            ? "Add"
-            : driverMode === "edit"
-            ? "Edit"
-            : "Detail"
-        } Driver`}
+        title={`${driverMode === "edit" ? "Edit" : "Detail"} Driver`}
       >
         <form className={styles.singleLayout} onSubmit={handleSaveDriver}>
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>First Name *</label>
-              <input
-                className={styles.formInput}
-                value={driverForm.first_name}
-                onChange={(e) =>
-                  setDriverForm({ ...driverForm, first_name: e.target.value })
-                }
-                disabled={driverMode === "view"}
-                required
-                placeholder="e.g., John"
-              />
-            </div>
+          {driverMode === "view" && selectedDriver?.user && (
+            <>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Name</label>
+                <input
+                  className={styles.formInput}
+                  value={`${selectedDriver.user.first_name} ${
+                    selectedDriver.user.last_name || ""
+                  }`.trim()}
+                  disabled
+                />
+              </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Last Name</label>
-              <input
-                className={styles.formInput}
-                value={driverForm.last_name}
-                onChange={(e) =>
-                  setDriverForm({ ...driverForm, last_name: e.target.value })
-                }
-                disabled={driverMode === "view"}
-                placeholder="e.g., Doe"
-              />
-            </div>
-          </div>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Email</label>
+                  <input
+                    className={styles.formInput}
+                    value={selectedDriver.user.email}
+                    disabled
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Phone Number</label>
+                  <input
+                    className={styles.formInput}
+                    value={selectedDriver.user.phone_number || "-"}
+                    disabled
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Address</label>
+                <textarea
+                  className={styles.formTextarea}
+                  value={selectedDriver.user.address || "-"}
+                  disabled
+                  rows={2}
+                />
+              </div>
+
+              <hr style={{ margin: "1rem 0", border: "1px solid #e0e0e0" }} />
+            </>
+          )}
 
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Email *</label>
+            <label className={styles.formLabel}>License Number</label>
             <input
-              type="email"
               className={styles.formInput}
-              value={driverForm.email}
+              value={
+                driverMode === "view"
+                  ? selectedDriver?.license_number || "-"
+                  : driverForm.license_number
+              }
               onChange={(e) =>
-                setDriverForm({ ...driverForm, email: e.target.value })
+                setDriverForm({ ...driverForm, license_number: e.target.value })
               }
               disabled={driverMode === "view"}
-              required
-              placeholder="e.g., driver@example.com"
+              placeholder="e.g., 1234567890123456"
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              Password{" "}
-              {driverMode === "add" ? "*" : "(leave blank to keep current)"}
-            </label>
-            <input
-              type="password"
-              className={styles.formInput}
-              value={driverForm.password}
-              onChange={(e) =>
-                setDriverForm({ ...driverForm, password: e.target.value })
-              }
-              disabled={driverMode === "view"}
-              required={driverMode === "add"}
-              placeholder={
-                driverMode === "add"
-                  ? "Enter password"
-                  : "Enter new password (optional)"
-              }
-            />
-          </div>
+          {driverMode === "view" ? (
+            <>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Verified</label>
+                  <input
+                    className={styles.formInput}
+                    value={selectedDriver?.is_verified ? "Yes" : "No"}
+                    disabled
+                  />
+                </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Phone Number</label>
-            <input
-              type="tel"
-              className={styles.formInput}
-              value={driverForm.phone_number}
-              onChange={(e) =>
-                setDriverForm({ ...driverForm, phone_number: e.target.value })
-              }
-              disabled={driverMode === "view"}
-              placeholder="e.g., +62812345678"
-            />
-          </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Available</label>
+                  <input
+                    className={styles.formInput}
+                    value={selectedDriver?.is_available ? "Yes" : "No"}
+                    disabled
+                  />
+                </div>
+              </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Address</label>
-            <textarea
-              className={styles.formTextarea}
-              value={driverForm.address}
-              onChange={(e) =>
-                setDriverForm({ ...driverForm, address: e.target.value })
-              }
-              disabled={driverMode === "view"}
-              placeholder="Enter driver address"
-              rows={3}
-            />
-          </div>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Active Since</label>
+                  <input
+                    className={styles.formInput}
+                    value={
+                      selectedDriver?.active_since
+                        ? new Date(
+                            selectedDriver.active_since
+                          ).toLocaleDateString()
+                        : "-"
+                    }
+                    disabled
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Total Deliveries</label>
+                  <input
+                    className={styles.formInput}
+                    value={selectedDriver?.total_deliveries || 0}
+                    disabled
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Assigned Vehicle ID</label>
+                <input
+                  className={styles.formInput}
+                  value={selectedDriver?.assigned_vehicle_id || "-"}
+                  disabled
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  <input
+                    type="checkbox"
+                    checked={driverForm.is_verified}
+                    onChange={(e) =>
+                      setDriverForm({
+                        ...driverForm,
+                        is_verified: e.target.checked,
+                      })
+                    }
+                    style={{ marginRight: "8px" }}
+                  />
+                  Verified Driver
+                </label>
+              </div>
+            </>
+          )}
 
           <div className={styles.modalFooter}>
             {driverMode === "view" ? (
@@ -604,7 +737,7 @@ export default function DriversVehiclesPage() {
       >
         <form className={styles.singleLayout} onSubmit={handleSaveVehicle}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Vehicle Name</label>
+            <label className={styles.formLabel}>Vehicle Name *</label>
             <input
               className={styles.formInput}
               value={vehicleForm.vehicle_name}
@@ -617,19 +750,97 @@ export default function DriversVehiclesPage() {
             />
           </div>
 
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Brand</label>
+              <input
+                className={styles.formInput}
+                value={vehicleForm.brand}
+                onChange={(e) =>
+                  setVehicleForm({ ...vehicleForm, brand: e.target.value })
+                }
+                disabled={vehicleMode === "view"}
+                placeholder="e.g., Toyota, Honda"
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Model</label>
+              <input
+                className={styles.formInput}
+                value={vehicleForm.model}
+                onChange={(e) =>
+                  setVehicleForm({ ...vehicleForm, model: e.target.value })
+                }
+                disabled={vehicleMode === "view"}
+                placeholder="e.g., Avanza, Beat"
+              />
+            </div>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>License Plate</label>
+              <input
+                className={styles.formInput}
+                value={vehicleForm.license_plate}
+                onChange={(e) =>
+                  setVehicleForm({
+                    ...vehicleForm,
+                    license_plate: e.target.value,
+                  })
+                }
+                disabled={vehicleMode === "view"}
+                placeholder="e.g., B 1234 XYZ"
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Max Weight (kg)</label>
+              <input
+                type="number"
+                step="0.01"
+                className={styles.formInput}
+                value={vehicleForm.max_weight}
+                onChange={(e) =>
+                  setVehicleForm({ ...vehicleForm, max_weight: e.target.value })
+                }
+                disabled={vehicleMode === "view"}
+                placeholder="e.g., 50"
+              />
+            </div>
+          </div>
+
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Max Weight (kg)</label>
+            <label className={styles.formLabel}>
+              VIN (Vehicle Identification Number)
+            </label>
             <input
-              type="number"
-              step="0.01"
               className={styles.formInput}
-              value={vehicleForm.max_weight}
+              value={vehicleForm.vin}
               onChange={(e) =>
-                setVehicleForm({ ...vehicleForm, max_weight: e.target.value })
+                setVehicleForm({ ...vehicleForm, vin: e.target.value })
               }
               disabled={vehicleMode === "view"}
-              placeholder="e.g., 50"
+              placeholder="e.g., 1HGBH41JXMN109186"
             />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Status</label>
+            <select
+              className={styles.formInput}
+              value={vehicleForm.status}
+              onChange={(e) =>
+                setVehicleForm({ ...vehicleForm, status: e.target.value })
+              }
+              disabled={vehicleMode === "view"}
+            >
+              <option value="available">Available</option>
+              <option value="in_use">In Use</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
           </div>
 
           <div className={styles.modalFooter}>

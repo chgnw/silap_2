@@ -1,0 +1,149 @@
+/* Driver Layout Container */
+.driverContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #FFF;
+}
+
+.contentWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Header */
+.mainHeader {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #a4b465;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 1rem;
+}
+
+.hamburgerButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.hamburgerButton:hover {
+  transform: scale(1.1);
+}
+
+.breadcrumbs {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.breadcrumbLink {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.breadcrumbLink:hover {
+  color: white;
+}
+
+.breadcrumbActive {
+  color: white;
+  font-weight: 600;
+}
+
+.breadcrumbSeparator {
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0.25rem;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notificationButton {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.notificationButton:hover {
+  transform: scale(1.1);
+}
+
+/* Page Content */
+.pageContent {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+}
+
+/* Overlay for mobile sidebar */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 996px) {
+  .hamburgerButton {
+    display: flex;
+  }
+}
+
+@media (min-width: 997px) {
+  .hamburgerButton {
+    display: none;
+  }
+
+  .overlay {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .mainHeader {
+    padding: 0.75rem 1rem;
+  }
+
+  .breadcrumbs {
+    font-size: 0.85rem;
+  }
+}

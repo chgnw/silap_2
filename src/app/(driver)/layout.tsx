@@ -6,16 +6,16 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 
 import { FaBars, FaBell } from "react-icons/fa";
-import Sidebar from "../components/Large/Sidebar/Sidebar";
+import SidebarDriver from "../components/Large/SidebarDriver/SidebarDriver";
 
-import styles from "./dashboard.module.css";
+import styles from "./driver.module.css";
 
 const Toaster = dynamic(
   () => import("react-hot-toast").then((mod) => mod.Toaster),
   { ssr: false }
 );
 
-export default function DashboardLayout({
+export default function DriverLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -24,6 +24,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
   const breadcrumbParts = useMemo(
     () => pathname.split("/").filter((part) => part),
     [pathname]
@@ -34,12 +35,12 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className={styles.dashboardContainer}>
+    <div className={styles.driverContainer}>
       {isSidebarOpen && (
         <div className={styles.overlay} onClick={toggleSidebar}></div>
       )}
 
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <SidebarDriver isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
       {/* Content Area */}
       <div className={styles.contentWrapper}>
