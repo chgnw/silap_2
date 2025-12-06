@@ -1,0 +1,258 @@
+.pageContainer {
+  padding: 1.5rem;
+  background-color: #FFF;
+  border-radius: 1rem;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  font-size: 1rem;
+  color: #666;
+  font-style: italic;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tabButton {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tabButton:hover {
+  color: #2F5E44;
+  background-color: #F0FDF4;
+  border-radius: 6px 6px 0 0;
+}
+
+.activeTab {
+  color: #2F5E44;
+  font-weight: 600;
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2F5E44;
+}
+
+.splitLayout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 2rem;
+}
+
+.singleLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.imageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.imagePreview {
+  width: 100%;
+  height: 250px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f9f9f9;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.placeholderText {
+  font-size: 0.75rem;
+  color: #999;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.formInput,
+.formSelect {
+  padding: 0.65rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  border-color: #2F5E44;
+}
+
+.formInput:disabled,
+.formSelect:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Buttons */
+.btnBase {
+  padding: 0.65rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.btnView { 
+  padding: 0.5rem 0.75rem;
+  cursor: pointer; 
+  border: 1px solid #DDD; 
+  border-radius: 0.25rem; 
+  background-color: #F8F9FA
+}
+.btnView:hover { color: #2563EB; }
+
+.btnEdit { 
+  padding: 0.5rem 0.75rem;
+  cursor: pointer; 
+  border: 1px solid #DDD; 
+  border-radius: 0.25rem; 
+  background-color: #FFF3CD;
+}
+.btnEdit:hover { color: #2F5E44; }
+
+.btnDelete { 
+  padding: 0.5rem 0.75rem;
+  cursor: pointer; 
+  border: 1px solid #DDD; 
+  border-radius: 0.25rem; 
+  background-color: #F8D7DA;
+}
+.btnEdit:hover { color: #ED1C24; }
+
+.btnBase:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.uploadBtn {
+  background-color: #2F5E44;
+  color: white;
+  width: 100%;
+}
+
+.uploadBtn:hover:not(:disabled) {
+  background-color: #1b5e20;
+}
+
+.btnSave {
+  background-color: #2F5E44;
+  color: white;
+}
+
+.btnSave:hover:not(:disabled) {
+  background-color: #1b5e20;
+}
+
+.btnCancel {
+  background-color: #f3f4f6;
+  color: #333;
+}
+
+.btnCancel:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.btnDeleteConfirm {
+  background-color: #dc2626;
+  color: white;
+}
+
+.btnDeleteConfirm:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+/* Modal Footer */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 1rem;
+  }
+
+  .splitLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .tabsContainer {
+    overflow-x: auto;
+  }
+}

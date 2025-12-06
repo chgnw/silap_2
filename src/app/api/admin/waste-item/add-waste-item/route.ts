@@ -14,13 +14,26 @@ export async function POST(req: NextRequest) {
 
         if (!waste_item_name || !waste_category_id || !unit || !points_per_unit) {
             return NextResponse.json({ 
-                message: "Data is not complete!" 
+                message: "Data tidak lengkap!" 
             }, { status: 400 });
         }
+
+        const checkSql = `
+            SELECT id FROM ms_waste_item 
+            WHERE waste_item_name = ? 
+            LIMIT 1
+        `;
+        const checkResult = await query(checkSql, [waste_item_name]) as any[];
+        if (checkResult && checkResult.length > 0) {
+            return NextResponse.json({
+                message: "DUPLICATE",
+                detail: `Sampah dengan nama '${waste_item_name}' sudah ada.`
+            }, { status: 409 });
+        }
+
         let dbImagePath = null;
-        
         if (imageFile && imageFile.size > 0) {
-            const uploadDir = path.join(process.cwd(), "public", "wasteItemIcon");
+            const uploadDir = path.join(process.cwd(), "public", "upload", "wasteItemIcon");
             await fs.mkdir(uploadDir, { recursive: true });
             
             const originalName = imageFile.name.replaceAll(" ", "_");
@@ -46,17 +59,16 @@ export async function POST(req: NextRequest) {
             points_per_unit,
             dbImagePath
         ]) as any;
-        console.log("result add item: ", result);
         if(result.affectedRows == 0) {
             return NextResponse.json({
                 message: "FAILED",
-                detail: "Failed inserting new waste item"
+                detail: "Gagal menambahkan sampah!"
             }, { status: 400 });
         }
         
         return NextResponse.json({
             message: "SUCCESS",
-            detail: "New waste item added",
+            detail: "Berhasil menambahkan sampah!",
             data: {
                 waste_categoru_id: waste_category_id,
                 waste_item_name: waste_item_name,
