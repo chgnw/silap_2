@@ -1,125 +1,91 @@
 .container {
-  padding: 0 8rem;
+  padding: 4rem 8rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .sectionHeader {
   text-align: center;
-  margin-bottom: 60px;}
-  .sectionHeader h1 {
-    font-size: 5rem;
-    font-weight: bold;
-    color: #2F5E44;
-    margin-bottom: 16px;}
-  .sectionHeader p {
-    font-size: 1.25rem;
-    color: #7F7F7F;
-    max-width: 600px;
-    margin: 0 auto;}
+  margin-bottom: 60px;
+}
 
+.sectionHeader h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: #2f5e44;
+  margin-bottom: 16px;
+}
 
-.sectionWrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  border-radius: 1rem;}
-  .layoutContainer {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;}
-    .leftColumn, .rightColumn {
-      flex: 1 1 100%;}
-      .categoryGrid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        justify-items: center;}
+.sectionHeader p {
+  font-size: 1.125rem;
+  color: #7f7f7f;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
 
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  width: 100%;
+}
 
-.subCategoryContainer {
-  position: relative;
-  border: 2px dashed #84a98c;
-  border-radius: 1rem;
-  padding: 2.5rem 1.5rem 1.5rem;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-height: 500px;}
-  .subCategoryContainer p {
-    text-align: center;}
-  .recycleIconWrapper {
-    position: absolute;
-    top: -10%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #fdfdfd;
-    padding: 0.5rem;
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;}
-    .recycleIconWrapper img {
-      width: 100px;
-      height: 100px;}
-  .subCategoryGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    width: 100%;}
-    .subCategoryItem {
-      position: relative;
-      border-radius: 0.75rem;
-      overflow: hidden;
-      cursor: pointer;
-      aspect-ratio: 4 / 3;}
-        .subCategoryImg {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          filter: grayscale(100%);
-          transition: all 0.3s ease;}
-        .subCategoryOverlay {
-          background-color: rgba(74, 124, 89, 0.7);
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-weight: bold;
-          font-size: 1rem;
-          text-align: center;
-          padding: 0.5rem;
-          transition: all 0.3s ease;}
+.loadingState,
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+}
 
-@media (max-width: 1400px) {
-  .recycleIconWrapper {
-    top: -8%;
-    width: 80px;
-    height: 80px;
-  }
+.loadingState p,
+.emptyState p {
+  font-size: 1.125rem;
+  color: #7f7f7f;
+}
 
-  .recycleIconWrapper img {
-    width: 80px;
-    height: 80px;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .container {
+    padding: 3rem 4rem;
   }
 
   .sectionHeader h1 {
-    font-size: 4.5rem;
+    font-size: 3rem;
+  }
+
+  .categoryGrid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 992px) {
   .container {
-    padding: 0 4rem;
+    padding: 3rem 2.5rem;
+  }
+
+  .sectionHeader {
+    margin-bottom: 50px;
+  }
+
+  .sectionHeader h1 {
+    font-size: 2.5rem;
+  }
+
+  .sectionHeader p {
+    font-size: 1rem;
+  }
+
+  .categoryGrid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 2.5rem 2rem;
   }
 
   .sectionHeader {
@@ -127,93 +93,48 @@
   }
 
   .sectionHeader h1 {
-    font-size: 4rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .container {
-    padding: 0 2.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .recycleIconWrapper {
-    top: -6%;
-    width: 60px;
-    height: 60px;
-  }
-
-  .recycleIconWrapper img {
-    width: 60px;
-    height: 60px;
-  }
-}
-
-@media (max-width: 576px) {
-  .recycleIconWrapper {
-    top: -30px;
-    width: 56px;
-    height: 56px;
-  }
-
-  .recycleIconWrapper img {
-    width: 56px;
-    height: 56px;
-  }
-
-  .container {
-    padding: 0 1.5rem;
-  }
-
-  .layoutContainer {
-    flex-direction: column;
-  }
-
-  .leftColumn {
-    flex: 1 1 auto;
+    font-size: 2.25rem;
   }
 
   .categoryGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
-  .rightColumn {
-    flex: 1 1 auto;
-    margin-top: 1.5rem;
-  }
-
-  .rightColumn:empty::before {
-    content: '';
-  }
-
-  .subCategoryContainer {
-    max-height: none;
-    padding: 2rem 1rem 1rem;
-  }
-
-  .subCategoryGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    gap: 1.25rem;
   }
 }
 
-@media (max-width: 376px) {
+@media (max-width: 576px) {
+  .container {
+    padding: 2rem 1.5rem;
+  }
+
   .sectionHeader {
     margin-bottom: 30px;
   }
 
   .sectionHeader h1 {
-    font-size: 3rem;
+    font-size: 2rem;
   }
 
   .sectionHeader p {
-    font-size: 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .categoryGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
+@media (max-width: 376px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
 
+  .sectionHeader h1 {
+    font-size: 1.75rem;
+  }
 
-
-
+  .sectionHeader p {
+    font-size: 0.875rem;
+  }
+}

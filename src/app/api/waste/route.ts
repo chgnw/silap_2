@@ -1,49 +1,26 @@
-import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { query } from "@/lib/db";
 
 export async function GET() {
   try {
     const sql = `
       SELECT 
-        c.id AS category_id,
-        c.waste_category_name AS category_name,
-        c.icon_name,
-        i.id AS item_id,
-        i.waste_item_name AS item_name,
-        i.image_url,
-        i.unit
-      FROM ms_waste_category c
-      LEFT JOIN ms_waste_item i ON i.waste_category_id = c.id
-      WHERE c.is_deleted = FALSE
-      ORDER BY c.id, i.id
+        id,
+        waste_category_name AS name,
+        icon_name AS icon,
+        unit,
+        points_per_unit
+      FROM ms_waste_category
+      WHERE is_deleted = FALSE
+      ORDER BY id
     `;
     const rows = await query(sql);
 
-    const categoryMap: Record<number, any> = {};
-    for (const row of rows) {
-      if (!categoryMap[row.category_id]) {
-        categoryMap[row.category_id] = {
-          id: row.category_id,
-          name: row.category_name,
-          icon: row.icon_name,
-          SubCategory: [],
-        };
-      }
-      if (row.item_id) {
-        categoryMap[row.category_id].SubCategory.push({
-          id: row.item_id,
-          name: row.item_name,
-          imageUrl: row.image_url,
-          unit: row.unit,
-        });
-      }
-    }
-
-    return NextResponse.json(Object.values(categoryMap));
+    return NextResponse.json(rows);
   } catch (error) {
-    console.error('Error fetching waste data:', error);
+    console.error("Error fetching waste data:", error);
     return NextResponse.json(
-      { message: 'Failed to fetch waste data' },
+      { message: "Failed to fetch waste data" },
       { status: 500 }
     );
   }

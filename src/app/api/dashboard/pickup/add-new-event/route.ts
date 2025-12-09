@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { generateTransactionCode } from "@/lib/transactionCode";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     const eventDateTime = new Date(`${date}T${time}:00+07:00`);
     const event_date = eventDateTime.toISOString().split("T")[0];
     const pickup_time = time;
-    const vehicle_id = vehicle.id;
+    const vehicle_category_id = vehicle.id; // Changed from vehicle_id to vehicle_category_id
     const pickup_weight = parseFloat(weight);
 
     let image_url = null;
@@ -115,19 +116,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Generate transaction code for pickup event
+    const transaction_code = generateTransactionCode("PCK");
+
     const sql = `
-        INSERT INTO tr_pickup_event (user_id, pickup_address, pickup_weight, pickup_type_id, event_date, pickup_time, vehicle_id, image_url, user_notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        INSERT INTO tr_pickup_event (transaction_code, user_id, pickup_address, pickup_weight, pickup_type_id, event_date, pickup_time, vehicle_category_id, image_url, user_notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
     const result = await query(sql, [
+      transaction_code,
       user_id,
       pickup_address,
       pickup_weight,
       pickup_type_id,
       event_date,
       pickup_time,
-      vehicle_id,
+      vehicle_category_id,
       image_url,
       notes,
     ]);
@@ -135,7 +140,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: "SUCCESS",
-        data: result,
+        data: {
+          ...result,
+          transaction_code,
+        },
       },
       { status: 200 }
     );

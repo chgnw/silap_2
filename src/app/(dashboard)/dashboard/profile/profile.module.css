@@ -76,9 +76,16 @@
   flex-shrink: 0;
 }
 
-.profileAvatar {
+.profileAvatarWrapper {
+  position: relative;
   width: 180px;
   height: 180px;
+  margin-bottom: 20px;
+}
+
+.profileAvatar {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background: linear-gradient(135deg, #2f5e44 0%, #a4b465 100%);
   display: flex;
@@ -87,8 +94,66 @@
   font-size: 72px;
   color: white;
   font-weight: 700;
-  margin-bottom: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profileAvatarImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.uploadButton {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #a4b465;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+  border: 3px solid white;
+}
+
+.uploadButton:hover {
+  background: #2f5e44;
+  transform: scale(1.1);
+}
+
+.uploadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .profileStats {
@@ -233,7 +298,7 @@ textarea.formInput {
     flex-direction: column;
   }
 
-  .profileSidebar { 
+  .profileSidebar {
     width: 100%;
   }
 
@@ -246,7 +311,6 @@ textarea.formInput {
     width: calc(100% / 4);
     margin-bottom: 0;
   }
-
 }
 
 @media (max-width: 768px) {
@@ -260,7 +324,7 @@ textarea.formInput {
   }
 
   .profileHeader {
-    background-color: #E2EBC0;
+    background-color: #e2ebc0;
     position: sticky;
     top: 78px;
     margin-bottom: 0;
@@ -272,11 +336,21 @@ textarea.formInput {
     margin: 0.5rem;
   }
 
-  .profileAvatar {
+  .profileAvatarWrapper {
     width: 120px;
     height: 120px;
-    font-size: 48px;
     margin: 0 auto 20px;
+  }
+
+  .profileAvatar {
+    font-size: 48px;
+  }
+
+  .uploadButton {
+    width: 40px;
+    height: 40px;
+    bottom: 4px;
+    right: 4px;
   }
 }
 

@@ -7,11 +7,11 @@ export async function GET() {
       SELECT 
         id,
         tier_name,
+        tier_icon,
         min_weight,
         max_weight,
         target_weight,
         description,
-        benefit,
         created_at,
         updated_at
       FROM ms_tier_list

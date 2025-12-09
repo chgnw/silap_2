@@ -11,13 +11,27 @@ import styles from "./driversVehicles.module.css";
 
 type Vehicle = {
   id: number;
-  vehicle_name: string;
+  vehicle_category_id: number | null;
   brand: string | null;
   model: string | null;
   license_plate: string | null;
   vin: string | null;
-  max_weight: number | null;
   status: string | null;
+  created_at?: string;
+  updated_at?: string;
+  category?: {
+    category_name: string;
+    min_weight: number;
+    max_weight: number | null;
+  };
+};
+
+type VehicleCategory = {
+  id: number;
+  category_name: string;
+  min_weight: number;
+  max_weight: number | null;
+  description: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -43,7 +57,7 @@ type Driver = {
 };
 
 type ModalMode = "view" | "edit" | "add";
-type ActiveTab = "drivers" | "vehicles";
+type ActiveTab = "drivers" | "vehicleCategories" | "vehicles";
 
 export default function DriversVehiclesPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("drivers");
@@ -56,7 +70,7 @@ export default function DriversVehiclesPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
     id: number;
-    type: "driver" | "vehicle";
+    type: "driver" | "vehicleCategory" | "vehicle";
   } | null>(null);
 
   // =========================================
@@ -255,6 +269,187 @@ export default function DriversVehiclesPage() {
   );
 
   // =========================================
+  // VEHICLE CATEGORIES SECTION
+  // =========================================
+  const [vehicleCategories, setVehicleCategories] = useState<VehicleCategory[]>(
+    []
+  );
+  const [isVehicleCategoryModalOpen, setIsVehicleCategoryModalOpen] =
+    useState(false);
+  const [vehicleCategoryMode, setVehicleCategoryMode] =
+    useState<ModalMode>("add");
+  const [selectedVehicleCategory, setSelectedVehicleCategory] =
+    useState<VehicleCategory | null>(null);
+  const [vehicleCategoryForm, setVehicleCategoryForm] = useState({
+    category_name: "",
+    min_weight: "",
+    max_weight: "",
+    description: "",
+  });
+
+  const fetchVehicleCategories = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/admin/vehicle-category");
+      const result = await response.json();
+
+      if (result.message === "SUCCESS") {
+        setVehicleCategories(result.data || []);
+      } else {
+        showToast("error", "Failed to fetch vehicle categories");
+      }
+    } catch (error) {
+      console.error("Error fetching vehicle categories:", error);
+      showToast("error", "Error fetching vehicle categories");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleActionVehicleCategory = (
+    mode: ModalMode,
+    category?: VehicleCategory
+  ) => {
+    setVehicleCategoryMode(mode);
+    setSelectedVehicleCategory(category || null);
+
+    if (category) {
+      setVehicleCategoryForm({
+        category_name: category.category_name,
+        min_weight: category.min_weight?.toString() || "",
+        max_weight: category.max_weight?.toString() || "",
+        description: category.description || "",
+      });
+    } else {
+      setVehicleCategoryForm({
+        category_name: "",
+        min_weight: "",
+        max_weight: "",
+        description: "",
+      });
+    }
+
+    setIsVehicleCategoryModalOpen(true);
+  };
+
+  const handleSaveVehicleCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const url =
+        vehicleCategoryMode === "add"
+          ? "/api/admin/vehicle-category/add"
+          : "/api/admin/vehicle-category/update";
+
+      const payload = {
+        category_name: vehicleCategoryForm.category_name,
+        min_weight: vehicleCategoryForm.min_weight
+          ? parseFloat(vehicleCategoryForm.min_weight)
+          : 0,
+        max_weight: vehicleCategoryForm.max_weight
+          ? parseFloat(vehicleCategoryForm.max_weight)
+          : null,
+        description: vehicleCategoryForm.description || null,
+        ...(vehicleCategoryMode === "edit" && {
+          id: selectedVehicleCategory?.id,
+        }),
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (result.message === "SUCCESS") {
+        showToast(
+          "success",
+          `Vehicle category ${
+            vehicleCategoryMode === "add" ? "added" : "updated"
+          } successfully!`
+        );
+        setIsVehicleCategoryModalOpen(false);
+        fetchVehicleCategories();
+      } else {
+        showToast("error", result.detail || result.error || "Operation failed");
+      }
+    } catch (error) {
+      console.error("Error saving vehicle category:", error);
+      showToast("error", "Error saving vehicle category");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const columnsVehicleCategories = useMemo<ColumnDef<VehicleCategory>[]>(
+    () => [
+      {
+        header: "No",
+        accessorFn: (_, i) => i + 1,
+        size: 50,
+      },
+      {
+        header: "Category Name",
+        accessorKey: "category_name",
+      },
+      {
+        header: "Min Weight (kg)",
+        accessorKey: "min_weight",
+        cell: ({ getValue }) => {
+          const value = getValue() as number;
+          return value !== null ? value : "-";
+        },
+      },
+      {
+        header: "Max Weight (kg)",
+        accessorKey: "max_weight",
+        cell: ({ getValue }) => {
+          const value = getValue() as number | null;
+          return value !== null ? value : "Unlimited";
+        },
+      },
+      {
+        header: "Description",
+        accessorKey: "description",
+        cell: ({ getValue }) => {
+          const value = getValue() as string | null;
+          return value || "-";
+        },
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <div className={styles.actionRow}>
+            <button
+              onClick={() => handleActionVehicleCategory("view", row.original)}
+              className={`${styles.btnAction} ${styles.btnView}`}
+            >
+              <FaEye />
+            </button>
+            <button
+              onClick={() => handleActionVehicleCategory("edit", row.original)}
+              className={`${styles.btnAction} ${styles.btnEdit}`}
+            >
+              <FaEdit />
+            </button>
+            <button
+              onClick={() => triggerDelete(row.original.id, "vehicleCategory")}
+              className={`${styles.btnAction} ${styles.btnDelete}`}
+            >
+              <FaTrash />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
+  // =========================================
   // VEHICLES SECTION
   // =========================================
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -262,12 +457,11 @@ export default function DriversVehiclesPage() {
   const [vehicleMode, setVehicleMode] = useState<ModalMode>("add");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [vehicleForm, setVehicleForm] = useState({
-    vehicle_name: "",
+    vehicle_category_id: "",
     brand: "",
     model: "",
     license_plate: "",
     vin: "",
-    max_weight: "",
     status: "available",
   });
 
@@ -296,22 +490,20 @@ export default function DriversVehiclesPage() {
 
     if (vehicle) {
       setVehicleForm({
-        vehicle_name: vehicle.vehicle_name,
+        vehicle_category_id: vehicle.vehicle_category_id?.toString() || "",
         brand: vehicle.brand || "",
         model: vehicle.model || "",
         license_plate: vehicle.license_plate || "",
         vin: vehicle.vin || "",
-        max_weight: vehicle.max_weight?.toString() || "",
         status: vehicle.status || "available",
       });
     } else {
       setVehicleForm({
-        vehicle_name: "",
+        vehicle_category_id: "",
         brand: "",
         model: "",
         license_plate: "",
         vin: "",
-        max_weight: "",
         status: "available",
       });
     }
@@ -330,18 +522,17 @@ export default function DriversVehiclesPage() {
           : "/api/admin/vehicle/update";
 
       const payload = {
-        vehicle_name: vehicleForm.vehicle_name,
+        vehicle_category_id: vehicleForm.vehicle_category_id
+          ? parseInt(vehicleForm.vehicle_category_id)
+          : null,
         brand: vehicleForm.brand || null,
         model: vehicleForm.model || null,
         license_plate: vehicleForm.license_plate || null,
         vin: vehicleForm.vin || null,
-        max_weight: vehicleForm.max_weight
-          ? parseFloat(vehicleForm.max_weight)
-          : null,
         status: vehicleForm.status || "available",
         ...(vehicleMode === "edit" && { id: selectedVehicle?.id }),
       };
-
+      console.log(payload);
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -376,8 +567,8 @@ export default function DriversVehiclesPage() {
         size: 50,
       },
       {
-        header: "Vehicle Name",
-        accessorKey: "vehicle_name",
+        header: "Vehicle Category",
+        accessorFn: (row) => row.category?.category_name || "-",
       },
       {
         header: "Brand",
@@ -404,11 +595,20 @@ export default function DriversVehiclesPage() {
         },
       },
       {
+        header: "Min Weight (kg)",
+        accessorFn: (row) => {
+          return row.category?.min_weight !== undefined
+            ? row.category.min_weight
+            : "-";
+        },
+      },
+      {
         header: "Max Weight (kg)",
-        accessorKey: "max_weight",
-        cell: ({ getValue }) => {
-          const value = getValue() as number | null;
-          return value !== null ? value : "-";
+        accessorFn: (row) => {
+          if (!row.category) return "-";
+          return row.category.max_weight !== null
+            ? row.category.max_weight
+            : "Unlimited";
         },
       },
       {
@@ -452,7 +652,10 @@ export default function DriversVehiclesPage() {
   // =========================================
   // DELETE LOGIC
   // =========================================
-  const triggerDelete = (id: number, type: "driver" | "vehicle") => {
+  const triggerDelete = (
+    id: number,
+    type: "driver" | "vehicleCategory" | "vehicle"
+  ) => {
     setDeleteTarget({ id, type });
     setIsDeleteModalOpen(true);
   };
@@ -465,6 +668,8 @@ export default function DriversVehiclesPage() {
       const endpoint =
         deleteTarget.type === "driver"
           ? "/api/admin/driver/delete"
+          : deleteTarget.type === "vehicleCategory"
+          ? "/api/admin/vehicle-category/delete"
           : "/api/admin/vehicle/delete";
 
       const response = await fetch(endpoint, {
@@ -480,9 +685,11 @@ export default function DriversVehiclesPage() {
         setIsDeleteModalOpen(false);
 
         if (deleteTarget.type === "driver") fetchDrivers();
+        else if (deleteTarget.type === "vehicleCategory")
+          fetchVehicleCategories();
         else fetchVehicles();
       } else {
-        showToast("error", result.detail || "Delete failed");
+        showToast("error", result.detail || result.error || "Delete failed");
       }
     } catch (error) {
       console.error("Error deleting:", error);
@@ -495,9 +702,11 @@ export default function DriversVehiclesPage() {
 
   useEffect(() => {
     setIsLoading(true);
-    Promise.all([fetchDrivers(), fetchVehicles()]).finally(() =>
-      setIsLoading(false)
-    );
+    Promise.all([
+      fetchDrivers(),
+      fetchVehicleCategories(),
+      fetchVehicles(),
+    ]).finally(() => setIsLoading(false));
   }, []);
 
   return (
@@ -520,6 +729,14 @@ export default function DriversVehiclesPage() {
         </button>
         <button
           className={`${styles.tabButton} ${
+            activeTab === "vehicleCategories" ? styles.activeTab : ""
+          }`}
+          onClick={() => setActiveTab("vehicleCategories")}
+        >
+          Vehicle Categories
+        </button>
+        <button
+          className={`${styles.tabButton} ${
             activeTab === "vehicles" ? styles.activeTab : ""
           }`}
           onClick={() => setActiveTab("vehicles")}
@@ -533,6 +750,13 @@ export default function DriversVehiclesPage() {
           columns={columnsDrivers}
           data={drivers}
           isLoading={isLoading}
+        />
+      ) : activeTab === "vehicleCategories" ? (
+        <AdminTable
+          columns={columnsVehicleCategories}
+          data={vehicleCategories}
+          isLoading={isLoading}
+          onAdd={() => handleActionVehicleCategory("add")}
         />
       ) : (
         <AdminTable
@@ -723,6 +947,126 @@ export default function DriversVehiclesPage() {
         </form>
       </Modal>
 
+      {/* Vehicle Category Form Modal */}
+      <Modal
+        isOpen={isVehicleCategoryModalOpen}
+        onClose={() => setIsVehicleCategoryModalOpen(false)}
+        title={`${
+          vehicleCategoryMode === "add"
+            ? "Add"
+            : vehicleCategoryMode === "edit"
+            ? "Edit"
+            : "Detail"
+        } Vehicle Category`}
+      >
+        <form
+          className={styles.singleLayout}
+          onSubmit={handleSaveVehicleCategory}
+        >
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Category Name *</label>
+            <input
+              className={styles.formInput}
+              value={vehicleCategoryForm.category_name}
+              onChange={(e) =>
+                setVehicleCategoryForm({
+                  ...vehicleCategoryForm,
+                  category_name: e.target.value,
+                })
+              }
+              disabled={vehicleCategoryMode === "view"}
+              required
+              placeholder="e.g., Motor, Mobil Kecil, Truk"
+            />
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Min Weight (kg) *</label>
+              <input
+                type="number"
+                step="0.01"
+                className={styles.formInput}
+                value={vehicleCategoryForm.min_weight}
+                onChange={(e) =>
+                  setVehicleCategoryForm({
+                    ...vehicleCategoryForm,
+                    min_weight: e.target.value,
+                  })
+                }
+                disabled={vehicleCategoryMode === "view"}
+                required
+                placeholder="e.g., 0"
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Max Weight (kg)</label>
+              <input
+                type="number"
+                step="0.01"
+                className={styles.formInput}
+                value={vehicleCategoryForm.max_weight}
+                onChange={(e) =>
+                  setVehicleCategoryForm({
+                    ...vehicleCategoryForm,
+                    max_weight: e.target.value,
+                  })
+                }
+                disabled={vehicleCategoryMode === "view"}
+                placeholder="Leave empty for unlimited"
+              />
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Description</label>
+            <textarea
+              className={styles.formTextarea}
+              value={vehicleCategoryForm.description}
+              onChange={(e) =>
+                setVehicleCategoryForm({
+                  ...vehicleCategoryForm,
+                  description: e.target.value,
+                })
+              }
+              disabled={vehicleCategoryMode === "view"}
+              rows={3}
+              placeholder="e.g., Kendaraan roda dua untuk pickup sampah ringan"
+            />
+          </div>
+
+          <div className={styles.modalFooter}>
+            {vehicleCategoryMode === "view" ? (
+              <button
+                type="button"
+                onClick={() => setIsVehicleCategoryModalOpen(false)}
+                className={`${styles.btnBase} ${styles.btnCancel}`}
+              >
+                Close
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsVehicleCategoryModalOpen(false)}
+                  className={`${styles.btnBase} ${styles.btnCancel}`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={`${styles.btnBase} ${styles.btnSave}`}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Save"}
+                </button>
+              </>
+            )}
+          </div>
+        </form>
+      </Modal>
+
       {/* Vehicle Form Modal */}
       <Modal
         isOpen={isVehicleModalOpen}
@@ -737,17 +1081,33 @@ export default function DriversVehiclesPage() {
       >
         <form className={styles.singleLayout} onSubmit={handleSaveVehicle}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Vehicle Name *</label>
-            <input
-              className={styles.formInput}
-              value={vehicleForm.vehicle_name}
-              onChange={(e) =>
-                setVehicleForm({ ...vehicleForm, vehicle_name: e.target.value })
-              }
-              disabled={vehicleMode === "view"}
-              required
-              placeholder="e.g., Motor, Mobil, Truk"
-            />
+            <label className={styles.formLabel}>Vehicle Category *</label>
+            {vehicleMode === "view" ? (
+              <input
+                className={styles.formInput}
+                value={selectedVehicle?.category?.category_name || "-"}
+                disabled
+              />
+            ) : (
+              <select
+                className={styles.formInput}
+                value={vehicleForm.vehicle_category_id}
+                onChange={(e) =>
+                  setVehicleForm({
+                    ...vehicleForm,
+                    vehicle_category_id: e.target.value,
+                  })
+                }
+                required
+              >
+                <option value="">Select a category</option>
+                {vehicleCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.category_name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className={styles.formRow}>
@@ -778,37 +1138,20 @@ export default function DriversVehiclesPage() {
             </div>
           </div>
 
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>License Plate</label>
-              <input
-                className={styles.formInput}
-                value={vehicleForm.license_plate}
-                onChange={(e) =>
-                  setVehicleForm({
-                    ...vehicleForm,
-                    license_plate: e.target.value,
-                  })
-                }
-                disabled={vehicleMode === "view"}
-                placeholder="e.g., B 1234 XYZ"
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Max Weight (kg)</label>
-              <input
-                type="number"
-                step="0.01"
-                className={styles.formInput}
-                value={vehicleForm.max_weight}
-                onChange={(e) =>
-                  setVehicleForm({ ...vehicleForm, max_weight: e.target.value })
-                }
-                disabled={vehicleMode === "view"}
-                placeholder="e.g., 50"
-              />
-            </div>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>License Plate</label>
+            <input
+              className={styles.formInput}
+              value={vehicleForm.license_plate}
+              onChange={(e) =>
+                setVehicleForm({
+                  ...vehicleForm,
+                  license_plate: e.target.value,
+                })
+              }
+              disabled={vehicleMode === "view"}
+              placeholder="e.g., B 1234 XYZ"
+            />
           </div>
 
           <div className={styles.formGroup}>

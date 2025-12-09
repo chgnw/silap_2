@@ -1,11 +1,12 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { FaPencilAlt, FaSave, FaTimes } from 'react-icons/fa';
-import { useSession } from 'next-auth/react';
+import React, { useState, useEffect } from "react";
+import { FaPencilAlt, FaSave, FaTimes } from "react-icons/fa";
+import { useSession } from "next-auth/react";
 
-import { showToast } from "@/lib/toastHelper"; 
-import styles from './profile.module.css';
+import { showToast } from "@/lib/toastHelper";
+import { useLocationData } from "@/app/hooks/useLocationData";
+import styles from "./profile.module.css";
 
 interface LocationItem {
   id: string;
@@ -26,144 +27,100 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [selectedProfilePictureFile, setSelectedProfilePictureFile] =
+    useState<File | null>(null);
+
+  const locationData = useLocationData();
 
   const [provinces, setProvinces] = useState<LocationItem[]>([]);
   const [regencies, setRegencies] = useState<LocationItem[]>([]);
   const [districts, setDistricts] = useState<LocationItem[]>([]);
   const [villages, setVillages] = useState<LocationItem[]>([]);
 
-  const [selectedProvince, setSelectedProvince] = useState('');
-  const [selectedRegency, setSelectedRegency] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedVillage, setSelectedVillage] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedRegency, setSelectedRegency] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedVillage, setSelectedVillage] = useState("");
   const [postalCodes, setPostalCodes] = useState<string[]>([]);
 
-  const [countryCode, setCountryCode] = useState('+62');
+  const [countryCode, setCountryCode] = useState("+62");
   const [countryOptions, setCountryOptions] = useState<any[]>([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(true);
 
   const [userData, setUserData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',
-    province: '',
-    regency: '',
-    subdistrict: '',
-    village: '',
-    address: '',
-    postalCode: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    province: "",
+    regency: "",
+    subdistrict: "",
+    village: "",
+    address: "",
+    postalCode: "",
     points: 0,
     currentStreak: 0,
-    tierName: ''
+    tierName: "",
+    profilePicture: null as string | null,
   });
 
   const [formData, setFormData] = useState({ ...userData });
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
+    if (status === "authenticated" && session?.user) {
       const user = session.user;
       const initialData = {
-        firstName: user.first_name || '',
-        lastName: user.last_name || '',
-        email: user.email || '',
-        phoneNumber: user.phone_number || '',
-        province: user.province || '',
-        regency: user.regency || '',
-        subdistrict: user.subdistrict || '',
-        village: user.village || '',
-        address: user.address || '',
-        postalCode: user.postal_code || '',
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+        email: user.email || "",
+        phoneNumber: user.phone_number || "",
+        province: user.province || "",
+        regency: user.regency || "",
+        subdistrict: user.subdistrict || "",
+        village: user.village || "",
+        address: user.address || "",
+        postalCode: user.postal_code || "",
         points: user.points || 0,
         currentStreak: user.current_streak || 0,
-        tierName: user.tier_list_name || 'Eco Starter'
+        tierName: user.tier_list_name || "Eco Starter",
+        profilePicture: user.profile_picture || null,
       };
-      
+
+      setProfilePicture(user.profile_picture || null);
+
       setUserData(initialData);
       setFormData(initialData);
-      
+
       const initializeLocation = async () => {
         try {
           if (initialData.province) {
-            const provinceRes = await fetch("https://alamat.thecloudalert.com/api/provinsi/get/");
-            const provinceData = await provinceRes.json();
-            
-            if (provinceData.status === 200 && provinceData.result) {
-              setProvinces(provinceData.result);
+            const result = await locationData.loadLocationHierarchy(
+              initialData.province,
+              initialData.regency,
+              initialData.subdistrict,
+              initialData.village
+            );
 
-              const currentProvince = provinceData.result.find((p: LocationItem) => p.text === initialData.province);
-              if (currentProvince) {
-                setSelectedProvince(currentProvince.id);
+            setProvinces(result.provinces);
+            setRegencies(result.regencies);
+            setDistricts(result.districts);
+            setVillages(result.villages);
 
-                if (initialData.regency) {
-                  const regencyRes = await fetch(`https://alamat.thecloudalert.com/api/kabkota/get/?d_provinsi_id=${currentProvince.id}`);
-                  const regencyData = await regencyRes.json();
-                  
-                  if (regencyData.status === 200 && regencyData.result) {
-                    setRegencies(regencyData.result);
+            setSelectedProvince(result.selectedIds.provinceId);
+            setSelectedRegency(result.selectedIds.regencyId);
+            setSelectedDistrict(result.selectedIds.districtId);
+            setSelectedVillage(result.selectedIds.villageId);
 
-                    const currentRegency = regencyData.result.find((r: LocationItem) => r.text === initialData.regency);
-                    if (currentRegency) {
-                      setSelectedRegency(currentRegency.id);
-
-                      if (initialData.subdistrict) {
-                        const districtRes = await fetch(`https://alamat.thecloudalert.com/api/kecamatan/get/?d_kabkota_id=${currentRegency.id}`);
-                        const districtData = await districtRes.json();
-                        
-                        if (districtData.status === 200 && districtData.result) {
-                          setDistricts(districtData.result);
-
-                          const currentDistrict = districtData.result.find((d: LocationItem) => d.text === initialData.subdistrict);
-                          if (currentDistrict) {
-                            setSelectedDistrict(currentDistrict.id);
-
-                            if (initialData.village) {
-                              const villageRes = await fetch(`https://alamat.thecloudalert.com/api/kelurahan/get/?d_kecamatan_id=${currentDistrict.id}`);
-                              const villageData = await villageRes.json();
-                              
-                              if (villageData.status === 200 && villageData.result) {
-                                setVillages(villageData.result);
-
-                                const currentVillage = villageData.result.find((v: LocationItem) => v.text === initialData.village);
-                                if (currentVillage) {
-                                  setSelectedVillage(currentVillage.id);
-                                  
-                                  // Fetch postal codes for existing village
-                                  if (initialData.postalCode) {
-                                    try {
-                                      const searchRes = await fetch(
-                                        `https://alamat.thecloudalert.com/api/cari/index/?keyword=${encodeURIComponent(initialData.village)}`
-                                      );
-                                      const searchData = await searchRes.json();
-                                      
-                                      if (searchData.status === 200 && searchData.result && searchData.result.length > 0) {
-                                        const matchedResults = searchData.result.filter((item: SearchResult) => 
-                                          item.provinsi === initialData.province &&
-                                          item.kabkota === initialData.regency &&
-                                          item.kecamatan === initialData.subdistrict &&
-                                          item.desakel === initialData.village
-                                        );
-                                        
-                                        if (matchedResults.length > 0) {
-                                          const postalCodesArray = matchedResults.map((item: SearchResult) => item.kodepos);
-                                          const uniquePostalCodes: string[] = [...new Set<string>(postalCodesArray)];
-                                          setPostalCodes(uniquePostalCodes);
-                                        }
-                                      }
-                                    } catch (error) {
-                                      console.error("Failed to fetch initial postal codes:", error);
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+            // Fetch postal codes if village is available
+            if (initialData.village && initialData.postalCode) {
+              const postalCodesData = await locationData.fetchPostalCodes(
+                initialData.village,
+                initialData.province,
+                initialData.regency,
+                initialData.subdistrict
+              );
+              setPostalCodes(postalCodesData);
             }
           }
         } catch (error) {
@@ -180,22 +137,24 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await fetch('https://restcountries.com/v3.1/all?fields=name,idd,cca2');
+        const res = await fetch(
+          "https://restcountries.com/v3.1/all?fields=name,idd,cca2"
+        );
         const data = await res.json();
 
         const formatted = data
           .filter((c: any) => c.idd?.root)
           .map((c: any) => ({
             name: c.name.common,
-            code: `${c.idd.root}${c.idd.suffixes ? c.idd.suffixes[0] : ''}`,
-            cca2: c.cca2
+            code: `${c.idd.root}${c.idd.suffixes ? c.idd.suffixes[0] : ""}`,
+            cca2: c.cca2,
           }))
           .sort((a: any, b: any) => a.name.localeCompare(b.name));
 
         setCountryOptions(formatted);
       } catch (err) {
         console.error("Gagal ambil data negara, fallback manual", err);
-        setCountryOptions([{ name: 'Indonesia', code: '+62' }]); 
+        setCountryOptions([{ name: "Indonesia", code: "+62" }]);
       } finally {
         setIsLoadingCountries(false);
       }
@@ -206,31 +165,29 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (userData.phoneNumber && countryOptions.length > 0) {
-      const sortedOptions = [...countryOptions].sort((a, b) => b.code.length - a.code.length);
-      
-      const found = sortedOptions.find(c => userData.phoneNumber.startsWith(c.code));
+      const sortedOptions = [...countryOptions].sort(
+        (a, b) => b.code.length - a.code.length
+      );
+
+      const found = sortedOptions.find((c) =>
+        userData.phoneNumber.startsWith(c.code)
+      );
 
       if (found) {
         setCountryCode(found.code);
         const localNumber = userData.phoneNumber.substring(found.code.length);
-        
-        setFormData(prev => ({ ...prev, phoneNumber: localNumber }));
+
+        setFormData((prev) => ({ ...prev, phoneNumber: localNumber }));
       }
     }
   }, [userData.phoneNumber, countryOptions]);
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     setIsEditing(true);
 
     if (provinces.length === 0) {
-      fetch("https://alamat.thecloudalert.com/api/provinsi/get/")
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 200 && data.result) {
-            setProvinces(data.result);
-          }
-        })
-        .catch(err => console.error("Failed loading provinces:", err));
+      const provincesData = await locationData.fetchProvinces();
+      setProvinces(provincesData);
     }
   };
 
@@ -239,32 +196,25 @@ export default function ProfilePage() {
     const province = provinces.find((p) => p.id === provId);
 
     setSelectedProvince(provId);
-    setSelectedRegency('');
-    setSelectedDistrict('');
-    setSelectedVillage('');
+    setSelectedRegency("");
+    setSelectedDistrict("");
+    setSelectedVillage("");
     setRegencies([]);
     setDistricts([]);
     setVillages([]);
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      province: province ? province.text : '',
-      regency: '',
-      subdistrict: '',
-      village: '',
-      postalCode: ''
+      province: province ? province.text : "",
+      regency: "",
+      subdistrict: "",
+      village: "",
+      postalCode: "",
     }));
 
     if (provId) {
-      try {
-        const res = await fetch(`https://alamat.thecloudalert.com/api/kabkota/get/?d_provinsi_id=${provId}`);
-        const data = await res.json();
-        if (data.status === 200 && data.result) {
-          setRegencies(data.result);
-        }
-      } catch (err) {
-        console.error("Failed loading regencies:", err);
-      }
+      const regenciesData = await locationData.fetchRegencies(provId);
+      setRegencies(regenciesData);
     }
   };
 
@@ -273,106 +223,81 @@ export default function ProfilePage() {
     const regency = regencies.find((r) => r.id === regId);
 
     setSelectedRegency(regId);
-    setSelectedDistrict('');
-    setSelectedVillage('');
+    setSelectedDistrict("");
+    setSelectedVillage("");
     setDistricts([]);
     setVillages([]);
     setPostalCodes([]);
     setPostalCodes([]);
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      regency: regency ? regency.text : '',
-      subdistrict: '',
-      village: '',
-      postalCode: ''
+      regency: regency ? regency.text : "",
+      subdistrict: "",
+      village: "",
+      postalCode: "",
     }));
 
     if (regId) {
-      try {
-        const res = await fetch(`https://alamat.thecloudalert.com/api/kecamatan/get/?d_kabkota_id=${regId}`);
-        const data = await res.json();
-        if (data.status === 200 && data.result) {
-          setDistricts(data.result);
-        }
-      } catch (err) {
-        console.error("Failed loading districts:", err);
-      }
+      const districtsData = await locationData.fetchDistricts(regId);
+      setDistricts(districtsData);
     }
   };
 
   const handleDistrictChange = async (e: any) => {
     const distId = e.target.value;
     const district = districts.find((d) => d.id === distId);
-    
+
     setSelectedDistrict(distId);
-    setSelectedVillage('');
+    setSelectedVillage("");
     setVillages([]);
     setPostalCodes([]);
 
-    setFormData(prev => ({ 
-      ...prev, 
-      subdistrict: district ? district.text : '',
-      village: '',
-      postalCode: ''
+    setFormData((prev) => ({
+      ...prev,
+      subdistrict: district ? district.text : "",
+      village: "",
+      postalCode: "",
     }));
 
     if (distId) {
-      try {
-        const res = await fetch(`https://alamat.thecloudalert.com/api/kelurahan/get/?d_kecamatan_id=${distId}`);
-        const data = await res.json();
-        if (data.status === 200 && data.result) {
-          setVillages(data.result);
-        }
-      } catch (err) {
-        console.error("Failed loading villages:", err);
-      }
+      const villagesData = await locationData.fetchVillages(distId);
+      setVillages(villagesData);
     }
   };
 
   const handleVillageChange = async (e: any) => {
     const villageId = e.target.value;
     const village = villages.find((v) => v.id === villageId);
-    
+
     setSelectedVillage(villageId);
-    setFormData(prev => ({ 
-      ...prev, 
-      village: village ? village.text : '',
-      postalCode: ''
+    setFormData((prev) => ({
+      ...prev,
+      village: village ? village.text : "",
+      postalCode: "",
     }));
     setPostalCodes([]);
 
-    if (village && formData.province && formData.regency && formData.subdistrict) {
-      try {
-        const searchRes = await fetch(
-          `https://alamat.thecloudalert.com/api/cari/index/?keyword=${encodeURIComponent(village.text)}`
-        );
-        const searchData = await searchRes.json();
-        
-        if (searchData.status === 200 && searchData.result && searchData.result.length > 0) {
-          const matchedResults = searchData.result.filter((item: SearchResult) => 
-            item.provinsi === formData.province &&
-            item.kabkota === formData.regency &&
-            item.kecamatan === formData.subdistrict &&
-            item.desakel === village.text
-          );
-          
-          if (matchedResults.length > 0) {
-            const postalCodesArray = matchedResults.map((item: SearchResult) => item.kodepos);
-            const uniquePostalCodes: string[] = [...new Set<string>(postalCodesArray)];
-            setPostalCodes(uniquePostalCodes);
-            
-            if (uniquePostalCodes.length === 1) {
-              setFormData(prev => ({ ...prev, postalCode: uniquePostalCodes[0] }));
-            }
-          } else {
-            console.warn("No exact match found for this location");
-          }
-        } else {
-          console.warn("No search results found");
-        }
-      } catch (error) {
-        console.error("Failed to fetch postal codes:", error);
+    if (
+      village &&
+      formData.province &&
+      formData.regency &&
+      formData.subdistrict
+    ) {
+      const postalCodesData = await locationData.fetchPostalCodes(
+        village.text,
+        formData.province,
+        formData.regency,
+        formData.subdistrict
+      );
+
+      setPostalCodes(postalCodesData);
+
+      if (postalCodesData.length === 1) {
+        setFormData((prev) => ({
+          ...prev,
+          postalCode: postalCodesData[0],
+        }));
       }
     }
   };
@@ -384,65 +309,99 @@ export default function ProfilePage() {
     const resetLocation = async () => {
       try {
         if (userData.province && provinces.length > 0) {
-          const originalProvince = provinces.find(p => p.text === userData.province);
+          const originalProvince = provinces.find(
+            (p) => p.text === userData.province
+          );
           if (originalProvince) {
             setSelectedProvince(originalProvince.id);
 
             if (userData.regency) {
-              const regencyRes = await fetch(`https://alamat.thecloudalert.com/api/kabkota/get/?d_provinsi_id=${originalProvince.id}`);
+              const regencyRes = await fetch(
+                `https://alamat.thecloudalert.com/api/kabkota/get/?d_provinsi_id=${originalProvince.id}`
+              );
               const regencyData = await regencyRes.json();
-              
+
               if (regencyData.status === 200 && regencyData.result) {
                 setRegencies(regencyData.result);
-                const originalRegency = regencyData.result.find((r: LocationItem) => r.text === userData.regency);
+                const originalRegency = regencyData.result.find(
+                  (r: LocationItem) => r.text === userData.regency
+                );
 
                 if (originalRegency) {
                   setSelectedRegency(originalRegency.id);
 
                   if (userData.subdistrict) {
-                    const districtRes = await fetch(`https://alamat.thecloudalert.com/api/kecamatan/get/?d_kabkota_id=${originalRegency.id}`);
+                    const districtRes = await fetch(
+                      `https://alamat.thecloudalert.com/api/kecamatan/get/?d_kabkota_id=${originalRegency.id}`
+                    );
                     const districtData = await districtRes.json();
-                    
+
                     if (districtData.status === 200 && districtData.result) {
                       setDistricts(districtData.result);
-                      const originalDistrict = districtData.result.find((d: LocationItem) => d.text === userData.subdistrict);
-                      
+                      const originalDistrict = districtData.result.find(
+                        (d: LocationItem) => d.text === userData.subdistrict
+                      );
+
                       if (originalDistrict) {
                         setSelectedDistrict(originalDistrict.id);
 
                         if (userData.village) {
-                          const villageRes = await fetch(`https://alamat.thecloudalert.com/api/kelurahan/get/?d_kecamatan_id=${originalDistrict.id}`);
+                          const villageRes = await fetch(
+                            `https://alamat.thecloudalert.com/api/kelurahan/get/?d_kecamatan_id=${originalDistrict.id}`
+                          );
                           const villageData = await villageRes.json();
-                          
-                          if (villageData.status === 200 && villageData.result) {
+
+                          if (
+                            villageData.status === 200 &&
+                            villageData.result
+                          ) {
                             setVillages(villageData.result);
-                            const originalVillage = villageData.result.find((v: LocationItem) => v.text === userData.village);
+                            const originalVillage = villageData.result.find(
+                              (v: LocationItem) => v.text === userData.village
+                            );
                             if (originalVillage) {
                               setSelectedVillage(originalVillage.id);
-                              
+
                               if (userData.postalCode) {
                                 try {
                                   const searchRes = await fetch(
-                                    `https://alamat.thecloudalert.com/api/cari/index/?keyword=${encodeURIComponent(userData.village)}`
+                                    `https://alamat.thecloudalert.com/api/cari/index/?keyword=${encodeURIComponent(
+                                      userData.village
+                                    )}`
                                   );
                                   const searchData = await searchRes.json();
-                                  
-                                  if (searchData.status === 200 && searchData.result && searchData.result.length > 0) {
-                                    const matchedResults = searchData.result.filter((item: SearchResult) => 
-                                      item.provinsi === userData.province &&
-                                      item.kabkota === userData.regency &&
-                                      item.kecamatan === userData.subdistrict &&
-                                      item.desakel === userData.village
-                                    );
-                                    
+
+                                  if (
+                                    searchData.status === 200 &&
+                                    searchData.result &&
+                                    searchData.result.length > 0
+                                  ) {
+                                    const matchedResults =
+                                      searchData.result.filter(
+                                        (item: SearchResult) =>
+                                          item.provinsi === userData.province &&
+                                          item.kabkota === userData.regency &&
+                                          item.kecamatan ===
+                                            userData.subdistrict &&
+                                          item.desakel === userData.village
+                                      );
+
                                     if (matchedResults.length > 0) {
-                                      const postalCodesArray = matchedResults.map((item: SearchResult) => item.kodepos);
-                                      const uniquePostalCodes: string[] = [...new Set<string>(postalCodesArray)];
+                                      const postalCodesArray =
+                                        matchedResults.map(
+                                          (item: SearchResult) => item.kodepos
+                                        );
+                                      const uniquePostalCodes: string[] = [
+                                        ...new Set<string>(postalCodesArray),
+                                      ];
                                       setPostalCodes(uniquePostalCodes);
                                     }
                                   }
                                 } catch (error) {
-                                  console.error("Failed to re-fetch postal codes:", error);
+                                  console.error(
+                                    "Failed to re-fetch postal codes:",
+                                    error
+                                  );
                                 }
                               }
                             }
@@ -466,26 +425,26 @@ export default function ProfilePage() {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
-    val = val.replace(/\D/g, '');
+    val = val.replace(/\D/g, "");
 
-    if (val.startsWith('0')) val = val.substring(1);
+    if (val.startsWith("0")) val = val.substring(1);
 
-    const codeOnly = countryCode.replace('+', '');
+    const codeOnly = countryCode.replace("+", "");
     if (val.startsWith(codeOnly)) val = val.substring(codeOnly.length);
 
-    setFormData(prev => ({ ...prev, phoneNumber: val }));
+    setFormData((prev) => ({ ...prev, phoneNumber: val }));
   };
 
   const handleSave = async () => {
     setIsSaving(true);
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       alert("Format email tidak valid! (contoh: user@email.com)");
       setIsSaving(false);
       return;
     }
-    
+
     if (formData.phoneNumber.length < 9 || formData.phoneNumber.length > 15) {
       alert("Nomor telepon tidak valid.");
       setIsSaving(false);
@@ -493,54 +452,102 @@ export default function ProfilePage() {
     }
 
     const fullPhoneNumber = `${countryCode} ${formData.phoneNumber}`;
-    
+
     try {
-      const response = await fetch('/api/user/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          postalCode: formData.postalCode,
-          province: formData.province,
-          regency: formData.regency,
-          subdistrict: formData.subdistrict,
-          village: formData.village,
-          phoneNumber: fullPhoneNumber,
-          address: formData.address
-        })
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("firstName", formData.firstName);
+      formDataToSend.append("lastName", formData.lastName);
+      formDataToSend.append("postalCode", formData.postalCode);
+      formDataToSend.append("province", formData.province);
+      formDataToSend.append("regency", formData.regency);
+      formDataToSend.append("subdistrict", formData.subdistrict);
+      formDataToSend.append("village", formData.village);
+      formDataToSend.append("phoneNumber", fullPhoneNumber);
+      formDataToSend.append("address", formData.address);
+
+      if (selectedProfilePictureFile) {
+        formDataToSend.append("profilePicture", selectedProfilePictureFile);
+      }
+
+      const response = await fetch("/api/user/profile", {
+        method: "POST",
+        body: formDataToSend,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update profile.');
-      }
-      
-      const result = await response.json();
-      if(result.updated) {
-        await update();
-        showToast(result.updated, "Profile updated successfully!")
+        throw new Error(errorData.message || "Failed to update profile.");
       }
 
+      const result = await response.json();
       if (result.updated) {
+        await update();
+        showToast("success", "Profile updated successfully!");
+
+        if (result.data.profile_picture) {
+          setProfilePicture(result.data.profile_picture);
+          setUserData((prev) => ({
+            ...prev,
+            profilePicture: result.data.profile_picture,
+          }));
+        }
+
         setUserData({ ...formData, phoneNumber: fullPhoneNumber });
         setIsEditing(false);
+        setSelectedProfilePictureFile(null);
       }
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'An unknown error occurred.');
+      alert(
+        error instanceof Error ? error.message : "An unknown error occurred."
+      );
       console.error("Error saving profile:", error);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
+  const handleInputChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
+  };
+
+  const handleProfilePictureUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      showToast(
+        "error",
+        "Format file tidak valid. Gunakan JPEG, PNG, atau WebP"
+      );
+      return;
+    }
+
+    // Validate file size (max 3MB)
+    const maxSize = 3 * 1024 * 1024;
+    if (file.size > maxSize) {
+      showToast("error", "Ukuran file terlalu besar. Maksimal 3MB");
+      return;
+    }
+
+    setSelectedProfilePictureFile(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfilePicture(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    showToast("success", "Foto profil dipilih. Klik Save untuk menyimpan.");
   };
 
   return (
@@ -549,19 +556,22 @@ export default function ProfilePage() {
         <h1 className={styles.profileTitle}>My Profile</h1>
         <div className={styles.actionButtons}>
           {!isEditing ? (
-            <button className={`${styles.btn} ${styles.btnEdit}`} onClick={handleEdit}>
+            <button
+              className={`${styles.btn} ${styles.btnEdit}`}
+              onClick={handleEdit}
+            >
               <FaPencilAlt /> Edit Profile
             </button>
           ) : (
             <>
-              <button 
+              <button
                 className={`${styles.btn} ${styles.btnSave}`}
                 onClick={handleSave}
                 disabled={isSaving}
               >
-                <FaSave /> {isSaving ? 'Saving..' : 'Save'}
+                <FaSave /> {isSaving ? "Saving.." : "Save"}
               </button>
-              <button 
+              <button
                 className={`${styles.btn} ${styles.btnCancel}`}
                 onClick={handleCancel}
                 disabled={isSaving}
@@ -575,17 +585,43 @@ export default function ProfilePage() {
 
       <div className={styles.profileContent}>
         <div className={styles.profileSidebar}>
-          <div className={styles.profileAvatar}>
-            {userData.firstName.charAt(0)}{userData.lastName?.charAt(0) || ''}
+          <div className={styles.profileAvatarWrapper}>
+            {profilePicture ? (
+              <img
+                src={profilePicture}
+                alt="Profile"
+                className={styles.profileAvatarImage}
+              />
+            ) : (
+              <div className={styles.profileAvatar}>
+                {userData.firstName.charAt(0)}
+                {userData.lastName?.charAt(0) || ""}
+              </div>
+            )}
+            <label htmlFor="profile-upload" className={styles.uploadButton}>
+              <FaPencilAlt style={{ color: !isEditing ? "#7F8C8D" : "#FFF" }} />
+              <input
+                id="profile-upload"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleProfilePictureUpload}
+                disabled={!isEditing}
+                style={{ display: "none" }}
+              />
+            </label>
           </div>
           <div className={styles.profileStats}>
             <div className={styles.statItem}>
               <div className={styles.statLabel}>Points</div>
-              <div className={styles.statValue}>{userData.points.toLocaleString()}</div>
+              <div className={styles.statValue}>
+                {userData.points.toLocaleString()}
+              </div>
             </div>
             <div className={styles.statItem}>
               <div className={styles.statLabel}>Current Streak</div>
-              <div className={styles.statValue}>{userData.currentStreak} days</div>
+              <div className={styles.statValue}>
+                {userData.currentStreak} days
+              </div>
             </div>
           </div>
         </div>
@@ -594,7 +630,9 @@ export default function ProfilePage() {
           <div className={styles.formGrid}>
             {/* First Name */}
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Nama Depan (First Name)</label>
+              <label className={styles.formLabel}>
+                Nama Depan (First Name)
+              </label>
               <input
                 type="text"
                 name="firstName"
@@ -607,7 +645,9 @@ export default function ProfilePage() {
 
             {/* Last Name */}
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Nama Belakang (Last Name)</label>
+              <label className={styles.formLabel}>
+                Nama Belakang (Last Name)
+              </label>
               <input
                 type="text"
                 name="lastName"
@@ -632,28 +672,30 @@ export default function ProfilePage() {
 
             {/* Phone Number */}
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>No. Telp (Phone Number)</label>
-              
+              <label className={styles.formLabel}>
+                No. Telp (Phone Number)
+              </label>
+
               <div className={styles.formInputPhoneNumberContainer}>
-                <div 
+                <div
                   className={`${styles.formInput} ${styles.formInputPhoneNumber}`}
                   style={{
-                    backgroundColor: !isEditing ? '#ECF0F1' : '#FFF',
-                    color: !isEditing ? '#7F8C8D' : 'inherit',
-                    borderColor: !isEditing ? '#E0E0E0' : '#4A90E2'
+                    backgroundColor: !isEditing ? "#ECF0F1" : "#FFF",
+                    color: !isEditing ? "#7F8C8D" : "inherit",
+                    borderColor: !isEditing ? "#E0E0E0" : "#4A90E2",
                   }}
                 >
-                  <span style={{ pointerEvents: 'none', fontSize: '14px' }}>
-                    {isLoadingCountries ? '...' : countryCode}
+                  <span style={{ pointerEvents: "none", fontSize: "14px" }}>
+                    {isLoadingCountries ? "..." : countryCode}
                   </span>
-                  
+
                   <select
                     value={countryCode}
                     onChange={(e) => setCountryCode(e.target.value)}
                     disabled={!isEditing || isLoadingCountries}
                     style={{
                       opacity: 0,
-                      cursor: isEditing ? 'pointer' : 'default'
+                      cursor: isEditing ? "pointer" : "default",
                     }}
                     className={styles.formInputPhoneNumberSelect}
                   >
@@ -687,14 +729,18 @@ export default function ProfilePage() {
               <label className={styles.formLabel}>Provinsi (Province)</label>
               <select
                 name="province"
-                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ''}`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${
+                  !isEditing ? styles.readonly : ""
+                }`}
                 value={selectedProvince}
                 onChange={handleProvinceChange}
                 disabled={!isEditing}
               >
                 <option value="">Select Province</option>
                 {provinces.map((p) => (
-                  <option key={p.id} value={p.id}>{p.text}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.text}
+                  </option>
                 ))}
               </select>
             </div>
@@ -704,14 +750,22 @@ export default function ProfilePage() {
               <label className={styles.formLabel}>Kabupaten (Regency)</label>
               <select
                 name="regency"
-                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ''}`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${
+                  !isEditing ? styles.readonly : ""
+                }`}
                 value={selectedRegency}
                 onChange={handleRegencyChange}
                 disabled={!isEditing || !selectedProvince}
               >
-                <option value="">{selectedProvince ? 'Select Regency' : 'Select province first'}</option>
+                <option value="">
+                  {selectedProvince
+                    ? "Select Regency"
+                    : "Select province first"}
+                </option>
                 {regencies.map((r) => (
-                  <option key={r.id} value={r.id}>{r.text}</option> 
+                  <option key={r.id} value={r.id}>
+                    {r.text}
+                  </option>
                 ))}
               </select>
             </div>
@@ -721,31 +775,47 @@ export default function ProfilePage() {
               <label className={styles.formLabel}>Kecamatan (District)</label>
               <select
                 name="district"
-                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ''}`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${
+                  !isEditing ? styles.readonly : ""
+                }`}
                 value={selectedDistrict}
                 onChange={handleDistrictChange}
                 disabled={!isEditing || !selectedRegency}
               >
-                <option value="">{selectedRegency ? 'Select District' : 'Select regency first'}</option>
+                <option value="">
+                  {selectedRegency ? "Select District" : "Select regency first"}
+                </option>
                 {districts.map((d) => (
-                  <option key={d.id} value={d.id}>{d.text}</option>
+                  <option key={d.id} value={d.id}>
+                    {d.text}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Village/Kelurahan */}
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Kelurahan/Desa (Village)</label>
+              <label className={styles.formLabel}>
+                Kelurahan/Desa (Village)
+              </label>
               <select
                 name="village"
-                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ''}`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${
+                  !isEditing ? styles.readonly : ""
+                }`}
                 value={selectedVillage}
                 onChange={handleVillageChange}
                 disabled={!isEditing || !selectedDistrict}
               >
-                <option value="">{selectedDistrict ? 'Select Village' : 'Select district first'}</option>
+                <option value="">
+                  {selectedDistrict
+                    ? "Select Village"
+                    : "Select district first"}
+                </option>
                 {villages.map((v) => (
-                  <option key={v.id} value={v.id}>{v.text}</option>
+                  <option key={v.id} value={v.id}>
+                    {v.text}
+                  </option>
                 ))}
               </select>
             </div>
@@ -755,14 +825,24 @@ export default function ProfilePage() {
               <label className={styles.formLabel}>Kode Pos (Postal Code)</label>
               <select
                 name="postalCode"
-                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ''}`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${
+                  !isEditing ? styles.readonly : ""
+                }`}
                 value={formData.postalCode}
                 onChange={handleInputChange}
                 disabled={!isEditing || postalCodes.length === 0}
               >
-                <option value="">{postalCodes.length > 0 ? 'Select Postal Code' : (formData.postalCode ? formData.postalCode : 'Select village first')}</option>
+                <option value="">
+                  {postalCodes.length > 0
+                    ? "Select Postal Code"
+                    : formData.postalCode
+                    ? formData.postalCode
+                    : "Select village first"}
+                </option>
                 {postalCodes.map((code) => (
-                  <option key={code} value={code}>{code}</option>
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
                 ))}
               </select>
             </div>
