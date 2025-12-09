@@ -119,7 +119,7 @@
   padding: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   margin: 0 auto;
-  font-family: sans-serif; /* Gunakan font Poppins jika sudah diload di global */
+  font-family: sans-serif;
   color: #333;
   border: 1px solid #eaeaea;
 }

@@ -1,39 +1,45 @@
-import React from 'react';
-import styles from './WasteTypeCard.module.css';
+import React from "react";
+import styles from "./WasteTypeCard.module.css";
 
-interface SubCategory {
-    id: number;
-    name: string;
-    imageUrl: string;
+interface WasteCategory {
+  id: number;
+  name: string;
+  icon: string;
+  unit: string;
+  points_per_unit: number;
 }
 
-interface Category {
-    id: number;
-    name: string;
-    icon: string;
-    SubCategory: SubCategory[];
+interface WasteTypeCardProps {
+  category: WasteCategory;
 }
 
-interface CategoryCardProps {
-    category: Category;
-    isSelected: boolean;
-    onSelect: (id: number) => void;
-}
-
-const CategoryCard = ({ category, isSelected, onSelect }: CategoryCardProps) => {
-    return (
-        <div className={styles.categoryItem} onClick={() => onSelect(category.id)}>
-            <img 
-                src={category.icon} 
-                alt={category.name}
-                className={`${styles.categoryIcon} ${isSelected ? styles.active : ''}`}
-            />
-            <span className={styles.categoryName}>{category.name}</span>
-            <div className={styles.categoryButton}>
-                {isSelected ? '−' : '+'}
-            </div>
+const WasteTypeCard = ({ category }: WasteTypeCardProps) => {
+  return (
+    <div className={styles.categoryItem}>
+      <div className={styles.categoryIconWrapper}>
+        <img
+          src={
+            category.icon
+              ? `/upload${category.icon}`
+              : "/assets/recycle-icon.svg"
+          }
+          alt={category.name}
+          className={styles.categoryIcon}
+        />
+      </div>
+      <div className={styles.categoryContent}>
+        <h3 className={styles.categoryName}>{category.name}</h3>
+        <div className={styles.categoryInfo}>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Poin:</span>
+            <span className={styles.infoValue}>
+              {category.points_per_unit || 0} poin/{category.unit || "unit"}
+            </span>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
-export default CategoryCard;
+export default WasteTypeCard;

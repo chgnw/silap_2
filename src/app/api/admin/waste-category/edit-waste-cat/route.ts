@@ -6,19 +6,26 @@ import fs from "fs/promises";
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    
-    const id = formData.get('id');
-    const wasteCategoryName = formData.get('waste_category_name');
-    const imageFile = formData.get('image') as File | null;
 
-    if (!id || !wasteCategoryName) {
-      return NextResponse.json({ 
-        message: "ID and Category Name are required" 
-      }, { status: 400 });
+    const id = formData.get("id");
+    const wasteCategoryName = formData.get("waste_category_name");
+    const unit = formData.get("unit");
+    const pointsPerUnit = formData.get("points_per_unit");
+    const imageFile = formData.get("image") as File | null;
+
+    if (!id || !wasteCategoryName || !unit || !pointsPerUnit) {
+      return NextResponse.json(
+        {
+          message: "ID, Category Name, Unit, and Points per Unit are required",
+        },
+        { status: 400 }
+      );
     }
 
     let dataToUpdate: any = {
       waste_category_name: wasteCategoryName.toString(),
+      unit: unit.toString(),
+      points_per_unit: parseFloat(pointsPerUnit.toString()),
     };
 
     if (imageFile && imageFile.size > 0) {
@@ -47,23 +54,32 @@ export async function POST(req: NextRequest) {
       WHERE id = ?
     `;
 
-    const queryParams = [...values, id]; 
-    const result = await query(sql, queryParams) as any;
-    if(result.affectedRows == 0) {
-        return NextResponse.json({
-            message: "Failed Updating Category"
-        }, { status: 200 });
+    const queryParams = [...values, id];
+    const result = (await query(sql, queryParams)) as any;
+    if (result.affectedRows == 0) {
+      return NextResponse.json(
+        {
+          message: "Failed Updating Category",
+        },
+        { status: 200 }
+      );
     }
-    
-    return NextResponse.json({
-      message: "Category Updated Successfully",
-      data: dataToUpdate
-    }, { status: 200 });
+
+    return NextResponse.json(
+      {
+        message: "Category Updated Successfully",
+        data: dataToUpdate,
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error("Error updating category:", error);
-    return NextResponse.json({ 
-        message: "Internal Server Error", 
-        error: error.message 
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        message: "Internal Server Error",
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 }

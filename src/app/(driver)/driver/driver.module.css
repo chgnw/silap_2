@@ -165,6 +165,13 @@
   font-size: 0.85rem;
 }
 
+.vehicleCategory {
+  color: #2f5e44;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
 .noVehicles {
   padding: 2rem;
   text-align: center;
@@ -236,7 +243,25 @@
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.driverStat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.statValue {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2f5e44;
 }
 
 /* Timer */

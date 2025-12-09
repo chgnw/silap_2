@@ -12,11 +12,11 @@ import styles from "../drivers-vehicles/driversVehicles.module.css";
 type Tier = {
   id: number;
   tier_name: string;
+  tier_icon: string | null;
   min_weight: number;
   max_weight: number | null;
   target_weight: number | null;
   description: string | null;
-  benefit: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -40,12 +40,16 @@ export default function OthersPage() {
   // Form state
   const [tierForm, setTierForm] = useState({
     tier_name: "",
+    tier_icon: "",
     min_weight: "",
     max_weight: "",
     target_weight: "",
     description: "",
-    benefit: "",
   });
+
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   const fetchTiers = async () => {
     setIsLoading(true);
@@ -73,24 +77,63 @@ export default function OthersPage() {
     if (tier) {
       setTierForm({
         tier_name: tier.tier_name,
+        tier_icon: tier.tier_icon || "",
         min_weight: tier.min_weight.toString(),
         max_weight: tier.max_weight?.toString() || "",
         target_weight: tier.target_weight?.toString() || "",
         description: tier.description || "",
-        benefit: tier.benefit || "",
       });
+      setPreviewUrl(tier.tier_icon || "");
     } else {
       setTierForm({
         tier_name: "",
+        tier_icon: "",
         min_weight: "",
         max_weight: "",
         target_weight: "",
         description: "",
-        benefit: "",
       });
+      setPreviewUrl("");
     }
 
+    setSelectedFile(null);
     setIsModalOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp",
+        "image/svg+xml",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        showToast(
+          "error",
+          "Invalid file type. Only JPEG, PNG, WebP, and SVG are allowed"
+        );
+        return;
+      }
+
+      // Validate file size (max 3MB)
+      const maxSize = 3 * 1024 * 1024;
+      if (file.size > maxSize) {
+        showToast("error", "File size too large. Maximum size is 3MB");
+        return;
+      }
+
+      setSelectedFile(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -101,24 +144,25 @@ export default function OthersPage() {
       const url =
         modalMode === "add" ? "/api/admin/tier/add" : "/api/admin/tier/update";
 
-      const payload = {
-        tier_name: tierForm.tier_name,
-        min_weight: parseFloat(tierForm.min_weight),
-        max_weight: tierForm.max_weight
-          ? parseFloat(tierForm.max_weight)
-          : null,
-        target_weight: tierForm.target_weight
-          ? parseFloat(tierForm.target_weight)
-          : null,
-        description: tierForm.description || null,
-        benefit: tierForm.benefit || null,
-        ...(modalMode === "edit" && { id: selectedTier?.id }),
-      };
+      const formData = new FormData();
+      formData.append("tier_name", tierForm.tier_name);
+      formData.append("min_weight", tierForm.min_weight);
+      formData.append("max_weight", tierForm.max_weight || "");
+      formData.append("target_weight", tierForm.target_weight || "");
+      formData.append("description", tierForm.description || "");
+
+      if (modalMode === "edit" && selectedTier?.id) {
+        formData.append("id", selectedTier.id.toString());
+        formData.append("existing_icon", tierForm.tier_icon || "");
+      }
+
+      if (selectedFile) {
+        formData.append("tier_icon", selectedFile);
+      }
 
       const response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const result = await response.json();
@@ -181,6 +225,28 @@ export default function OthersPage() {
         header: "No",
         accessorFn: (_, i) => i + 1,
         size: 50,
+      },
+      {
+        header: "Icon",
+        accessorKey: "tier_icon",
+        cell: ({ getValue }) => {
+          const iconUrl = getValue() as string | null;
+          return iconUrl ? (
+            <img
+              src={iconUrl}
+              alt="Tier icon"
+              style={{
+                width: "40px",
+                height: "40px",
+                objectFit: "contain",
+                borderRadius: "4px",
+              }}
+            />
+          ) : (
+            <span style={{ color: "#999", fontSize: "0.9rem" }}>No icon</span>
+          );
+        },
+        size: 80,
       },
       {
         header: "Tier Name",
@@ -298,6 +364,81 @@ export default function OthersPage() {
             />
           </div>
 
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Tier Icon</label>
+            {modalMode === "view" ? (
+              <div>
+                {tierForm.tier_icon ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "12px",
+                    }}
+                  >
+                    <img
+                      src={tierForm.tier_icon}
+                      alt="Tier icon"
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        objectFit: "contain",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "8px",
+                        backgroundColor: "#f9f9f9",
+                      }}
+                    />
+                    <small style={{ color: "#666", fontSize: "0.85rem" }}>
+                      File: {tierForm.tier_icon.split("/").pop()}
+                    </small>
+                  </div>
+                ) : (
+                  <p style={{ color: "#999", fontSize: "0.9rem" }}>
+                    No icon uploaded
+                  </p>
+                )}
+              </div>
+            ) : (
+              <>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/svg+xml"
+                  onChange={handleFileChange}
+                  className={styles.formInput}
+                  style={{ padding: "8px" }}
+                />
+                <small
+                  style={{
+                    color: "#666",
+                    fontSize: "0.85rem",
+                    display: "block",
+                    marginTop: "4px",
+                  }}
+                >
+                  Accepted formats: JPEG, PNG, WebP, SVG. Max size: 3MB
+                </small>
+                {previewUrl && (
+                  <div style={{ marginTop: "12px" }}>
+                    <img
+                      src={previewUrl}
+                      alt="Icon preview"
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        objectFit: "contain",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "8px",
+                        backgroundColor: "#f9f9f9",
+                      }}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Min Weight (kg) *</label>
@@ -360,20 +501,6 @@ export default function OthersPage() {
               disabled={modalMode === "view"}
               rows={3}
               placeholder="Deskripsi tier level ini..."
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Benefits</label>
-            <textarea
-              className={styles.formTextarea}
-              value={tierForm.benefit}
-              onChange={(e) =>
-                setTierForm({ ...tierForm, benefit: e.target.value })
-              }
-              disabled={modalMode === "view"}
-              rows={3}
-              placeholder="Keuntungan tier level ini..."
             />
           </div>
 
