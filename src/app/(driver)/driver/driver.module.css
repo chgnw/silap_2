@@ -1,0 +1,441 @@
+.container {
+  min-height: 100%;
+}
+
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2f5e44 0%, #a4b465 100%);
+  color: white;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.25);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.main {
+  padding: 1.5rem 1.25rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.instructionCard {
+  background: #2f5e44;
+  color: white;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
+}
+
+.instructionIcon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.instructionCard p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.selectVehicleSection {
+  margin: 2rem 0;
+  position: relative;
+}
+
+.selectVehicleButton {
+  width: 100%;
+  background: #9db380;
+  color: white;
+  border: none;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s;
+}
+
+.selectVehicleButton:hover {
+  background: #8aa36e;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  z-index: 50;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.searchInput {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.searchInput:focus {
+  border-bottom-color: #667eea;
+}
+
+.vehicleList {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.vehicleItem {
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vehicleItem:hover {
+  background: #f8f9ff;
+}
+
+.vehicleItem:last-child {
+  border-bottom: none;
+}
+
+.vehicleItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vehicleItemInfo strong {
+  color: #333;
+  font-size: 1rem;
+}
+
+.vehicleItemDetail {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.noVehicles {
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+}
+
+/* Info Cards */
+.infoCard {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+  margin: 0 0 1.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Driver Card */
+.driverCard {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.driverAvatar {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.driverDetails {
+  flex: 1;
+}
+
+.driverName {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.driverRole {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.driverStatus {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Timer */
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timerBox {
+  background: #9db380;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  min-width: 48px;
+  text-align: center;
+}
+
+.timerSeparator {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #666;
+}
+
+/* Vehicle Card */
+.vehicleCard {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.vehicleImage {
+  flex-shrink: 0;
+  width: 120px;
+  height: 80px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.truckImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicleDetails {
+  flex: 1;
+}
+
+.vehicleName {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.35rem;
+}
+
+.vehiclePlate {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 0.35rem;
+  font-weight: 500;
+}
+
+.vehicleWeight {
+  font-size: 0.9rem;
+  color: #9db380;
+  font-weight: 600;
+}
+
+/* Activation Section */
+.activationSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 3rem;
+  padding-bottom: 2rem;
+}
+
+.activationButton {
+  width: 120px;
+  height: 120px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.activationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.activationButton.active {
+  background: linear-gradient(135deg, #9db380 0%, #7a9760 100%);
+  border: 4px solid #66ea72;
+}
+
+.activationButton.inactive {
+  background: linear-gradient(135deg, #ccc 0%, #999 100%);
+}
+
+.activationButton:not(:disabled):hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.activationButton:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+.powerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusLabel {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.5rem 1.5rem;
+  border-radius: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.activeLabel {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.inactiveLabel {
+  background: #f5f5f5;
+  color: #666;
+}
+
+/* Tablet and Desktop */
+@media (min-width: 768px) {
+  .container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main {
+    max-width: 800px;
+    padding: 2rem;
+  }
+
+  .instructionCard {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .infoCard {
+    padding: 2rem;
+  }
+
+  .driverCard {
+    gap: 1.5rem;
+  }
+
+  .driverAvatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .vehicleImage {
+    width: 150px;
+    height: 100px;
+  }
+
+  .activationButton {
+    width: 140px;
+    height: 140px;
+  }
+
+  .powerIcon svg {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    max-width: 900px;
+  }
+
+  .header {
+    padding: 1.25rem 2rem;
+  }
+
+  .breadcrumb {
+    font-size: 1.1rem;
+  }
+}

@@ -1,14 +1,34 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 
-import { showToast } from "@/lib/toastHelper"; 
-import Calendar from "@/app/components/Large/Calendar/Calendar";
+import { showToast } from "@/lib/toastHelper";
 import style from "./pickup.module.css";
 
-import { FaArrowUp, FaTruck, FaCalendarAlt, FaClock, FaMousePointer } from "react-icons/fa";
+const Calendar = dynamic(
+  () => import("@/app/components/Large/Calendar/Calendar"),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ textAlign: "center", padding: "2rem" }}>
+        Loading calendar...
+      </div>
+    ),
+  }
+);
+
+import {
+  FaArrowUp,
+  FaTruck,
+  FaCalendarAlt,
+  FaClock,
+  FaMousePointer,
+  FaCamera,
+  FaStickyNote,
+} from "react-icons/fa";
 import { FaCheck } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { GiWeight } from "react-icons/gi";
@@ -37,43 +57,52 @@ export default function PickUpPage() {
   */
   const router = useRouter();
   useEffect(() => {
-    if (!session) router.push('/login')
-  }, [session])
+    if (!session) router.push("/login");
+  }, [session]);
 
   // Data
   const [vehicleOptions, setVehicleOptions] = useState<OptionItem[]>([]);
   const [pickupOptions, setPickupOptions] = useState<OptionItem[]>([]);
   const [addressData, setAddressData] = useState<AddressData>({
-    user_id: '',
-    name: '',
-    phone: '',
-    address: ''
+    user_id: "",
+    name: "",
+    phone: "",
+    address: "",
   });
-  
+
   // State & Input User
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [weight, setWeight] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
-  
+
   const [showPickupTypeDropdown, setShowPickupTypeDropdown] = useState(false);
   const [showVehicleDropdown, setShowVehicleDropdown] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState<OptionItem | null>(null);
-  const [selectedPickupType, setSelectedPickupType] = useState<OptionItem | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<OptionItem | null>(
+    null
+  );
+  const [selectedPickupType, setSelectedPickupType] =
+    useState<OptionItem | null>(null);
+
+  // Image & Notes
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [notes, setNotes] = useState("");
 
   const dateInputRef = useRef<HTMLInputElement>(null);
   const timeInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Flag
   const [refreshKey, setRefreshKey] = useState(0);
-  const maxCapacity = vehicleOptions.length > 0 
-    ? Math.max(...vehicleOptions.map(v => parseFloat(v.max_weight))) 
-    : 0;
+  const maxCapacity =
+    vehicleOptions.length > 0
+      ? Math.max(...vehicleOptions.map((v) => parseFloat(v.max_weight)))
+      : 0;
   const currentWeightNum = parseFloat(weight) || 0;
   const isTotalOverload = currentWeightNum > maxCapacity;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [minTime, setMinTime] = useState("");
-
 
   /*
     Function untuk nentuin vehicle based on weight 
@@ -82,7 +111,9 @@ export default function PickUpPage() {
     const beratInput = parseFloat(weight);
     if (!beratInput || isNaN(beratInput) || vehicleOptions.length === 0) return;
 
-    const sortedVehicles = [...vehicleOptions].sort((a: any, b: any) => a.max_weight - b.max_weight);
+    const sortedVehicles = [...vehicleOptions].sort(
+      (a: any, b: any) => a.max_weight - b.max_weight
+    );
 
     let cocok = sortedVehicles.find((v: any) => beratInput <= v.max_weight);
     if (!cocok) {
@@ -94,16 +125,14 @@ export default function PickUpPage() {
     }
   }, [weight, vehicleOptions]);
 
-
   /*
     Ref function untuk munculin input date
   */
   const openDatePicker = () => {
     if (dateInputRef.current) {
-      dateInputRef.current.showPicker(); 
+      dateInputRef.current.showPicker();
     }
   };
-
 
   /*
     Ref function untuk munculin input hour
@@ -114,7 +143,6 @@ export default function PickUpPage() {
     }
   };
 
-
   /*
     Function untuk dapetin day hari ini
     tujuannya untuk dipake di minDate untuk inputan tanggal
@@ -122,23 +150,25 @@ export default function PickUpPage() {
   const getTodayString = () => {
     const dt = new Date();
     const year = dt.getFullYear();
-    const month = String(dt.getMonth() + 1).padStart(2, '0');
-    const day = String(dt.getDate()).padStart(2, '0');
+    const month = String(dt.getMonth() + 1).padStart(2, "0");
+    const day = String(dt.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
   const minDate = getTodayString();
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
+    if (status === "authenticated" && session?.user) {
       setAddressData({
         user_id: session.user.id,
-        name: `${session.user.first_name} ${session.user.last_name}` || "Username", 
-        phone: session.user.phone_number || "-", 
-        address: session.user.address || "Masukkan alamat pengiriman atau atur alamat pada menu profile."
+        name:
+          `${session.user.first_name} ${session.user.last_name}` || "Username",
+        phone: session.user.phone_number || "-",
+        address:
+          session.user.address ||
+          "Masukkan alamat pengiriman atau atur alamat pada menu profile.",
       });
     }
   }, [session, status]);
-
 
   // Ambil data untuk pickup type, dll untuk dropdown
   useEffect(() => {
@@ -154,7 +184,7 @@ export default function PickUpPage() {
         },
       });
 
-      const result = await response.json(); 
+      const result = await response.json();
       // console.log("Raw API Response:", result);
 
       const vehicles = result.data?.vehicleType || [];
@@ -163,9 +193,9 @@ export default function PickUpPage() {
       setVehicleOptions(vehicles);
       setPickupOptions(pickups);
       // console.log("Data yang akan di-set:", vehicles, pickups);
-      
+
       if (vehicles.length > 0 && !weight) {
-         setSelectedVehicle(vehicles[0]); 
+        setSelectedVehicle(vehicles[0]);
       }
 
       if (pickups.length > 1) {
@@ -173,14 +203,14 @@ export default function PickUpPage() {
       }
     } catch (error) {
       console.error("Error fetching dropdown data:", error);
-    } 
-  }
+    }
+  };
 
-  const handleAddressChange = (e:any) => {
+  const handleAddressChange = (e: any) => {
     setAddressData({ ...addressData, address: e.target.value });
   };
 
-  const handleSelectVehicle = (vehicle:any) => {
+  const handleSelectVehicle = (vehicle: any) => {
     setSelectedVehicle(vehicle);
     setShowVehicleDropdown(false);
   };
@@ -190,40 +220,88 @@ export default function PickUpPage() {
     setShowPickupTypeDropdown(false);
   };
 
-  const insertNewEvent = async (payload:any) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ["image/png", "image/jpg", "image/jpeg"];
+      if (!validTypes.includes(file.type)) {
+        showToast("error", "Format gambar harus PNG, JPG, atau JPEG");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        showToast("error", "Ukuran gambar maksimal 5MB");
+        return;
+      }
+
+      setSelectedImage(file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview("");
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  };
+
+  const insertNewEvent = async (formData: FormData) => {
     try {
       setIsSubmitting(true);
-      
+
       const response = await fetch("/api/dashboard/pickup/add-new-event", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload)
+        body: formData,
       });
 
       const result = await response.json();
       console.log("result: ", result);
       if (response.status === 409) {
-        showToast(response.status, "Event pada hari dan jam tersebut sudah ada.");
+        showToast(
+          response.status,
+          "Event pada hari dan jam tersebut sudah ada."
+        );
         return;
       }
 
       if (response.status === 500) {
-        showToast(response.status, "Terjadi kesalahan server. Silakan coba lagi.");
+        showToast(
+          response.status,
+          "Terjadi kesalahan server. Silakan coba lagi."
+        );
         return;
       }
 
       if (!response.ok) {
-        showToast(response.status, result.details || "Terjadi kesalahan saat menambahkan jadwal.");
+        showToast(
+          response.status,
+          result.details || "Terjadi kesalahan saat menambahkan jadwal."
+        );
         return;
       }
 
       if (response.status === 200 && result.message === "SUCCESS") {
         // Reset input
-        setWeight(""); 
+        setWeight("");
         setSelectedDate("");
         setSelectedTime("");
+        setNotes("");
+        setSelectedImage(null);
+        setImagePreview("");
+        if (imageInputRef.current) {
+          imageInputRef.current.value = "";
+        }
         setShowVehicleDropdown(false);
         setShowPickupTypeDropdown(false);
         if (vehicleOptions.length > 0) {
@@ -235,15 +313,18 @@ export default function PickUpPage() {
         setIsEditingAddress(false);
 
         showToast(response.status, "Jadwal penjemputan berhasil ditambahkan!");
-        setRefreshKey(prev => prev + 1);
+        setRefreshKey((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Error inserting new event:", error);
-      showToast("error", "Gagal terhubung ke server. Periksa koneksi internet Anda.");
+      showToast(
+        "error",
+        "Gagal terhubung ke server. Periksa koneksi internet Anda."
+      );
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   /* 
     Function untuk dapetin jam sekarang
@@ -251,24 +332,27 @@ export default function PickUpPage() {
   */
   useEffect(() => {
     updateMinTime();
-    
+
     const interval = setInterval(() => {
       updateMinTime();
     }, 60000);
-    
+
     return () => clearInterval(interval);
   }, [selectedDate]);
 
   const updateMinTime = () => {
     const now = new Date();
-    const jakartaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
-    
+    const jakartaTime = new Date(
+      now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+    );
+
     const selectedDateObj = new Date(selectedDate);
-    const isToday = selectedDateObj.toDateString() === jakartaTime.toDateString();
-    
+    const isToday =
+      selectedDateObj.toDateString() === jakartaTime.toDateString();
+
     if (isToday) {
-      const hours = jakartaTime.getHours().toString().padStart(2, '0');
-      const minutes = jakartaTime.getMinutes().toString().padStart(2, '0');
+      const hours = jakartaTime.getHours().toString().padStart(2, "0");
+      const minutes = jakartaTime.getMinutes().toString().padStart(2, "0");
       setMinTime(`${hours}:${minutes}`);
     } else {
       setMinTime("00:00");
@@ -277,32 +361,46 @@ export default function PickUpPage() {
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedTimeValue = e.target.value;
-    
+
     if (minTime && selectedTimeValue < minTime) {
       showToast("error", "Waktu tidak boleh lebih kecil dari jam sekarang");
       return;
     }
-    
+
     setSelectedTime(selectedTimeValue);
   };
 
   const handleSubmit = () => {
-    if (!selectedDate || !selectedTime || weight === "" || !selectedPickupType || !selectedVehicle) {
+    if (
+      !selectedDate ||
+      !selectedTime ||
+      weight === "" ||
+      !selectedPickupType ||
+      !selectedVehicle
+    ) {
       alert("Mohon lengkapi informasi penjemputan sampah.");
       return;
     }
 
-    const payload = {
-      userData: addressData,
-      weight: weight,            
-      vehicle: selectedVehicle,  
-      date: selectedDate,        
-      time: selectedTime,        
-      pickupType: selectedPickupType  
-    };
+    // Create FormData for file upload
+    const formData = new FormData();
 
-    console.log("DATA SIAP DIKIRIM:", payload);
-    insertNewEvent(payload);
+    // Add all the data
+    formData.append("userData", JSON.stringify(addressData));
+    formData.append("weight", weight);
+    formData.append("vehicle", JSON.stringify(selectedVehicle));
+    formData.append("date", selectedDate);
+    formData.append("time", selectedTime);
+    formData.append("pickupType", JSON.stringify(selectedPickupType));
+    formData.append("notes", notes);
+
+    // Add image if selected
+    if (selectedImage) {
+      formData.append("image", selectedImage);
+    }
+
+    console.log("DATA SIAP DIKIRIM (FormData)");
+    insertNewEvent(formData);
   };
 
   if (status === "loading") {
@@ -317,9 +415,9 @@ export default function PickUpPage() {
         {/* Alamat */}
         <div className={style.detailCard}>
           <div className={`${style.iconBox}`}>
-            <FaArrowUp style={{color: "#FFFFFF"}}/>
+            <FaArrowUp style={{ color: "#FFFFFF" }} />
           </div>
-          
+
           <div className={style.cardContentRow}>
             <div className={style.senderHeader}>
               <h1 className={style.senderName}>{addressData.name}</h1>
@@ -329,7 +427,7 @@ export default function PickUpPage() {
             </div>
 
             {isEditingAddress ? (
-              <textarea 
+              <textarea
                 className={style.addressInput}
                 value={addressData.address}
                 onChange={handleAddressChange}
@@ -337,23 +435,20 @@ export default function PickUpPage() {
                 autoFocus
               />
             ) : (
-              <p className={style.addressText}>
-                {addressData.address}
-              </p>
+              <p className={style.addressText}>{addressData.address}</p>
             )}
           </div>
 
           {/* Tombol Edit */}
-          <div 
-            className={style.chevron} 
+          <div
+            className={style.chevron}
             onClick={() => setIsEditingAddress(!isEditingAddress)}
             title={isEditingAddress ? "Simpan Perubahan" : "Ubah Alamat"}
           >
             {isEditingAddress ? (
-              <FaCheck style={{color: "#2F5E44"}} size={16}/>
+              <FaCheck style={{ color: "#2F5E44" }} size={16} />
             ) : (
-              <FiEdit style={{color: "#2F5E44"}} size={16}/>
-
+              <FiEdit style={{ color: "#2F5E44" }} size={16} />
             )}
           </div>
         </div>
@@ -362,19 +457,19 @@ export default function PickUpPage() {
         <div className={`${style.detailCard} ${style.weightCard}`}>
           <div className={style.headerTitleGroup}>
             <div className={`${style.iconBox}`}>
-                <GiWeight style={{color: "#FFFFFF"}}/>
+              <GiWeight style={{ color: "#FFFFFF" }} />
             </div>
             <span className={style.headerTitle}>Total Berat</span>
           </div>
-          
+
           <div className={style.inputWrapper}>
-            <input 
-              type="number" 
+            <input
+              type="number"
               step="0.1"
               min="0"
               className={style.weightInput}
               value={weight}
-              onChange={(e) => setWeight(e.target.value)} 
+              onChange={(e) => setWeight(e.target.value)}
               placeholder="0"
             />
             <span className={style.unitLabel}>Kg</span>
@@ -386,31 +481,37 @@ export default function PickUpPage() {
           <div className={style.cardHeaderTop}>
             <div className={style.headerTitleGroup}>
               <div className={`${style.iconBox} ${style.iconDarkGreen}`}>
-                 <FaTruck style={{color: "#FFFFFF"}}/>
+                <FaTruck style={{ color: "#FFFFFF" }} />
               </div>
               <span className={style.headerTitle}>Armada</span>
             </div>
-            
-            <div 
-              className={style.actionLink} 
+
+            <div
+              className={style.actionLink}
               onClick={() => setShowVehicleDropdown(!showVehicleDropdown)}
             >
-              {showVehicleDropdown ? <span>Tutup</span> : <span>Pilih</span>} 
-              <MdArrowForwardIos style={{transform: showVehicleDropdown ? 'rotate(90deg)' : 'rotate(0deg)', transition: '0.3s'}} />
+              {showVehicleDropdown ? <span>Tutup</span> : <span>Pilih</span>}
+              <MdArrowForwardIos
+                style={{
+                  transform: showVehicleDropdown
+                    ? "rotate(90deg)"
+                    : "rotate(0deg)",
+                  transition: "0.3s",
+                }}
+              />
             </div>
           </div>
 
           {!showVehicleDropdown && (
-            <div 
+            <div
               className={style.cardBodyVehicle}
               // Styling tambahan jika Overload (Background merah muda & border merah)
               style={{
-                backgroundColor: isTotalOverload ? '#FFFFFF' : undefined,
-                border: isTotalOverload ? '1px solid #ED1C24' : undefined,
-                cursor: isTotalOverload ? 'not-allowed' : 'pointer'
+                backgroundColor: isTotalOverload ? "#FFFFFF" : undefined,
+                border: isTotalOverload ? "1px solid #ED1C24" : undefined,
+                cursor: isTotalOverload ? "not-allowed" : "pointer",
               }}
             >
-              
               {/* Radio button disembunyikan jika error, biar bersih */}
               {!isTotalOverload && (
                 <input
@@ -423,31 +524,43 @@ export default function PickUpPage() {
 
               {/* Ganti Icon Kendaraan jadi Tanda Seru jika Overload */}
               <div className={style.vehicleImgPlaceholder}>
-                {isTotalOverload 
-                  ? "⚠️" 
-                  : (selectedVehicle?.id === 1 ? "🛵" : "🛻") // Sesuaikan logic icon kamu
+                {
+                  isTotalOverload
+                    ? "⚠️"
+                    : selectedVehicle?.id === 1
+                    ? "🛵"
+                    : "🛻" // Sesuaikan logic icon kamu
                 }
               </div>
 
               {/* Bagian Teks */}
-              <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
-                <span 
+              <div
+                style={{ display: "flex", flexDirection: "column", flex: 1 }}
+              >
+                <span
                   className={style.vehicleName}
-                  style={{ color: isTotalOverload ? '#ED1C24' : 'inherit' }}
+                  style={{ color: isTotalOverload ? "#ED1C24" : "inherit" }}
                 >
-                  {isTotalOverload ? "Armada Tidak Tersedia" : selectedVehicle?.name}
+                  {isTotalOverload
+                    ? "Armada Tidak Tersedia"
+                    : selectedVehicle?.name}
                 </span>
 
                 {/* Tampilkan pesan error jika Overload */}
                 {isTotalOverload && (
-                  <span style={{ fontSize: '11px', color: '#ED1C24', marginTop: '2px' }}>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "#ED1C24",
+                      marginTop: "2px",
+                    }}
+                  >
                     Berat melebihi batas maks. {maxCapacity}kg.
                   </span>
                 )}
               </div>
             </div>
           )}
-
 
           {showVehicleDropdown && (
             <div className={style.vehicleOptionsList}>
@@ -460,14 +573,15 @@ export default function PickUpPage() {
                   <div
                     key={vehicle.id}
                     className={`${style.vehicleOptionItem} ${
-                      selectedVehicle?.id === vehicle.id ? style.activeOption : ""
+                      selectedVehicle?.id === vehicle.id
+                        ? style.activeOption
+                        : ""
                     }`}
                     style={{
                       opacity: isOverweight ? 0.5 : 1,
-                      cursor: isOverweight ? 'not-allowed' : 'pointer',
-                      pointerEvents: isOverweight ? 'none' : 'auto'
+                      cursor: isOverweight ? "not-allowed" : "pointer",
+                      pointerEvents: isOverweight ? "none" : "auto",
                     }}
-                    
                     onClick={() => {
                       if (!isOverweight) {
                         handleSelectVehicle(vehicle);
@@ -478,20 +592,22 @@ export default function PickUpPage() {
                       type="radio"
                       name="vehicle"
                       checked={selectedVehicle?.id === vehicle.id}
-                      readOnly 
+                      readOnly
                       className={style.vehicleRadio}
-                      disabled={isOverweight} 
+                      disabled={isOverweight}
                     />
 
                     <div className={style.vehicleImgPlaceholderSmall}>
-                      {vehicle.name.toLowerCase().includes('motor') ? "🛵" : "🛻"}
+                      {vehicle.name.toLowerCase().includes("motor")
+                        ? "🛵"
+                        : "🛻"}
                     </div>
 
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
                       <span className={style.vehicleName}>{vehicle.name}</span>
-                      
+
                       {isOverweight && (
-                        <span style={{fontSize: '10px', color: '#ED1C24'}}>
+                        <span style={{ fontSize: "10px", color: "#ED1C24" }}>
                           Maksimal {vehicle.max_weight}kg
                         </span>
                       )}
@@ -504,44 +620,44 @@ export default function PickUpPage() {
         </div>
 
         {/* Date */}
-        <div 
-          className={`${style.detailCard} ${style.dateCard}`} 
+        <div
+          className={`${style.detailCard} ${style.dateCard}`}
           onClick={openDatePicker}
-          style={{ cursor: 'pointer' }}>
-            <div className={style.headerTitleGroup}>
-              <div className={style.iconBox}>
-                <FaCalendarAlt style={{ color: "#FFFFFF" }} />
-              </div>
-              <span className={style.headerTitle}>Pilih Tanggal</span>
+          style={{ cursor: "pointer" }}
+        >
+          <div className={style.headerTitleGroup}>
+            <div className={style.iconBox}>
+              <FaCalendarAlt style={{ color: "#FFFFFF" }} />
             </div>
+            <span className={style.headerTitle}>Pilih Tanggal</span>
+          </div>
 
-            <div className={style.actionLink} style={{position: 'relative'}}>
-              <span>
-                 {selectedDate ? selectedDate : "Pilih"}
-              </span>
-              
-              <MdArrowForwardIos />
+          <div className={style.actionLink} style={{ position: "relative" }}>
+            <span>{selectedDate ? selectedDate : "Pilih"}</span>
 
-              <input 
-                min={minDate}
-                ref={dateInputRef}
-                type="date" 
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                style={{
-                  visibility: 'hidden',
-                  position: 'absolute',
-                  pointerEvents: 'none'
-                }}
-              />
-            </div>
+            <MdArrowForwardIos />
+
+            <input
+              min={minDate}
+              ref={dateInputRef}
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              style={{
+                visibility: "hidden",
+                position: "absolute",
+                pointerEvents: "none",
+              }}
+            />
+          </div>
         </div>
 
         {/* Time */}
-        <div 
-          className={`${style.detailCard} ${style.timeCard}`} 
+        <div
+          className={`${style.detailCard} ${style.timeCard}`}
           onClick={openTimePicker}
-          style={{ cursor: 'pointer' }}>
+          style={{ cursor: "pointer" }}
+        >
           <div className={style.headerTitleGroup}>
             <div className={style.iconBox}>
               <FaClock style={{ color: "#FFFFFF" }} />
@@ -549,22 +665,23 @@ export default function PickUpPage() {
             <span className={style.headerTitle}>Pilih Jam</span>
           </div>
 
-          <div className={style.actionLink} style={{position: 'relative', cursor: 'pointer'}}>
-            <span>
-              {selectedTime ? selectedTime : "Pilih"}
-            </span>
+          <div
+            className={style.actionLink}
+            style={{ position: "relative", cursor: "pointer" }}
+          >
+            <span>{selectedTime ? selectedTime : "Pilih"}</span>
             <MdArrowForwardIos />
 
-            <input 
+            <input
               ref={timeInputRef}
-              type="time" 
+              type="time"
               value={selectedTime}
               min={minTime}
               onChange={handleTimeChange}
               style={{
-                visibility: 'hidden',
-                position: 'absolute',
-                pointerEvents: 'none'
+                visibility: "hidden",
+                position: "absolute",
+                pointerEvents: "none",
               }}
             />
           </div>
@@ -575,21 +692,26 @@ export default function PickUpPage() {
           <div className={style.cardHeaderTop}>
             <div className={style.headerTitleGroup}>
               <div className={`${style.iconBox} ${style.iconDarkGreen}`}>
-                 <FaMousePointer style={{ color: "#FFFFFF" }} />
+                <FaMousePointer style={{ color: "#FFFFFF" }} />
               </div>
               <span className={style.headerTitle}>Tipe Pick Up</span>
             </div>
-            
-            <div 
-              className={style.actionLink} 
+
+            <div
+              className={style.actionLink}
               onClick={() => setShowPickupTypeDropdown(!showPickupTypeDropdown)}
             >
               {!showPickupTypeDropdown && (
-                <span>
-                  {selectedPickupType?.name}
-                </span>
+                <span>{selectedPickupType?.name}</span>
               )}
-              <MdArrowForwardIos style={{transform: showPickupTypeDropdown ? 'rotate(90deg)' : 'rotate(0deg)', transition: '0.3s'}} />
+              <MdArrowForwardIos
+                style={{
+                  transform: showPickupTypeDropdown
+                    ? "rotate(90deg)"
+                    : "rotate(0deg)",
+                  transition: "0.3s",
+                }}
+              />
             </div>
           </div>
 
@@ -599,7 +721,9 @@ export default function PickUpPage() {
                 <div
                   key={option.id}
                   className={`${style.vehicleOptionItem} ${
-                    selectedPickupType?.id === option.id ? style.activeOption : ""
+                    selectedPickupType?.id === option.id
+                      ? style.activeOption
+                      : ""
                   }`}
                   onClick={() => handleSelectPickupType(option)}
                 >
@@ -612,7 +736,7 @@ export default function PickUpPage() {
                   />
                   {/* Icon Placeholder kecil */}
                   <div className={style.vehicleImgPlaceholderSmall}>
-                    {option.id === 1 ? '1️⃣' : '📅'}
+                    {option.id === 1 ? "1️⃣" : "📅"}
                   </div>
 
                   <span className={style.vehicleName}>{option.name}</span>
@@ -622,9 +746,79 @@ export default function PickUpPage() {
           )}
         </div>
 
+        {/* Image Upload */}
+        <div className={`${style.detailCard} ${style.imageUploadCard}`}>
+          <div className={style.headerTitleGroup}>
+            <div className={`${style.iconBox}`}>
+              <FaCamera style={{ color: "#FFFFFF" }} />
+            </div>
+            <span className={style.headerTitle}>
+              Foto Sampah{" "}
+              <span className={style.optionalLabel}>(Opsional)</span>
+            </span>
+          </div>
+
+          <div className={style.imageUploadContainer}>
+            {!imagePreview ? (
+              <>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/png,image/jpg,image/jpeg"
+                  capture="environment"
+                  onChange={handleImageChange}
+                  style={{ display: "none" }}
+                  id="imageUpload"
+                />
+                <label htmlFor="imageUpload" className={style.imageUploadLabel}>
+                  <FaCamera />
+                  <span>Klik untuk upload atau ambil foto</span>
+                </label>
+                <span className={style.imageFormatText}>
+                  Format: PNG, JPG, JPEG (Max 5MB)
+                </span>
+              </>
+            ) : (
+              <div className={style.imagePreviewContainer}>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className={style.imagePreview}
+                />
+                <button
+                  onClick={handleRemoveImage}
+                  className={style.removeImageButton}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className={`${style.detailCard} ${style.notesCard}`}>
+          <div className={style.headerTitleGroup}>
+            <div className={`${style.iconBox}`}>
+              <FaStickyNote style={{ color: "#FFFFFF" }} />
+            </div>
+            <span className={style.headerTitle}>
+              Catatan <span className={style.optionalLabel}>(Opsional)</span>
+            </span>
+          </div>
+
+          <textarea
+            className={style.notesTextarea}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+            placeholder="Tambahkan catatan jika diperlukan..."
+          />
+        </div>
+
         {/* Submit Button */}
         <div>
-          <button 
+          <button
             onClick={handleSubmit}
             className={style.submitButton}
             disabled={isSubmitting}
@@ -633,10 +827,9 @@ export default function PickUpPage() {
           </button>
         </div>
       </div>
-      
 
       <div className={`${style.rightSide} calendar-container`}>
-        <Calendar refreshTrigger={refreshKey}/>
+        <Calendar refreshTrigger={refreshKey} />
       </div>
     </div>
   );

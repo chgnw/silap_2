@@ -1,561 +1,805 @@
-.pickupContainer{
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 1rem;}
-    .title {
-        font-size: 1.8rem;
-        font-weight: 700;}
-    .detailContainer{
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: stretch;
-        justify-content: flex-start;
-        gap: 3rem;}
-    .leftSide {
-        max-width: 400px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        justify-content: flex-start;
-        gap: 1rem;}
-        .leftSideHeader{
-            font-size: 1rem;
-            font-weight: 600;}
-        .detailCard {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            justify-content: space-between;
-            background-color: #FFFFFF;
-            border-radius: 0.75rem;
-            padding: 0.875rem 1rem;
-            gap: 0.5rem;
-            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
-            .iconBox {
-                padding: 0.5rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 4px;
-                background-color: #2F5E44;}
-            .cardContentRow {
-                width: 100%;
-                display: flex;
-                flex-direction: column;}
-                .senderHeader {
-                    width: 100%;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;}
-                    .senderName {
-                        font-size: 0.875rem;
-                        font-weight: 600;
-                        color: #000000;}
-                    .addressContainer{
-                        width: auto;
-                        padding: 0 0.25rem;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        border-radius: 12px;
-                        background-color: #F1F2F4;}
-                        .phoneBadge {
-                            font-size: 0.875rem;
-                            font-weight: 500;
-                            color: #4A4B4C;}
-                .addressText,
-                .addressInput {
-                    height: 60px;}
-                .addressText {
-                    display: -webkit-box;
-                    -webkit-line-clamp: 3;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                    font-size: 0.875rem;
-                    font-weight: 500;
-                    color: #4A4B4C;}
-                .addressInput {
-                    resize: none;
-                    padding: 8px;
-                    font-size: 0.875rem;
-                    font-weight: 500;
-                    color: #4A4B4C;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                    height: 60px;}
-        .weightCard {
-            flex-direction: column;
-            align-items: flex-start;}
-            .headerTitleGroup {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;}
-                .headerTitle {
-                    font-size: 0.875rem;
-                    font-weight: 600;
-                    color: #000000;}
-                    .inputWrapper{
-                        width: auto;
-                        display: flex;
-                        align-items: baseline;
-                        gap: 0.5rem;
-                        margin-left: 11%;}
-                        .weightInput {
-                            border: 1px solid #2F5E44;
-                            border-radius: 0.75rem;
-                            padding-inline-start: 0.5rem;
-                            width: 35%;
-                            font-size: 2.5rem;}
-                        .unitLabel {
-                            font-size: 1rem;
-                            font-weight: 600;
-                            color: #2F5E44;}
-        .armadaCard {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;}
-            .cardHeaderTop {
-                width: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 0.5rem;}
-                .actionLink {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 0.5rem;}
-                    .actionLink span {
-                        font-size: 0.875rem;
-                        font-weight: 600;
-                        color: #000000;
-                        white-space: nowrap;}
-            .cardBodyVehicle {
-                width: 100%;
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: flex-start;
-                gap: 1rem;
-                border-radius: 0.75rem;
-                padding: 1rem;
-                gap: 0.5rem;
-                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
-                .vehicleRadio {
-                    transform: scale(1.2);
-                    pointer-events: none;}
-                .vehicleImgPlaceholder,
-                .vehicleImgPlaceholderSmall {
-                    width: auto;
-                    height: auto;
-                    padding: 0.5rem;
-                    font-size: 2rem;}
-                .vehicleName {
-                    font-size: 1rem;
-                    font-weight: 600;
-                    color: #000000;}
-        .vehicleOptionsList {
-            width: 100%;
-            height: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 1rem;}
-            .vehicleOptionItem {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: flex-start;
-                width: 100%;
-                gap: 0.5rem;
-                padding: 1rem;
-                border-radius: 0.75rem;
-                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
-        .dateCard,
-        .timeCard {
-            align-items: center;}
-        .submitButton {
-            width: 100%;
-            padding: 1rem;
-            background-color: #2F5E44;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #FFFFFF;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);}
-            .submitButton:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;}
-    .rightSide{
-        margin-top: 35px;
-        width: 100%;
-        position: sticky;
-        top: 0;}
-        /* Full Calendar Style */
-        .rightSide :global(.fc) {
-            background-color: #FFFFFF;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.25);}
-        .rightSide :global(.fc-col-header) {
-            background-color: #F1F2F4;}
-        .rightSide :global(.fc-toolbar) {
-            padding: 1rem;}
-        .rightSide :global(.fc .fc-toolbar.fc-header-toolbar) {
-            margin: 0;}
-        .rightSide :global(.fc-button-group) {
-            gap: 0.75em;}
-        .rightSide :global(.fc .fc-button-group > .fc-button:hover) {
-            background-color: #E2EBC0;}
-        .rightSide :global(.fc-button-primary),
-        .rightSide :global(.fc-button-primary:disabled) {
-            background-color: #A4B465;
-            color: #000000;
-            border: none;
-            border-radius: 4px;}
-        .rightSide :global(.fc .fc-daygrid-day.fc-day-today) {
-            background-color: transparent;}
-        .rightSide :global(.fc .fc-daygrid-day-number) {
-            width: 40px;
-            text-align: center;}
-        .rightSide :global(.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number) {
-            padding: 0.5rem;
-            border-radius: 100%;
-            background-color: #2F5E44;
-            color: #FFF;}
-        .rightSide :global(.fc-direction-ltr .fc-daygrid-event.fc-event-end) {
-            overflow: hidden;
-            background-color: #D5F35F;}
-        .rightSide :global(.fc-h-event) {
-            background-color: #D5F35F;
-            border: none;}
+.pickupContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+.detailContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 1.5rem;
+}
+.leftSide {
+  max-width: 400px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 1rem;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+}
+.leftSideHeader {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.detailCard {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+}
+.iconBox {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background-color: #2f5e44;
+}
+.cardContentRow {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.senderHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.senderName {
+  max-width: 140px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.addressContainer {
+  width: auto;
+  padding: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #f1f2f4;
+}
+.phoneBadge {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a4b4c;
+}
+.addressText,
+.addressInput {
+  height: 60px;
+}
+.addressText {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a4b4c;
+}
+.addressInput {
+  resize: none;
+  padding: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a4b4c;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  height: 60px;
+}
+.weightCard {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.headerTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.headerTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000;
+}
+.inputWrapper {
+  width: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-left: 11%;
+}
+.weightInput {
+  border: 1px solid #2f5e44;
+  border-radius: 0.75rem;
+  padding-inline-start: 0.5rem;
+  width: 35%;
+  font-size: 2.5rem;
+}
+.unitLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2f5e44;
+}
+.armadaCard {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.cardHeaderTop {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.actionLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.actionLink span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000;
+  white-space: nowrap;
+}
+.cardBodyVehicle {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+}
+.vehicleRadio {
+  transform: scale(1.2);
+  pointer-events: none;
+}
+.vehicleImgPlaceholder,
+.vehicleImgPlaceholderSmall {
+  width: auto;
+  height: auto;
+  padding: 0.5rem;
+  font-size: 2rem;
+}
+.vehicleName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000000;
+}
+.vehicleOptionsList {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+.vehicleOptionItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+}
+.dateCard,
+.timeCard {
+  align-items: center;
+}
+.submitButton {
+  width: 100%;
+  padding: 1rem;
+  background-color: #2f5e44;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+}
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+/* Image Upload */
+.imageUploadCard {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.imageUploadContainer {
+  width: 100%;
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+  margin-top: 0.75rem;
+}
+.imageUploadLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  background-color: #f5f5f5;
+  border: 2px dashed #cccccc;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a4b4c;
+}
+.imageUploadLabel:hover {
+  background-color: #e8e8e8;
+  border-color: #2f5e44;
+}
+.imageFormatText {
+  font-size: 0.6875rem;
+  color: #999;
+  text-align: center;
+}
+.imagePreviewContainer {
+  position: relative;
+  width: 100%;
+}
+.imagePreview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+.removeImageButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #ed1c24;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.25rem;
+  transition: all 0.3s;
+}
+.removeImageButton:hover {
+  background-color: #c41018;
+  transform: scale(1.1);
+}
+/* Notes */
+.notesCard {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.notesTextarea {
+  width: 100%;
+  resize: none;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a4b4c;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  margin-top: 0.75rem;
+  font-family: inherit;
+}
+.notesTextarea:focus {
+  outline: none;
+  border-color: #2f5e44;
+}
+.notesTextarea::placeholder {
+  color: #999;
+}
+.optionalLabel {
+  font-size: 0.75rem;
+  color: #999;
+}
+.rightSide {
+  margin-top: 35px;
+  width: 100%;
+  position: sticky;
+  top: 0;
+}
+/* Full Calendar Style */
+.rightSide :global(.fc) {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.rightSide :global(.fc-col-header) {
+  background-color: #f1f2f4;
+}
+.rightSide :global(.fc-toolbar) {
+  padding: 1rem;
+}
+.rightSide :global(.fc .fc-toolbar.fc-header-toolbar) {
+  margin: 0;
+}
+.rightSide :global(.fc-button-group) {
+  gap: 0.75em;
+}
+.rightSide :global(.fc .fc-button-group > .fc-button:hover) {
+  background-color: #e2ebc0;
+}
+.rightSide :global(.fc-button-primary),
+.rightSide :global(.fc-button-primary:disabled) {
+  background-color: #a4b465;
+  color: #000000;
+  border: none;
+  border-radius: 4px;
+}
+.rightSide :global(.fc .fc-daygrid-day.fc-day-today) {
+  background-color: transparent;
+}
+.rightSide :global(.fc .fc-daygrid-day-number) {
+  width: 40px;
+  text-align: center;
+}
+.rightSide :global(.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number) {
+  padding: 0.5rem;
+  border-radius: 100%;
+  background-color: #2f5e44;
+  color: #fff;
+}
+.rightSide :global(.fc-direction-ltr .fc-daygrid-event.fc-event-end) {
+  overflow: hidden;
+  background-color: #d5f35f;
+}
+.rightSide :global(.fc-h-event) {
+  background-color: #d5f35f;
+  border: none;
+}
 
 /* Others */
 .loadingState {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #4A4B4C;
-    font-weight: 500;}
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a4b4c;
+  font-weight: 500;
+}
 
 @media (max-width: 1400px) {
-    .detailContainer {
-        gap: 2rem;
-    }
+  .detailContainer {
+    gap: 2rem;
+  }
 }
 
 @media (max-width: 1200px) {
-    .detailContainer {
-        gap: 1.5rem;
-    }
+  .detailContainer {
+    gap: 1.5rem;
+  }
 
-    .rightSide :global(.fc .fc-toolbar-title) {
-        font-size: 1rem;
-    }
+  .rightSide :global(.fc .fc-toolbar-title) {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 992px) {
-    .detailContainer {
-        gap: 1.5rem;
-    }
+  .detailContainer {
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
-    .title {
-        font-size: 1.5rem;
-    }
+  .title {
+    font-size: 1.5rem;
+  }
 
-    .detailContainer {
-        flex-direction: column-reverse;
-        gap: 1.5rem;
-    }
+  .detailContainer {
+    flex-direction: column-reverse;
+    gap: 1.5rem;
+  }
 
-    .leftSide {
-        max-width: unset;
-        width: 100%;
-    }
+  .leftSide {
+    max-width: unset;
+    width: 100%;
+  }
 
-    /* CRITICAL FIX: Remove sticky on mobile */
-    .rightSide {
-        position: static;
-        margin-top: 0;
-        width: 100%;
-    }
+  /* CRITICAL FIX: Remove sticky on mobile */
+  .rightSide {
+    position: static;
+    margin-top: 0;
+    width: 100%;
+  }
 
-    /* Calendar adjustments */
-    .rightSide :global(.fc .fc-toolbar-title) {
-        font-size: 1.125rem;
-    }
+  /* Calendar adjustments */
+  .rightSide :global(.fc .fc-toolbar-title) {
+    font-size: 1.125rem;
+  }
 
-    .rightSide :global(.fc-toolbar) {
-        padding: 0.75rem;
-    }
+  .rightSide :global(.fc-toolbar) {
+    padding: 0.75rem;
+  }
 
-    .rightSide :global(.fc-button) {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.875rem;
-    }
+  .rightSide :global(.fc-button) {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
 
-    /* Form cards adjustments */
-    .detailCard {
-        padding: 0.75rem 0.875rem;
-    }
+  /* Form cards adjustments */
+  .detailCard {
+    padding: 0.75rem 0.875rem;
+  }
 
-    .leftSideHeader {
-        font-size: 0.9375rem;
-    }
+  .leftSideHeader {
+    font-size: 0.9375rem;
+  }
 
-    .inputWrapper {
-        margin-left: 40px;
-    }
+  .inputWrapper {
+    margin-left: 40px;
+  }
 
-    .weightInput {
-        font-size: 2rem;
-        width: 40%;
-    }
+  .weightInput {
+    font-size: 2rem;
+    width: 40%;
+  }
+
+  /* Image & Notes */
+  .imageUploadLabel {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .imagePreview {
+    max-height: 180px;
+  }
+
+  .removeImageButton {
+    width: 28px;
+    height: 28px;
+    font-size: 1.125rem;
+  }
+
+  .notesTextarea {
+    font-size: 0.8125rem;
+    padding: 0.5rem;
+  }
 }
 
 /* ===== MOBILE LANDSCAPE: 568px ===== */
 @media (max-width: 568px) {
-    .title {
-        font-size: 1.375rem;
-    }
+  .title {
+    font-size: 1.375rem;
+  }
 
-    .pickupContainer {
-        gap: 0.875rem;
-    }
+  .pickupContainer {
+    gap: 0.875rem;
+  }
 
-    .detailContainer {
-        gap: 1.25rem;
-    }
+  .detailContainer {
+    gap: 1.25rem;
+  }
 
-    .leftSide {
-        gap: 0.875rem;
-    }
+  .leftSide {
+    gap: 0.875rem;
+  }
 
-    .detailCard {
-        padding: 0.625rem 0.75rem;
-        border-radius: 0.625rem;
-    }
+  .detailCard {
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.625rem;
+  }
 
-    /* Header adjustments */
-    .senderHeader {
-        flex-direction: row;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.25rem;
-    }
+  /* Header adjustments */
+  .senderHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
 
-    .senderName {
-        font-size: 0.8125rem;
-    }
+  .senderName {
+    font-size: 0.8125rem;
+  }
 
-    .phoneBadge {
-        font-size: 0.8125rem;
-    }
+  .phoneBadge {
+    font-size: 0.8125rem;
+  }
 
-    /* Weight card */
-    .inputWrapper {
-        margin-left: 42px;
-        gap: 0.375rem;
-    }
+  /* Weight card */
+  .inputWrapper {
+    margin-left: 42px;
+    gap: 0.375rem;
+  }
 
-    .weightInput {
-        font-size: 1.75rem;
-        width: 40%;
-        padding-inline-start: 0.375rem;
-    }
+  .weightInput {
+    font-size: 1.75rem;
+    width: 40%;
+    padding-inline-start: 0.375rem;
+  }
 
-    .unitLabel {
-        font-size: 0.9375rem;
-    }
+  .unitLabel {
+    font-size: 0.9375rem;
+  }
 
-    /* Vehicle options */
-    .vehicleImgPlaceholder,
-    .vehicleImgPlaceholderSmall {
-        font-size: 1.5rem;
-        padding: 0.375rem;
-    }
+  /* Vehicle options */
+  .vehicleImgPlaceholder,
+  .vehicleImgPlaceholderSmall {
+    font-size: 1.5rem;
+    padding: 0.375rem;
+  }
 
-    .vehicleName {
-        font-size: 0.9375rem;
-    }
+  .vehicleName {
+    font-size: 0.9375rem;
+  }
 
-    .actionLink span {
-        font-size: 0.8125rem;
-    }
+  .actionLink span {
+    font-size: 0.8125rem;
+  }
 
-    /* Calendar */
-    .rightSide :global(.fc .fc-toolbar-title) {
-        font-size: 1rem;
-    }
+  /* Calendar */
+  .rightSide :global(.fc .fc-toolbar-title) {
+    font-size: 1rem;
+  }
 
-    .rightSide :global(.fc-button) {
-        padding: 0.3125rem 0.625rem;
-        font-size: 0.8125rem;
-    }
+  .rightSide :global(.fc-button) {
+    padding: 0.3125rem 0.625rem;
+    font-size: 0.8125rem;
+  }
 
-    .rightSide :global(.fc-button-group) {
-        gap: 0.5em;
-    }
+  .rightSide :global(.fc-button-group) {
+    gap: 0.5em;
+  }
 
-    /* Submit button */
-    .submitButton {
-        padding: 0.875rem;
-        font-size: 0.9375rem;
-    }
+  /* Submit button */
+  .submitButton {
+    padding: 0.875rem;
+    font-size: 0.9375rem;
+  }
+
+  /* Image & Notes */
+  .imageUploadLabel {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    gap: 0.375rem;
+  }
+
+  .imageFormatText {
+    font-size: 0.625rem;
+  }
+
+  .imagePreview {
+    max-height: 160px;
+  }
+
+  .removeImageButton {
+    width: 26px;
+    height: 26px;
+    font-size: 1rem;
+    top: 0.375rem;
+    right: 0.375rem;
+  }
+
+  .notesTextarea {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .optionalLabel {
+    font-size: 0.6875rem;
+  }
 }
 
 /* ===== MOBILE PORTRAIT: 368px ===== */
 @media (max-width: 368px) {
-    .title {
-        font-size: 1.25rem;
-    }
+  .title {
+    font-size: 1.25rem;
+  }
 
-    .pickupContainer {
-        gap: 0.75rem;
-    }
+  .pickupContainer {
+    gap: 0.75rem;
+  }
 
-    .detailContainer {
-        gap: 1rem;
-    }
+  .detailContainer {
+    gap: 1rem;
+  }
 
-    .leftSide {
-        gap: 0.75rem;
-    }
+  .leftSide {
+    gap: 0.75rem;
+  }
 
-    .leftSideHeader {
-        font-size: 0.875rem;
-    }
+  .leftSideHeader {
+    font-size: 0.875rem;
+  }
 
-    .detailCard {
-        padding: 0.5rem 0.625rem;
-        gap: 0.375rem;
-    }
+  .detailCard {
+    padding: 0.5rem 0.625rem;
+    gap: 0.375rem;
+  }
 
-    .iconBox {
-        padding: 0.375rem;
-    }
+  .iconBox {
+    padding: 0.375rem;
+  }
 
-    .iconBox svg {
-        width: 14px;
-        height: 14px;
-    }
+  .iconBox svg {
+    width: 14px;
+    height: 14px;
+  }
 
-    /* Header */
-    .senderName {
-        font-size: 0.75rem;
-    }
+  /* Header */
+  .senderName {
+    font-size: 0.75rem;
+  }
 
-    .phoneBadge {
-        font-size: 0.75rem;
-        padding: 0 0.1875rem;
-    }
+  .phoneBadge {
+    font-size: 0.75rem;
+    padding: 0 0.1875rem;
+  }
 
-    .addressText,
-    .addressInput {
-        font-size: 0.8125rem;
-        height: 54px;
-    }
+  .addressText,
+  .addressInput {
+    font-size: 0.8125rem;
+    height: 54px;
+  }
 
-    .headerTitle {
-        font-size: 0.8125rem;
-    }
+  .headerTitle {
+    font-size: 0.8125rem;
+  }
 
-    /* Weight */
-    .inputWrapper {
-        margin-left: 34px;
-        flex-direction: row;
-        align-items: baseline;
-        gap: 0.25rem;
-    }
+  /* Weight */
+  .inputWrapper {
+    margin-left: 34px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.25rem;
+  }
 
-    .weightInput {
-        font-size: 1.5rem;
-        width: 30%;
-    }
+  .weightInput {
+    font-size: 1.5rem;
+    width: 30%;
+  }
 
-    .unitLabel {
-        font-size: 0.875rem;
-        margin-left: 0.25rem;
-    }
+  .unitLabel {
+    font-size: 0.875rem;
+    margin-left: 0.25rem;
+  }
 
-    /* Vehicle options */
-    .vehicleImgPlaceholder,
-    .vehicleImgPlaceholderSmall {
-        font-size: 1.25rem;
-        padding: 0.25rem;
-    }
+  /* Vehicle options */
+  .vehicleImgPlaceholder,
+  .vehicleImgPlaceholderSmall {
+    font-size: 1.25rem;
+    padding: 0.25rem;
+  }
 
-    .vehicleName {
-        font-size: 0.875rem;
-    }
+  .vehicleName {
+    font-size: 0.875rem;
+  }
 
-    .cardBodyVehicle {
-        padding: 0.75rem;
-    }
+  .cardBodyVehicle {
+    padding: 0.75rem;
+  }
 
-    .vehicleOptionItem {
-        padding: 0.75rem;
-    }
+  .vehicleOptionItem {
+    padding: 0.75rem;
+  }
 
-    .vehicleOptionsList {
-        gap: 0.75rem;
-    }
+  .vehicleOptionsList {
+    gap: 0.75rem;
+  }
 
-    .actionLink span {
-        font-size: 0.75rem;
-    }
+  .actionLink span {
+    font-size: 0.75rem;
+  }
 
-    .actionLink svg {
-        width: 12px;
-        height: 12px;
-    }
+  .actionLink svg {
+    width: 12px;
+    height: 12px;
+  }
 
-    /* Calendar */
-    .rightSide :global(.fc) {
-        border-radius: 0.625rem;
-    }
+  /* Calendar */
+  .rightSide :global(.fc) {
+    border-radius: 0.625rem;
+  }
 
-    .rightSide :global(.fc .fc-toolbar-title) {
-        font-size: 0.9375rem;
-    }
+  .rightSide :global(.fc .fc-toolbar-title) {
+    font-size: 0.9375rem;
+  }
 
-    .rightSide :global(.fc-toolbar) {
-        padding: 0.5rem;
-    }
+  .rightSide :global(.fc-toolbar) {
+    padding: 0.5rem;
+  }
 
-    .rightSide :global(.fc-button) {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-    }
+  .rightSide :global(.fc-button) {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
 
-    .rightSide :global(.fc-button-group) {
-        gap: 0.375em;
-    }
+  .rightSide :global(.fc-button-group) {
+    gap: 0.375em;
+  }
 
-    .rightSide :global(.fc-daygrid-day-number) {
-        font-size: 0.8125rem;
-    }
+  .rightSide :global(.fc-daygrid-day-number) {
+    font-size: 0.8125rem;
+  }
 
-    .rightSide :global(.fc-event-title) {
-        font-size: 0.6875rem;
-    }
+  .rightSide :global(.fc-event-title) {
+    font-size: 0.6875rem;
+  }
 
-    /* Submit button */
-    .submitButton {
-        padding: 0.75rem;
-        font-size: 0.875rem;
-        border-radius: 0.625rem;
-    }
+  /* Submit button */
+  .submitButton {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.625rem;
+  }
+
+  /* Image & Notes */
+  .imageUploadContainer {
+    margin-top: 0.5rem;
+  }
+
+  .imageUploadLabel {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.6875rem;
+    gap: 0.25rem;
+  }
+
+  .imageFormatText {
+    font-size: 0.5625rem;
+  }
+
+  .imagePreview {
+    max-height: 140px;
+    border-radius: 0.375rem;
+  }
+
+  .removeImageButton {
+    width: 24px;
+    height: 24px;
+    font-size: 0.875rem;
+    top: 0.25rem;
+    right: 0.25rem;
+  }
+
+  .notesTextarea {
+    font-size: 0.6875rem;
+    padding: 0.375rem;
+    margin-top: 0.5rem;
+  }
+
+  .optionalLabel {
+    font-size: 0.625rem;
+  }
 }

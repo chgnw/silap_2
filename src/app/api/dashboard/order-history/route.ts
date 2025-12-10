@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { NextRequest, NextResponse } from "next/server";
+import { query } from "@/lib/db";
 
-export async function POST (req: NextRequest) {
-    try {
-        const body = await req.json();
-        const { user_id } = body;
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { user_id } = body;
 
-        /* 
+    /* 
             Query ini ngegabungin tiga table transaction
             yang formatnya disamain untuk bisa di-display
             di tabel yang sama untuk page "Pesanan Saya"
         */
-        const sql = `
+    const sql = `
             SELECT * FROM (
                 SELECT 
                     p.id AS ref_id,
@@ -27,11 +27,11 @@ export async function POST (req: NextRequest) {
                     JSON_OBJECT(
                         'address', p.pickup_address,
                         'notes', p.notes,
-                        'weight', (SELECT SUM(quantity) FROM tr_pickup_items WHERE pickups_id = p.id)
+                        'weight', (SELECT SUM(quantity) FROM tr_pickup_items WHERE pickup_id = p.id)
                     ) AS details,
-                    CONCAT('+', COALESCE((SELECT SUM(points_earned) FROM tr_pickup_items WHERE pickups_id = p.id), 0), ' Pts') AS amount_display
+                    CONCAT('+', COALESCE((SELECT SUM(points_earned) FROM tr_pickup_items WHERE pickup_id = p.id), 0), ' Pts') AS amount_display
                 FROM tr_pickups p
-                WHERE users_id = ?
+                WHERE user_id = ?
 
                 UNION ALL
 
@@ -73,33 +73,44 @@ export async function POST (req: NextRequest) {
                 WHERE users_id = ?
             ) AS all_transactions
             ORDER BY date DESC;
-        `
-        const rows = await query(sql, [user_id, user_id, user_id]) as any;
-        if(!rows) {
-            console.log("Error saat query");
-            return NextResponse.json({
-                message: "SUCCESS",
-                detail: "Tidak ada data yang tersedia"
-            }, { status: 400 });
-        }
-
-        if(rows.length === 0) {
-            console.log("Tidak ada data yang tersedia");
-            return NextResponse.json({
-                message: "SUCCESS",
-                detail: "Tidak ada data yang tersedia"
-            }, { status: 200 });
-        }
-
-        return NextResponse.json({
-            message: "SUCCESS",
-            data: rows
-        }, { status: 200 });
-    } catch (error:any) {
-        console.error("error in /order-history: ", error);
-        return NextResponse.json({
-            message: "FAILED",
-            error: error
-        }, { status: 500 });
+        `;
+    const rows = (await query(sql, [user_id, user_id, user_id])) as any;
+    if (!rows) {
+      console.log("Error saat query");
+      return NextResponse.json(
+        {
+          message: "SUCCESS",
+          detail: "Tidak ada data yang tersedia",
+        },
+        { status: 400 }
+      );
     }
+
+    if (rows.length === 0) {
+      console.log("Tidak ada data yang tersedia");
+      return NextResponse.json(
+        {
+          message: "SUCCESS",
+          detail: "Tidak ada data yang tersedia",
+        },
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        message: "SUCCESS",
+        data: rows,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("error in /order-history: ", error);
+    return NextResponse.json(
+      {
+        message: "FAILED",
+        error: error,
+      }, { status: 500 }
+    );
+  }
 }

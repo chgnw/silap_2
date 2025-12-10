@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 
 import {
   FaFileAlt,
@@ -13,7 +15,17 @@ import { LuPackageCheck } from "react-icons/lu";
 import { MdAccessTimeFilled } from "react-icons/md";
 import styles from "./order.module.css";
 
-import OrderHistoryTable from "@/app/components/Large/OrderHistoryTable/OrderHistoryTable";
+const OrderHistoryTable = dynamic(
+  () => import("@/app/components/Large/OrderHistoryTable/OrderHistoryTable"),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ textAlign: "center", padding: "2rem" }}>
+        Loading riwayat transaksi...
+      </div>
+    ),
+  }
+);
 
 export default function HistoryPage() {
   const [activeTab, setActiveTab] = useState<"onProgress" | "done">(
@@ -53,7 +65,13 @@ export default function HistoryPage() {
 
               <div className={styles.vehicleDetailContainer}>
                 <div className={styles.vehicleImage}>
-                  <img src="/images/dummy-truck.png" alt="" />
+                  <Image
+                    src="/images/dummy-truck.png"
+                    alt="Vehicle"
+                    width={200}
+                    height={150}
+                    loading="lazy"
+                  />
                 </div>
 
                 <div className={styles.vehicleDetail}>
@@ -70,7 +88,13 @@ export default function HistoryPage() {
 
               <div className={styles.driverDetailContainer}>
                 <div className={styles.driverImage}>
-                  <img src="/images/dummy-profiles.png" alt="" />
+                  <Image
+                    src="/images/dummy-profiles.png"
+                    alt="Driver"
+                    width={100}
+                    height={100}
+                    loading="lazy"
+                  />
                 </div>
 
                 <div className={styles.driverDetail}>

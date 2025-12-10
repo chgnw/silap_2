@@ -1,5 +1,6 @@
 "use client";
 
+import "bootstrap/dist/css/bootstrap.min.css";
 import { usePathname } from "next/navigation";
 import { Container, Row, Col } from "react-bootstrap";
 import styles from "./auth.module.css";

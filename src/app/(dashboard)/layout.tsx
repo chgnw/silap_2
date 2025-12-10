@@ -1,14 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { Toaster } from 'react-hot-toast';
+import React, { useState, useMemo } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import dynamic from "next/dynamic";
 
-import { FaBars, FaBell } from 'react-icons/fa';
-import Sidebar from '../components/Large/Sidebar/Sidebar';
+import { FaBars, FaBell } from "react-icons/fa";
+import Sidebar from "../components/Large/Sidebar/Sidebar";
 
-import styles from './dashboard.module.css';
+import styles from "./dashboard.module.css";
+
+const Toaster = dynamic(
+  () => import("react-hot-toast").then((mod) => mod.Toaster),
+  { ssr: false }
+);
 
 export default function DashboardLayout({
   children,
@@ -19,7 +24,10 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-  const breadcrumbParts = pathname.split('/').filter(part => part);
+  const breadcrumbParts = useMemo(
+    () => pathname.split("/").filter((part) => part),
+    [pathname]
+  );
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -42,16 +50,22 @@ export default function DashboardLayout({
 
           <nav className={styles.breadcrumbs} aria-label="breadcrumb">
             {breadcrumbParts.map((part, index) => {
-              const href = '/' + breadcrumbParts.slice(0, index + 1).join('/');
+              const href = "/" + breadcrumbParts.slice(0, index + 1).join("/");
               const isLast = index === breadcrumbParts.length - 1;
               return (
                 <React.Fragment key={href}>
                   {isLast ? (
-                    <span className={styles.breadcrumbActive}>{capitalize(part)}</span>
+                    <span className={styles.breadcrumbActive}>
+                      {capitalize(part)}
+                    </span>
                   ) : (
-                    <Link href={href} className={styles.breadcrumbLink}>{capitalize(part)}</Link>
+                    <Link href={href} className={styles.breadcrumbLink}>
+                      {capitalize(part)}
+                    </Link>
                   )}
-                  {!isLast && <span className={styles.breadcrumbSeparator}>&gt;</span>}
+                  {!isLast && (
+                    <span className={styles.breadcrumbSeparator}>&gt;</span>
+                  )}
                 </React.Fragment>
               );
             })}
@@ -64,10 +78,7 @@ export default function DashboardLayout({
           </div>
         </header>
         <main className={styles.pageContent}>
-          <Toaster 
-            position="top-center" 
-            reverseOrder={false}
-          />
+          <Toaster position="top-center" reverseOrder={false} />
           {children}
         </main>
       </div>
