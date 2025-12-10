@@ -32,7 +32,7 @@ export async function GET() {
         vc.category_name as vehicle_category,
         vc.max_weight as vehicle_max_weight,
         vc.id as vehicle_category_id
-      FROM ms_users u
+      FROM ms_user u
       LEFT JOIN ms_role r ON u.role_id = r.id
       LEFT JOIN ms_driver d ON u.id = d.user_id
       LEFT JOIN ms_vehicle v ON d.assigned_vehicle_id = v.id

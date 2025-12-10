@@ -42,7 +42,6 @@ type Driver = {
   license_number: string | null;
   is_verified: boolean;
   is_available: boolean;
-  active_since: string | null;
   total_deliveries: number;
   assigned_vehicle_id: number | null;
   created_at?: string;
@@ -462,7 +461,7 @@ export default function DriversVehiclesPage() {
     model: "",
     license_plate: "",
     vin: "",
-    status: "available",
+    status: "active",
   });
 
   const fetchVehicles = async () => {
@@ -495,7 +494,7 @@ export default function DriversVehiclesPage() {
         model: vehicle.model || "",
         license_plate: vehicle.license_plate || "",
         vin: vehicle.vin || "",
-        status: vehicle.status || "available",
+        status: vehicle.status || "active",
       });
     } else {
       setVehicleForm({
@@ -504,7 +503,7 @@ export default function DriversVehiclesPage() {
         model: "",
         license_plate: "",
         vin: "",
-        status: "available",
+        status: "active",
       });
     }
 
@@ -529,7 +528,7 @@ export default function DriversVehiclesPage() {
         model: vehicleForm.model || null,
         license_plate: vehicleForm.license_plate || null,
         vin: vehicleForm.vin || null,
-        status: vehicleForm.status || "available",
+        status: vehicleForm.status || "active",
         ...(vehicleMode === "edit" && { id: selectedVehicle?.id }),
       };
       console.log(payload);
@@ -860,30 +859,13 @@ export default function DriversVehiclesPage() {
                 </div>
               </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Active Since</label>
-                  <input
-                    className={styles.formInput}
-                    value={
-                      selectedDriver?.active_since
-                        ? new Date(
-                            selectedDriver.active_since
-                          ).toLocaleDateString()
-                        : "-"
-                    }
-                    disabled
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Total Deliveries</label>
-                  <input
-                    className={styles.formInput}
-                    value={selectedDriver?.total_deliveries || 0}
-                    disabled
-                  />
-                </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Total Deliveries</label>
+                <input
+                  className={styles.formInput}
+                  value={selectedDriver?.total_deliveries || 0}
+                  disabled
+                />
               </div>
 
               <div className={styles.formGroup}>
@@ -1166,6 +1148,7 @@ export default function DriversVehiclesPage() {
               }
               disabled={vehicleMode === "view"}
               placeholder="e.g., 1HGBH41JXMN109186"
+              maxLength={17}
             />
           </div>
 
@@ -1179,10 +1162,9 @@ export default function DriversVehiclesPage() {
               }
               disabled={vehicleMode === "view"}
             >
-              <option value="available">Available</option>
-              <option value="in_use">In Use</option>
+              <option value="active">Active</option>
               <option value="maintenance">Maintenance</option>
-              <option value="unavailable">Unavailable</option>
+              <option value="inactive">Inactive</option>
             </select>
           </div>
 

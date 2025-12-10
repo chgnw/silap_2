@@ -15,38 +15,47 @@ export async function POST(req: Request) {
     });
 
     if (!first_name || !last_name || !email || !password || !role) {
-      return NextResponse.json({ 
-        error: "Missing required fields" 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Missing required fields",
+        },
+        { status: 400 }
+      );
     }
 
-    const checkUserSql = "SELECT id FROM ms_users WHERE email = ?";
+    const checkUserSql = "SELECT id FROM ms_user WHERE email = ?";
     const exists = await query(checkUserSql, [email]);
     if (exists.length > 0) {
-      return NextResponse.json({ 
-        error: "Email already registered" 
-      }, { status: 409 });
+      return NextResponse.json(
+        {
+          error: "Email already registered",
+        },
+        { status: 409 }
+      );
     }
 
     const hashed = await bcrypt.hash(password, 10);
     const checkRoleSql = "SELECT id FROM ms_role WHERE role_name = ? LIMIT 1";
     const roleResult = await query(checkRoleSql, [role]);
     if (roleResult.length === 0) {
-      return NextResponse.json({ 
-        error: "Invalid role name" 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Invalid role name",
+        },
+        { status: 400 }
+      );
     }
 
     const role_id = roleResult[0].id;
-    const insertUserSql = `INSERT INTO ms_users (role_id, provider, first_name, last_name, email, password, phone_number) VALUES (?, 'local', ?, ?, ?, ?, ?)`;
-    const insertUserResult = await query(insertUserSql, [
-      role_id, 
-      first_name, 
-      last_name, 
-      email, 
-      hashed, 
-      phone_number || null
-    ]) as any;
+    const insertUserSql = `INSERT INTO ms_user (role_id, provider, first_name, last_name, email, password, phone_number, tier_list_id) VALUES (?, 'local', ?, ?, ?, ?, ?, 1)`;
+    const insertUserResult = (await query(insertUserSql, [
+      role_id,
+      first_name,
+      last_name,
+      email,
+      hashed,
+      phone_number || null,
+    ])) as any;
 
     const newUserId = insertUserResult.insertId;
     const insertDriverSql = `INSERT INTO ms_driver (user_id, is_verified, is_available) VALUES (?, false, false)`;
@@ -54,13 +63,19 @@ export async function POST(req: Request) {
 
     console.log("✅ Registered user:", email);
 
-    return NextResponse.json({ 
-      ok: true 
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        ok: true,
+      },
+      { status: 201 }
+    );
   } catch (err: any) {
     console.error("Error in /auth/register:", err);
-    return NextResponse.json({ 
-      error: err.message 
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: err.message,
+      },
+      { status: 500 }
+    );
   }
 }

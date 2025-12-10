@@ -15,7 +15,6 @@ export async function POST(req: Request) {
       id_card_number,
       is_verified,
       assigned_vehicle_id,
-      notes,
     } = await req.json();
 
     if (!first_name || !email || !password) {
@@ -25,7 +24,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const checkUserSql = "SELECT id FROM ms_users WHERE email = ?";
+    const checkUserSql = "SELECT id FROM ms_user WHERE email = ?";
     const existingUser = await query(checkUserSql, [email]);
     if (existingUser.length > 0) {
       return NextResponse.json(
@@ -50,7 +49,7 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const userSql = `
-      INSERT INTO ms_users (role_id, provider, first_name, last_name, email, password, phone_number, address)
+      INSERT INTO ms_user (role_id, provider, first_name, last_name, email, password, phone_number, address)
       VALUES (?, 'local', ?, ?, ?, ?, ?, ?)
     `;
 
@@ -74,10 +73,9 @@ export async function POST(req: Request) {
         id_card_number, 
         is_verified, 
         is_available,
-        assigned_vehicle_id,
-        notes
+        assigned_vehicle_id
       )
-      VALUES (?, ?, ?, ?, true, ?, ?)
+      VALUES (?, ?, ?, ?, true, ?)
     `;
 
     await query(driverSql, [
@@ -86,7 +84,6 @@ export async function POST(req: Request) {
       id_card_number || null,
       is_verified || false,
       assigned_vehicle_id || null,
-      notes || null,
     ]);
 
     return NextResponse.json(

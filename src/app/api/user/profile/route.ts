@@ -9,18 +9,6 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     const email = formData.get("email") as string;
-    const firstName = formData.get("firstName") as string;
-    const lastName = formData.get("lastName") as string;
-    const phoneNumber = formData.get("phoneNumber") as string;
-    const address = formData.get("address") as string;
-    const postalCode = formData.get("postalCode") as string;
-    const province = formData.get("province") as string;
-    const regency = formData.get("regency") as string;
-    const subdistrict = formData.get("subdistrict") as string;
-    const village = formData.get("village") as string;
-    const profilePictureFile = formData.get("profilePicture") as File | null;
-
-    console.log("req update user: ", { email, firstName, lastName });
     if (!email) {
       return NextResponse.json(
         {
@@ -32,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     let checkSql = `
             SELECT *
-            FROM ms_users
+            FROM ms_user
             WHERE email = ? 
             LIMIT 1;
         `;
@@ -47,7 +35,58 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const updateFields: { [key: string]: any } = {};
+    const responseData: { [key: string]: any } = {};
+
+    const firstName = formData.get("firstName") as string;
+    const lastName = formData.get("lastName") as string;
+    const phoneNumber = formData.get("phoneNumber") as string;
+    const address = formData.get("address") as string;
+    const postalCode = formData.get("postalCode") as string;
+    const province = formData.get("province") as string;
+    const regency = formData.get("regency") as string;
+    const subdistrict = formData.get("subdistrict") as string;
+    const village = formData.get("village") as string;
+
+    if (firstName !== null) {
+      updateFields.first_name = firstName;
+      responseData.first_name = firstName;
+    }
+    if (lastName !== null) {
+      updateFields.last_name = lastName;
+      responseData.last_name = lastName;
+    }
+    if (phoneNumber !== null) {
+      updateFields.phone_number = phoneNumber;
+      responseData.phone_number = phoneNumber;
+    }
+    if (address !== null) {
+      updateFields.address = address;
+      responseData.address = address;
+    }
+    if (postalCode !== null) {
+      updateFields.postal_code = postalCode;
+      responseData.postal_code = postalCode;
+    }
+    if (province !== null) {
+      updateFields.province = province;
+      responseData.province = province;
+    }
+    if (regency !== null) {
+      updateFields.regency = regency;
+      responseData.regency = regency;
+    }
+    if (subdistrict !== null) {
+      updateFields.subdistrict = subdistrict;
+      responseData.subdistrict = subdistrict;
+    }
+    if (village !== null) {
+      updateFields.village = village;
+      responseData.village = village;
+    }
+
     let profilePictureUrl = userExists.profile_picture;
+    const profilePictureFile = formData.get("profilePicture") as File | null;
     if (profilePictureFile && profilePictureFile.size > 0) {
       const allowedTypes = [
         "image/jpeg",
@@ -91,22 +130,11 @@ export async function POST(req: NextRequest) {
       await writeFile(filepath, buffer);
 
       profilePictureUrl = `/upload/profilePicture/${filename}`;
+      updateFields.profile_picture = profilePictureUrl;
+      responseData.profile_picture = profilePictureUrl;
     }
 
-    const addressDB = userExists.address ?? "";
-    const hasChanges =
-      userExists.first_name !== firstName ||
-      userExists.last_name !== lastName ||
-      userExists.phone_number !== phoneNumber ||
-      addressDB !== address ||
-      userExists.village !== village ||
-      userExists.postal_code !== postalCode ||
-      userExists.province !== province ||
-      userExists.regency !== regency ||
-      userExists.subdistrict !== subdistrict ||
-      userExists.profile_picture !== profilePictureUrl;
-
-    if (!hasChanges) {
+    if (Object.keys(updateFields).length === 0) {
       return NextResponse.json(
         {
           updated: false,
@@ -116,34 +144,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const setClause = Object.keys(updateFields)
+      .map((key) => `${key} = ?`)
+      .join(", ");
+    const values = Object.values(updateFields);
+
     let updateSql = `
-            UPDATE ms_users
-            SET 
-                first_name = ?,
-                last_name = ?,
-                phone_number = ?,
-                address = ?,
-                postal_code = ?,
-                province = ?,
-                regency = ?,
-                subdistrict = ?,
-                village = ?,
-                profile_picture = ?
+            UPDATE ms_user
+            SET ${setClause}
             WHERE email = ?;
         `;
-    const updateUser = (await query(updateSql, [
-      firstName,
-      lastName,
-      phoneNumber,
-      address,
-      postalCode,
-      province,
-      regency,
-      subdistrict,
-      village,
-      profilePictureUrl,
-      email,
-    ])) as any;
+
+    const updateUser = (await query(updateSql, [...values, email])) as any;
+
     if (!updateUser || updateUser.affectedRows == 0) {
       return NextResponse.json(
         {
@@ -158,18 +171,7 @@ export async function POST(req: NextRequest) {
       {
         updated: true,
         message: "Profile updated successfully!",
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          phone_number: phoneNumber,
-          address: address,
-          postal_code: postalCode,
-          province: province,
-          regency: regency,
-          subdistrict: subdistrict,
-          village: village,
-          profile_picture: profilePictureUrl,
-        },
+        data: responseData,
       },
       { status: 200 }
     );

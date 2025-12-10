@@ -14,9 +14,9 @@ export async function GET() {
         u.created_at,
         u.updated_at,
         r.role_name
-      FROM ms_users u
+      FROM ms_user u
       JOIN ms_role r ON u.role_id = r.id
-      WHERE u.role_id = 3
+      WHERE u.role_id = 1
       ORDER BY u.created_at DESC
     `;
 

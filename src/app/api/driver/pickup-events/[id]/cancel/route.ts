@@ -35,7 +35,7 @@ export async function POST(
 
     // Get driver info
     const userSql = `
-      SELECT id FROM ms_users 
+      SELECT id FROM ms_user
       WHERE email = ?
     `;
     const userResult = (await query(userSql, [session.user.email])) as any[];

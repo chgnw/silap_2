@@ -74,11 +74,11 @@ export default function LoginPage() {
 
         // Redirect based on role_id
         if (session?.user?.role_id === 3) {
-          router.push("/admin"); // Admin
-        } else if (session?.user?.role_id === 2) {
           router.push("/driver"); // Driver
-        } else {
+        } else if (session?.user?.role_id === 2) {
           router.push("/dashboard"); // Customer
+        } else {
+          router.push("/admin"); // Admin
         }
         router.refresh();
       }

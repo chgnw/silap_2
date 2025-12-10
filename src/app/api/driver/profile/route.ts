@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user ID
-    const userSql = "SELECT id FROM ms_users WHERE email = ?";
+    const userSql = "SELECT id FROM ms_user WHERE email = ?";
     const users = (await query(userSql, [session.user.email])) as any[];
 
     if (users.length === 0) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // Update user profile
     const updateSql = `
-      UPDATE ms_users 
+      UPDATE ms_user
       SET 
         first_name = ?,
         last_name = ?,
