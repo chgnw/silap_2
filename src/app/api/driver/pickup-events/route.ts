@@ -89,7 +89,7 @@ export async function GET(req: Request) {
         vc.min_weight as category_min_weight,
         vc.max_weight as category_max_weight
       FROM tr_pickup_event pe
-      JOIN ms_users u ON pe.user_id = u.id
+      JOIN ms_user u ON pe.user_id = u.id
       JOIN ms_pickup_type pt ON pe.pickup_type_id = pt.id
       LEFT JOIN ms_vehicle_category vc ON pe.vehicle_category_id = vc.id
       WHERE pe.event_date = CURDATE()

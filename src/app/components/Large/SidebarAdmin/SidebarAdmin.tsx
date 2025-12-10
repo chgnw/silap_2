@@ -49,7 +49,7 @@ export default function DashboardSidebar({
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ""}`}>
       <div className={styles.sidebarHeader}>
-        <a href="/" className={styles.sidebarLogo}>
+        <a href="/admin" className={styles.sidebarLogo}>
           <Image
             src="/assets/logo-silap-dashboard.svg"
             alt="SILAP Logo"

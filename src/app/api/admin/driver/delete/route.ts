@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     const userId = driverCheck[0].user_id;
     await query("DELETE FROM ms_driver WHERE id = ?", [id]);
-    await query("DELETE FROM ms_users WHERE id = ?", [userId]);
+    await query("DELETE FROM ms_user WHERE id = ?", [userId]);
 
     return NextResponse.json({
         message: "SUCCESS",

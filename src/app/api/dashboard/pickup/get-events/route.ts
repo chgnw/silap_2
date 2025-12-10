@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
             SELECT 
                 tr_pickup_event.id,
                 user_id,
-                ms_users.first_name,
-                ms_users.last_name,
+                ms_user.first_name,
+                ms_user.last_name,
                 pickup_address,
                 pickup_weight,
                 pickup_type_id,
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
                 tr_pickup_event.created_at,
                 tr_pickup_event.updated_at
             FROM tr_pickup_event
-            JOIN ms_users ON ms_users.id = tr_pickup_event.user_id
+            JOIN ms_user ON ms_user.id = tr_pickup_event.user_id
             JOIN ms_pickup_type ON ms_pickup_type.id = tr_pickup_event.pickup_type_id
             WHERE tr_pickup_event.user_id = ?
               AND event_status IN ('pending', 'accepted')

@@ -7,19 +7,23 @@ export async function POST(req: Request) {
       await req.json();
 
     if (!vehicle_category_id) {
-      return NextResponse.json({
-        message: "FAILED",
-        detail: "Kategori kendaraan tidak boleh kosong!",
+      return NextResponse.json(
+        {
+          message: "FAILED",
+          detail: "Kategori kendaraan tidak boleh kosong!",
         },
         { status: 400 }
       );
     }
 
     if (vin && vin.length !== 17) {
-      return NextResponse.json({
-        message: "FAILED",
-        detail: "VIN harus 17 karakter!",
-      },{ status: 400 });
+      return NextResponse.json(
+        {
+          message: "FAILED",
+          detail: "VIN harus 17 karakter!",
+        },
+        { status: 400 }
+      );
     }
 
     if (license_plate || vin) {
@@ -51,7 +55,7 @@ export async function POST(req: Request) {
       model || null,
       license_plate || null,
       vin || null,
-      status || "available",
+      status || "active",
     ]);
 
     return NextResponse.json(

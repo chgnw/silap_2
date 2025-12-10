@@ -21,8 +21,8 @@ export async function POST(req: Request) {
     }
 
     const checkSql = `
-      SELECT id, role_id FROM ms_users 
-      WHERE id = ? AND role_id = 3
+      SELECT id, role_id FROM ms_user
+      WHERE id = ? AND role_id = 1
     `;
     const existing = (await query(checkSql, [id])) as any[];
     if (existing.length === 0) {
@@ -30,12 +30,12 @@ export async function POST(req: Request) {
     }
 
     const sql = `
-      UPDATE ms_users 
+      UPDATE ms_user 
       SET first_name = ?, 
           last_name = ?, 
           phone_number = ?, 
           address = ?
-      WHERE id = ? AND role_id = 3
+      WHERE id = ? AND role_id = 1
     `;
 
     await query(sql, [

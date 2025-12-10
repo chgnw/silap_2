@@ -44,7 +44,7 @@ export async function GET(
           ELSE NULL
         END as status
       FROM tr_pickup_event pe
-      JOIN ms_users u ON pe.user_id = u.id
+      JOIN ms_user u ON pe.user_id = u.id
       JOIN ms_pickup_type pt ON pe.pickup_type_id = pt.id
       LEFT JOIN ms_vehicle_category vc ON pe.vehicle_category_id = vc.id
       LEFT JOIN tr_pickups p ON pe.id = p.pickup_event_id

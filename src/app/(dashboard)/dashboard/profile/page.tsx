@@ -28,8 +28,6 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [selectedProfilePictureFile, setSelectedProfilePictureFile] =
-    useState<File | null>(null);
 
   const locationData = useLocationData();
 
@@ -67,14 +65,54 @@ export default function ProfilePage() {
 
   const [formData, setFormData] = useState({ ...userData });
 
+  // Helper function to separate country code from phone number
+  const separateCountryCode = (fullPhoneNumber: string) => {
+    if (!fullPhoneNumber) {
+      return { countryCode: "+62", localNumber: "" };
+    }
+
+    // If countryOptions is available, use it
+    if (countryOptions.length > 0) {
+      const sortedOptions = [...countryOptions].sort(
+        (a, b) => b.code.length - a.code.length
+      );
+      const found = sortedOptions.find((c) =>
+        fullPhoneNumber.startsWith(c.code)
+      );
+
+      if (found) {
+        const localNumber = fullPhoneNumber.substring(found.code.length).trim();
+        return { countryCode: found.code, localNumber };
+      }
+    }
+
+    // Fallback: manually check common country codes
+    const commonCodes = ["+62", "+1", "+44", "+61", "+81", "+86", "+91"];
+    for (const code of commonCodes) {
+      if (fullPhoneNumber.startsWith(code)) {
+        const localNumber = fullPhoneNumber.substring(code.length).trim();
+        return { countryCode: code, localNumber };
+      }
+    }
+
+    return { countryCode: "+62", localNumber: fullPhoneNumber };
+  };
+
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
       const user = session.user;
+
+      // Separate country code from phone number
+      const { countryCode: code, localNumber } = separateCountryCode(
+        user.phone_number || ""
+      );
+      setCountryCode(code);
+
       const initialData = {
         firstName: user.first_name || "",
         lastName: user.last_name || "",
         email: user.email || "",
-        phoneNumber: user.phone_number || "",
+        phoneNumber: user.phone_number || "", // Keep full number in userData for reference
         province: user.province || "",
         regency: user.regency || "",
         subdistrict: user.subdistrict || "",
@@ -90,7 +128,8 @@ export default function ProfilePage() {
       setProfilePicture(user.profile_picture || null);
 
       setUserData(initialData);
-      setFormData(initialData);
+      // Set formData with local number only (without country code)
+      setFormData({ ...initialData, phoneNumber: localNumber });
 
       const initializeLocation = async () => {
         try {
@@ -164,21 +203,17 @@ export default function ProfilePage() {
   }, []);
 
   useEffect(() => {
-    if (userData.phoneNumber && countryOptions.length > 0) {
-      const sortedOptions = [...countryOptions].sort(
-        (a, b) => b.code.length - a.code.length
+    if (
+      userData.phoneNumber &&
+      countryOptions.length > 0 &&
+      formData.phoneNumber.startsWith("+")
+    ) {
+      // Only run if formData still has country code (fallback case)
+      const { countryCode: code, localNumber } = separateCountryCode(
+        userData.phoneNumber
       );
-
-      const found = sortedOptions.find((c) =>
-        userData.phoneNumber.startsWith(c.code)
-      );
-
-      if (found) {
-        setCountryCode(found.code);
-        const localNumber = userData.phoneNumber.substring(found.code.length);
-
-        setFormData((prev) => ({ ...prev, phoneNumber: localNumber }));
-      }
+      setCountryCode(code);
+      setFormData((prev) => ({ ...prev, phoneNumber: localNumber }));
     }
   }, [userData.phoneNumber, countryOptions]);
 
@@ -303,7 +338,12 @@ export default function ProfilePage() {
   };
 
   const handleCancel = () => {
-    setFormData(userData);
+    // Reset formData but keep phoneNumber without country code
+    const { countryCode: code, localNumber } = separateCountryCode(
+      userData.phoneNumber
+    );
+    setCountryCode(code);
+    setFormData({ ...userData, phoneNumber: localNumber });
     setIsEditing(false);
 
     const resetLocation = async () => {
@@ -466,10 +506,6 @@ export default function ProfilePage() {
       formDataToSend.append("phoneNumber", fullPhoneNumber);
       formDataToSend.append("address", formData.address);
 
-      if (selectedProfilePictureFile) {
-        formDataToSend.append("profilePicture", selectedProfilePictureFile);
-      }
-
       const response = await fetch("/api/user/profile", {
         method: "POST",
         body: formDataToSend,
@@ -485,17 +521,8 @@ export default function ProfilePage() {
         await update();
         showToast("success", "Profile updated successfully!");
 
-        if (result.data.profile_picture) {
-          setProfilePicture(result.data.profile_picture);
-          setUserData((prev) => ({
-            ...prev,
-            profilePicture: result.data.profile_picture,
-          }));
-        }
-
         setUserData({ ...formData, phoneNumber: fullPhoneNumber });
         setIsEditing(false);
-        setSelectedProfilePictureFile(null);
       }
     } catch (error) {
       alert(
@@ -515,7 +542,7 @@ export default function ProfilePage() {
     }));
   };
 
-  const handleProfilePictureUpload = (
+  const handleProfilePictureUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
@@ -538,16 +565,53 @@ export default function ProfilePage() {
       return;
     }
 
-    setSelectedProfilePictureFile(file);
-
-    // Create preview
+    // Create preview immediately
     const reader = new FileReader();
     reader.onloadend = () => {
       setProfilePicture(reader.result as string);
     };
     reader.readAsDataURL(file);
 
-    showToast("success", "Foto profil dipilih. Klik Save untuk menyimpan.");
+    // Upload immediately
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("profilePicture", file);
+      // Add email from session as identifier
+      if (session?.user?.email) {
+        formDataToSend.append("email", session.user.email);
+      }
+
+      const response = await fetch("/api/user/profile", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Failed to update profile picture."
+        );
+      }
+
+      const result = await response.json();
+      if (result.updated && result.data.profile_picture) {
+        await update();
+        setProfilePicture(result.data.profile_picture);
+        setUserData((prev) => ({
+          ...prev,
+          profilePicture: result.data.profile_picture,
+        }));
+        showToast("success", "Foto profil berhasil diperbarui!");
+      }
+    } catch (error) {
+      showToast(
+        "error",
+        error instanceof Error ? error.message : "Gagal mengupdate foto profil."
+      );
+      console.error("Error uploading profile picture:", error);
+      // Revert preview on error
+      setProfilePicture(userData.profilePicture);
+    }
   };
 
   return (
@@ -599,13 +663,12 @@ export default function ProfilePage() {
               </div>
             )}
             <label htmlFor="profile-upload" className={styles.uploadButton}>
-              <FaPencilAlt style={{ color: !isEditing ? "#7F8C8D" : "#FFF" }} />
+              <FaPencilAlt style={{ color: "#FFF" }} />
               <input
                 id="profile-upload"
                 type="file"
                 accept="image/jpeg,image/jpg,image/png,image/webp"
                 onChange={handleProfilePictureUpload}
-                disabled={!isEditing}
                 style={{ display: "none" }}
               />
             </label>

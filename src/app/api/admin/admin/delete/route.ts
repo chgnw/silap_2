@@ -13,15 +13,17 @@ export async function POST(req: Request) {
     }
 
     const checkSql = `
-      SELECT id, role_id FROM ms_users 
-      WHERE id = ? AND role_id = 3
+      SELECT id, role_id FROM ms_user 
+      WHERE id = ? AND role_id = 1
     `;
     const existing = (await query(checkSql, [id])) as any[];
     if (existing.length === 0) {
       return NextResponse.json({ error: "Admin not found" }, { status: 404 });
     }
 
-    const sql = `DELETE FROM ms_users WHERE id = ? AND role_id = 3`;
+    const sql = `
+      UPDATE ms_user SET role_id = 2 WHERE id = ?
+    `;
     await query(sql, [id]);
 
     return NextResponse.json(

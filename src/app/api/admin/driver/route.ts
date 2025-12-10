@@ -10,7 +10,6 @@ export async function GET() {
         d.license_number,
         d.is_verified,
         d.is_available,
-        d.active_since,
         d.total_deliveries,
         d.assigned_vehicle_id,
         d.created_at,
@@ -21,8 +20,8 @@ export async function GET() {
         u.phone_number,
         u.address
       FROM ms_driver d
-      INNER JOIN ms_users u ON d.user_id = u.id
-      WHERE u.role_id = 2
+      INNER JOIN ms_user u ON d.user_id = u.id
+      WHERE u.role_id = 3
       ORDER BY d.id DESC
     `;
 
@@ -34,7 +33,6 @@ export async function GET() {
       license_number: row.license_number,
       is_verified: row.is_verified,
       is_available: row.is_available,
-      active_since: row.active_since,
       total_deliveries: row.total_deliveries,
       assigned_vehicle_id: row.assigned_vehicle_id,
       created_at: row.created_at,
