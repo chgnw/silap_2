@@ -10,13 +10,17 @@ import { IoWarning } from "react-icons/io5";
 
 interface Vehicle {
   id: number;
-  vehicle_name: string;
   brand: string;
   model: string;
   license_plate: string;
   vin: string;
   max_weight: number;
   status: string;
+  vehicle_category_id: number;
+  category_name: string;
+  category_min_weight: number;
+  category_max_weight: number | null;
+  category_description: string | null;
 }
 
 interface DriverInfo {
@@ -25,11 +29,19 @@ interface DriverInfo {
   name: string;
   email: string;
   phone: string;
+  profile_picture: string | null;
   role_name: string;
   is_verified: boolean;
   is_active: boolean;
+  total_deliveries: number;
   assigned_vehicle_id: number | null;
   active_since: string | null;
+  vehicle_brand: string | null;
+  vehicle_model: string | null;
+  vehicle_license_plate: string | null;
+  vehicle_status: string | null;
+  vehicle_category: string | null;
+  vehicle_max_weight: number | null;
 }
 
 export default function DriverPage() {
@@ -43,11 +55,6 @@ export default function DriverPage() {
   const [activating, setActivating] = useState(false);
   const [showVehicleDropdown, setShowVehicleDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTime, setActiveTime] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
 
   // Fetch driver info
   const fetchDriverInfo = useCallback(async () => {
@@ -100,24 +107,6 @@ export default function DriverPage() {
     }
   }, [status, router, fetchDriverInfo, fetchVehicles]);
 
-  useEffect(() => {
-    if (isActive && driverInfo?.active_since) {
-      const interval = setInterval(() => {
-        const startTime = new Date(driverInfo.active_since!).getTime();
-        const now = Date.now();
-        const diff = now - startTime;
-
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        setActiveTime({ hours, minutes, seconds });
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }
-  }, [isActive, driverInfo]);
-
   const handleActivateDriver = async () => {
     if (!selectedVehicle && !isActive) {
       showToast("error", "Silakan pilih armada terlebih dahulu");
@@ -126,22 +115,46 @@ export default function DriverPage() {
 
     setActivating(true);
     try {
-      const res = await fetch("/api/driver/activate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vehicle_id: selectedVehicle?.id,
-          activate: !isActive,
-        }),
-      });
+      if (isActive) {
+        // If deactivating, call logout API
+        const res = await fetch("/api/driver/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (data.message === "SUCCESS") {
-        setIsActive(!isActive);
-        await fetchDriverInfo();
+        if (data.message === "SUCCESS") {
+          setIsActive(false);
+          setSelectedVehicle(null);
+          await fetchDriverInfo();
+          await fetchVehicles();
+          showToast(
+            "success",
+            "Berhasil nonaktif. Armada tersedia untuk driver lain."
+          );
+        } else {
+          showToast("error", data.error || "Gagal mengubah status");
+        }
       } else {
-        showToast("error", data.error || "Gagal mengubah status");
+        // If activating, assign vehicle
+        const res = await fetch("/api/driver/vehicle/assign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            vehicle_id: selectedVehicle?.id,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data.message === "SUCCESS") {
+          setIsActive(true);
+          await fetchDriverInfo();
+          showToast("success", "Berhasil aktif! Anda siap menerima order.");
+        } else {
+          showToast("error", data.error || "Gagal mengubah status");
+        }
       }
     } catch (error) {
       console.error("Error activating driver:", error);
@@ -152,6 +165,13 @@ export default function DriverPage() {
   };
 
   const handleSelectVehicle = (vehicle: Vehicle) => {
+    if (isActive) {
+      showToast(
+        "error",
+        "Nonaktifkan status terlebih dahulu untuk ganti armada"
+      );
+      return;
+    }
     setSelectedVehicle(vehicle);
     setSearchTerm("");
     setShowVehicleDropdown(false);
@@ -161,7 +181,8 @@ export default function DriverPage() {
     (vehicle) =>
       vehicle.license_plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
+      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vehicle.category_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading || status === "loading") {
@@ -257,8 +278,11 @@ export default function DriverPage() {
                         <div className={styles.vehicleItemInfo}>
                           <strong>{vehicle.license_plate}</strong>
                           <span className={styles.vehicleItemDetail}>
-                            {vehicle.brand} {vehicle.model} - Max{" "}
-                            {vehicle.max_weight} kg
+                            {vehicle.brand} {vehicle.model}
+                          </span>
+                          <span className={styles.vehicleCategory}>
+                            {vehicle.category_name} • Max{" "}
+                            {vehicle.category_max_weight} kg
                           </span>
                         </div>
                       </div>
@@ -281,7 +305,9 @@ export default function DriverPage() {
             <div className={styles.driverCard}>
               <div className={styles.driverAvatar}>
                 <Image
-                  src="/images/dummy-profile.png"
+                  src={
+                    driverInfo.profile_picture || "/images/dummy-profile.png"
+                  }
                   alt="Driver"
                   width={80}
                   height={80}
@@ -303,20 +329,14 @@ export default function DriverPage() {
                     </svg>
                   )}
                 </div>
-                <div className={styles.driverRole}>{driverInfo.role_name}</div>
-                <div className={styles.driverStatus}>Aktif</div>
-                <div className={styles.timer}>
-                  <div className={styles.timerBox}>
-                    {String(activeTime.hours).padStart(2, "0")}
-                  </div>
-                  <span className={styles.timerSeparator}>:</span>
-                  <div className={styles.timerBox}>
-                    {String(activeTime.minutes).padStart(2, "0")}
-                  </div>
-                  <span className={styles.timerSeparator}>:</span>
-                  <div className={styles.timerBox}>
-                    {String(activeTime.seconds).padStart(2, "0")}
-                  </div>
+                <div className={styles.driverStat}>
+                  <span className={styles.statLabel}>Total Pickup:</span>
+                  <span className={styles.statValue}>
+                    {driverInfo.total_deliveries || 0}
+                  </span>
+                </div>
+                <div className={styles.driverStatus}>
+                  Status: {isActive ? "Aktif" : "Non Aktif"}
                 </div>
               </div>
             </div>
@@ -344,8 +364,11 @@ export default function DriverPage() {
                 <div className={styles.vehiclePlate}>
                   {selectedVehicle.license_plate}
                 </div>
+                <div className={styles.vehicleCategory}>
+                  {selectedVehicle.category_name}
+                </div>
                 <div className={styles.vehicleWeight}>
-                  Max {selectedVehicle.max_weight} kg
+                  Max {selectedVehicle.category_max_weight} kg
                 </div>
               </div>
             </div>

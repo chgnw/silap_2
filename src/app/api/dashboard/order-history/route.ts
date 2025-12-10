@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
                     JSON_OBJECT(
                         'address', p.pickup_address,
                         'notes', p.notes,
-                        'weight', (SELECT SUM(quantity) FROM tr_pickup_items WHERE pickup_id = p.id)
+                        'weight', (SELECT SUM(weight) FROM tr_pickup_items WHERE pickup_id = p.id)
                     ) AS details,
                     CONCAT('+', COALESCE((SELECT SUM(points_earned) FROM tr_pickup_items WHERE pickup_id = p.id), 0), ' Pts') AS amount_display
                 FROM tr_pickups p

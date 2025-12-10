@@ -5,18 +5,30 @@ export async function POST(req: Request) {
   try {
     const {
       id,
-      vehicle_name,
+      vehicle_category_id,
       brand,
       model,
       license_plate,
       vin,
-      max_weight,
       status,
     } = await req.json();
 
-    if (!id || !vehicle_name) {
+    if (!id || !vehicle_category_id) {
       return NextResponse.json(
-        { error: "ID and vehicle name are required" },
+        {
+          message: "FAILED",
+          detail: "ID and vehicle category are required",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (vin && vin.length !== 17) {
+      return NextResponse.json(
+        {
+          message: "FAILED",
+          detail: "VIN harus 17 karakter!",
+        },
         { status: 400 }
       );
     }
@@ -46,23 +58,21 @@ export async function POST(req: Request) {
     const sql = `
       UPDATE ms_vehicle
       SET 
-        vehicle_name = ?, 
+        vehicle_category_id = ?, 
         brand = ?, 
         model = ?, 
         license_plate = ?, 
         vin = ?, 
-        max_weight = ?,
         status = ?
       WHERE id = ?
     `;
 
     await query(sql, [
-      vehicle_name,
+      vehicle_category_id,
       brand || null,
       model || null,
       license_plate || null,
       vin || null,
-      max_weight || null,
       status || "available",
       id,
     ]);

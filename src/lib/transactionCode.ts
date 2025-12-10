@@ -1,7 +1,7 @@
 type TransactionPrefix = "RDM" | "PCK" | "SUB";
 
 const RANDOM_CHARS =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 function generateRandomString(length: number): string {
   let result = "";

@@ -1,68 +1,67 @@
 /* Navbar */
-.navbar{
-    background-color: #a4b465 !important;
+.navbar {
+  background-color: #a4b465 !important;
 }
 
 .container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem 4rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 4rem;
 }
 
-.logoStyle {
-    width: 50px;
-    height: 50px;
-}
+/* Logo styling removed - now handled via component props */
 
 .menu {
-    display: flex;
-    align-items: baseline;
-    gap: 4rem;
-    font-size: 1rem;
-    font-weight: 500; }
+  display: flex;
+  align-items: baseline;
+  gap: 4rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
 
 .navLinkDark .nav-link {
-    color: #000000 !important;
+  color: #000000 !important;
 }
 
 .navLinkLight .nav-link {
-    color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .navLinkLight .dropdown-toggle::after,
 .navLinkLight .dropdown-toggle {
-    color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .login {
-    display: flex;
-    align-items: center;
-    gap: 8px; }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
 @media (max-width: 1200px) {
-    .container {
-        padding: 1rem 2rem;
-    }
+  .container {
+    padding: 1rem 2rem;
+  }
 }
 
 @media (max-width: 991px) {
-    .container {
-        flex-wrap: wrap;
-    }
-    
-    .menu {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-        width: 100%;
-        margin-top: 1rem;
-    }
+  .container {
+    flex-wrap: wrap;
+  }
+
+  .menu {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 1rem;
+  }
 }
 
 @media (min-width: 576px) {
-    .container {
-        max-width: unset !important;
-    }
+  .container {
+    max-width: unset !important;
+  }
 }

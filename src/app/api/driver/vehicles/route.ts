@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { query } from "@/lib/db";
 
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -12,17 +13,22 @@ export async function GET() {
 
     const sql = `
       SELECT 
-        id,
-        vehicle_name,
-        brand,
-        model,
-        license_plate,
-        vin,
-        max_weight,
-        status
-      FROM ms_vehicle
-      WHERE status = 'available'
-      ORDER BY vehicle_name ASC, license_plate ASC
+        v.id,
+        v.brand,
+        v.model,
+        v.license_plate,
+        v.vin,
+        v.status,
+        v.vehicle_category_id,
+        vc.category_name,
+        vc.min_weight as category_min_weight,
+        vc.max_weight as category_max_weight,
+        vc.max_weight as max_weight,
+        vc.description as category_description
+      FROM ms_vehicle v
+      LEFT JOIN ms_vehicle_category vc ON v.vehicle_category_id = vc.id
+      WHERE v.status = 'available'
+      ORDER BY vc.category_name ASC, v.brand ASC, v.model ASC
     `;
 
     const vehicles = await query(sql);

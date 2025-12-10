@@ -1,8 +1,8 @@
 /* Sidebar */
 .sidebar {
   width: 300px;
-  background-color: #A4B465;
-  color: #FFFFFF;
+  background-color: #a4b465;
+  color: #ffffff;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -29,7 +29,7 @@
   display: none;
   background: none;
   border: none;
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 1.5rem;
   cursor: pointer;
 }
@@ -48,7 +48,7 @@
   gap: 1rem;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  color: #FFFFFF;
+  color: #ffffff;
   text-decoration: none;
   font-weight: 500;
   transition: background-color 0.2s ease;
@@ -64,21 +64,22 @@
   color: #000000;
 }
 
-.iconContainer{
-  background: #FFFFFF;
-  color: #A4B465;
+.iconContainer {
+  background: #ffffff;
+  color: #a4b465;
   padding: 0.875rem;
   border-radius: 0.75rem;
 }
 
-.isSelected, .isSelected:hover {
-  background-color: #FFFFFF;
+.isSelected,
+.isSelected:hover {
+  background-color: #ffffff;
   color: #000000;
 }
 
-.isSelected .iconContainer{
-  background-color: #A4B465;
-  color: #FFFFFF;
+.isSelected .iconContainer {
+  background-color: #a4b465;
+  color: #ffffff;
 }
 
 .sidebarFooter {
@@ -91,7 +92,28 @@
 }
 .logoutButton:hover {
   background-color: rgba(239, 68, 68, 0.2);
-  color: #ED1C24;
+  color: #ed1c24;
+}
+
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loadingSpinner {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -106,7 +128,7 @@
     z-index: 1001;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
-  .sidebarHeader{
+  .sidebarHeader {
     justify-content: space-between;
   }
 
