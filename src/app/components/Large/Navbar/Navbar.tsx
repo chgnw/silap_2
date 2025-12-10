@@ -102,3 +102,4 @@ export default function Header({ theme = "dark" }: HeaderProps) {
     </>
   );
 }
+/* Navbar */
