@@ -2,32 +2,32 @@
   width: calc(100% / 4 - 0.75rem);
   max-width: 300px;
   aspect-ratio: 1 / 1;
-  border-radius: 20px;
+  border-radius: clamp(12px, 3vw, 20px);
   overflow: hidden;
   position: relative;
-  color: #FFFFFF;
+  color: var(--color-white);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 20px;
+  padding: clamp(12px, 3vw, 20px);
   background-size: cover;
   background-position: center;
   filter: grayscale(100%);
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .cardCustom:hover {
   filter: grayscale(0%);
   transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Overlay hitam transparan */
 .cardCustom::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -45,83 +45,30 @@
 
 .cardLabel {
   position: absolute;
-  bottom: 40px;
-  font-size: 1.5rem;
+  bottom: clamp(16px, 4vw, 40px);
+  font-size: clamp(0.875rem, 2vw, 1.5rem);
   font-weight: bold;
 }
 
-@media (max-width: 1400px) {
-  .cardCustom svg {
-    width: 80px;
-    height: 80px;
-  }
-
-  .cardCustom img {
-    width: 100px;
-    height: 100px;
-  }
-
-  .cardLabel {
-    bottom: 35px;
-  }
+.cardCustom svg {
+  width: clamp(40px, 8vw, 100px);
+  height: clamp(40px, 8vw, 100px);
 }
 
-@media (max-width: 1200px) {
-  .cardCustom svg {
-    width: 60px;
-    height: 60px;
-  }
-
-  .cardCustom img {
-    width: 85px;
-    height: 85px;
-  }
-
-  .cardLabel {
-    font-size: 1.3rem;
-    bottom: 30px;
-  }
+.cardCustom img {
+  width: clamp(50px, 10vw, 120px);
+  height: clamp(50px, 10vw, 120px);
 }
 
 @media (max-width: 992px) {
   .cardCustom {
     width: calc(100% / 3 - 0.67rem);
   }
-
-  .cardCustom svg {
-    width: 56px;
-    height: 56px;
-  }
-
-  .cardCustom img {
-    width: 75px;
-    height: 75px;
-  }
-
-  .cardLabel {
-    font-size: 1.2rem;
-    bottom: 28px;
-  }
 }
 
 @media (max-width: 768px) {
   .cardCustom {
     width: calc(100% / 3 - 0.67rem);
-  }
-
-  .cardCustom svg {
-    width: 48px;
-    height: 48px;
-  }
-
-  .cardCustom img {
-    width: 65px;
-    height: 65px;
-  }
-
-  .cardLabel {
-    font-size: 1.1rem;
-    bottom: 24px;
   }
 }
 
@@ -148,7 +95,7 @@
   }
 }
 
-@media (max-width: 376px) {
+@media (max-width: 400px) {
   .cardCustom {
     width: 100%;
   }
@@ -165,6 +112,6 @@
 
   .cardLabel {
     font-size: 1rem;
-    bottom: 30px;
+    bottom: 24px;
   }
 }

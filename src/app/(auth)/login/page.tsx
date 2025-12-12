@@ -62,9 +62,8 @@ export default function LoginPage() {
         redirect: false,
         email,
         password,
-        rememberMe,
+        rememberMe: rememberMe.toString(),
       });
-      console.log(result);
 
       if (result?.error) {
         setError(result.error);
@@ -72,13 +71,12 @@ export default function LoginPage() {
         const sessionRes = await fetch("/api/auth/session");
         const session = await sessionRes.json();
 
-        // Redirect based on role_id
         if (session?.user?.role_id === 3) {
-          router.push("/driver"); // Driver
+          router.push("/driver");
         } else if (session?.user?.role_id === 2) {
-          router.push("/dashboard"); // Customer
+          router.push("/dashboard");
         } else {
-          router.push("/admin"); // Admin
+          router.push("/admin");
         }
         router.refresh();
       }
@@ -152,7 +150,6 @@ export default function LoginPage() {
         throw new Error(data.message || "Gagal mengirim kode OTP.");
       }
 
-      // Jika berhasil kirim email → pindah ke step OTP
       setUserEmail(email);
       setStep("otp");
       setResendCooldown(30);
@@ -198,7 +195,7 @@ export default function LoginPage() {
   };
 
   const handleResendCode = async () => {
-    const email = emailRef.current?.value?.trim();
+    const email = emailRef.current?.value?.trim() || userEmail;
     if (!email) return;
 
     if (!validateEmail(email)) {
@@ -280,15 +277,12 @@ export default function LoginPage() {
     }
   };
 
+  // Show centered layout for forgot/otp/reset steps
+  const isCentered = step === "forgot" || step === "otp" || step === "reset";
+
   return (
-    <div
-      className={`${styles.page} ${
-        step === "forgot" || step === "otp" || step === "reset"
-          ? styles.centered
-          : ""
-      }`}
-    >
-      {/* LEFT PANEL */}
+    <div className={`${styles.page} ${isCentered ? styles.centered : ""}`}>
+      {/* LEFT PANEL - Only show for method and login steps */}
       <AnimatePresence mode="wait">
         {(step === "method" || step === "login") && (
           <motion.div
@@ -309,7 +303,7 @@ export default function LoginPage() {
         )}
       </AnimatePresence>
 
-      {/* RIGHT PANEL */}
+      {/* RIGHT PANEL - Card */}
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -318,8 +312,13 @@ export default function LoginPage() {
           animate={{ opacity: 1, scale: 1, transition: { duration: 0.3 } }}
           exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
         >
+          {/* Step: Method Selection */}
           {step === "method" && (
-            <motion.div key="method" {...fadeSlide} className="w-100">
+            <motion.div
+              key="method"
+              {...fadeSlide}
+              className={styles.cardInner}
+            >
               <div
                 className={styles.buttonContainer}
                 style={{ marginBottom: "1rem" }}
@@ -352,8 +351,9 @@ export default function LoginPage() {
             </motion.div>
           )}
 
+          {/* Step: Login with Email */}
           {step === "login" && (
-            <motion.div key="login" {...fadeSlide} className="w-100">
+            <motion.div key="login" {...fadeSlide} className={styles.cardInner}>
               <button
                 className={styles.closeBtn}
                 onClick={() => {
@@ -365,7 +365,6 @@ export default function LoginPage() {
               </button>
 
               <form onSubmit={handleLogin} className={styles.formGroup}>
-                {/* Email Form */}
                 <div className={styles.formContainer}>
                   <label className={styles.formLabel}>Email</label>
                   <input
@@ -378,7 +377,6 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {/* Password Form */}
                 <div className={styles.formContainer}>
                   <label className={styles.formLabel}>Password</label>
                   <div className={styles.passwordWrapper}>
@@ -404,12 +402,12 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Login Condition */}
                 <div className={styles.loginCondition}>
                   <div className={styles.rememberMe}>
                     <input
                       type="checkbox"
                       id="rememberMeCheckbox"
+                      checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
                     />
                     <label
@@ -432,10 +430,8 @@ export default function LoginPage() {
                   </button>
                 </div>
 
-                {/* Error Message */}
                 {error && <div className={styles.alert}>{error}</div>}
 
-                {/* Submit Button */}
                 <div className={styles.buttonContainer}>
                   <button
                     type="submit"
@@ -453,9 +449,13 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Forgot Password */}
+          {/* Step: Forgot Password */}
           {step === "forgot" && (
-            <motion.div key="forgot" {...fadeSlide} className="w-100">
+            <motion.div
+              key="forgot"
+              {...fadeSlide}
+              className={styles.cardInner}
+            >
               <button
                 className={styles.closeBtn}
                 onClick={() => {
@@ -514,9 +514,9 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* State OTP */}
+          {/* Step: OTP Verification */}
           {step === "otp" && (
-            <motion.div key="otp" {...fadeSlide} className="w-100">
+            <motion.div key="otp" {...fadeSlide} className={styles.cardInner}>
               <button
                 className={styles.closeBtn}
                 onClick={() => {
@@ -585,9 +585,9 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Reset Password */}
+          {/* Step: Reset Password */}
           {step === "reset" && (
-            <motion.div key="reset" {...fadeSlide} className="w-100">
+            <motion.div key="reset" {...fadeSlide} className={styles.cardInner}>
               <button
                 className={styles.closeBtn}
                 onClick={() => {
@@ -609,7 +609,6 @@ export default function LoginPage() {
 
               <form onSubmit={handleResetPassword} className={styles.formGroup}>
                 <div className={styles.formContainer}>
-                  {/* New password */}
                   <div className={styles.passwordWrapper}>
                     <input
                       ref={passwordRef}
@@ -634,7 +633,6 @@ export default function LoginPage() {
                 </div>
 
                 <div className={styles.formContainer}>
-                  {/* Confirm password */}
                   <div className={styles.passwordWrapper}>
                     <input
                       ref={confirmPasswordRef}

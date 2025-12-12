@@ -1,7 +1,7 @@
 .decoratedSectionWrapper {
   position: relative;
   width: 100%;
-  padding: 4rem 1rem;
+  padding: clamp(2rem, 5vw, 4rem) 1rem;
 }
 
 /* Base */
@@ -18,7 +18,7 @@
   top: 10%;
   left: 2%;
   transform: translate(-25%, -10%);
-  width: clamp(180px, 22vw, 400px);
+  width: clamp(100px, 20vw, 400px);
   height: auto;
 }
 
@@ -27,23 +27,25 @@
   top: 0;
   right: 0;
   transform: translate(20%, -20%) rotate(8deg);
-  width: clamp(180px, 22vw, 380px);
+  width: clamp(100px, 20vw, 380px);
   height: auto;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .decorationLeft {
     left: 0;
+    opacity: 0.6;
   }
 
   .decorationRight {
-    top: 20%;
+    top: 10%;
+    opacity: 0.6;
   }
 }
 
-@media (max-width: 376px) {
+@media (max-width: 480px) {
   .decorationLeft,
   .decorationRight {
-    width: 120px;
+    opacity: 0.4;
   }
 }

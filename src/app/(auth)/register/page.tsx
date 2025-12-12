@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import styles from "../auth.module.css";
-
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function RoleSelection({
@@ -70,7 +69,6 @@ function RegisterForm({
   const [countryOptions, setCountryOptions] = useState([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(true);
 
-  // Fetch data kode telepon tiap negara
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -85,7 +83,6 @@ function RegisterForm({
             const code = `${country.idd.root}${
               country.idd.suffixes ? country.idd.suffixes[0] : ""
             }`;
-
             return {
               name: country.name.common,
               code: code,
@@ -194,7 +191,6 @@ function RegisterForm({
         email,
         password,
       });
-      console.log("login result: ", loginResult);
 
       if (loginResult?.error) {
         setError("Login otomatis gagal, silakan login manual.");
@@ -203,11 +199,11 @@ function RegisterForm({
         const session = await sessionRes.json();
 
         if (session?.user?.role_id === 3) {
-          router.push("/driver"); // Driver
+          router.push("/driver");
         } else if (session?.user?.role_id === 2) {
-          router.push("/dashboard"); // Customer
+          router.push("/dashboard");
         } else {
-          router.push("/admin"); // Admin
+          router.push("/admin");
         }
         router.refresh();
       }
@@ -219,223 +215,218 @@ function RegisterForm({
   };
 
   return (
-    <>
-      <div className={styles.page}>
-        <div className={styles.registerFormCard}>
-          <form onSubmit={handleSubmit} className={styles.formGroup}>
-            <div className={styles.formRow}>
-              <div className={styles.formCol}>
-                <div className={styles.formContainer}>
-                  <label className={styles.formLabel}>
-                    Nama Depan <span className={styles.requiredField}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="First"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                    className={styles.formInput}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formCol}>
-                <div className={styles.formGroup}>
-                  <div className={styles.formContainer}>
-                    <label className={styles.formLabel}>
-                      Nama Belakang{" "}
-                      <span className={styles.requiredField}>*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Last"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      required
-                      className={styles.formInput}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.formContainer}>
-              <label className={styles.formLabel}>
-                Nomor Telepon <span className={styles.requiredField}>*</span>
-              </label>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <div
-                  className={styles.formInput}
-                  style={{
-                    position: "relative",
-                    width: "100px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: 0,
-                    overflow: "hidden",
-                  }}
-                >
-                  <span
-                    style={{
-                      pointerEvents: "none",
-                      fontWeight: "medium",
-                      color: "#000000",
-                    }}
-                  >
-                    {countryCode}
-                  </span>
-
-                  <span
-                    style={{
-                      fontSize: "10px",
-                      marginLeft: "4px",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    ▼
-                  </span>
-
-                  <select
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    disabled={isLoadingCountries}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      opacity: 0,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {isLoadingCountries ? (
-                      <option>Loading...</option>
-                    ) : (
-                      countryOptions.map((option: any, index) => (
-                        <option key={index} value={option.code}>
-                          {option.name} ({option.code})
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
-
+    <div className={styles.page}>
+      <div className={styles.registerFormCard}>
+        <form onSubmit={handleSubmit} className={styles.formGroup}>
+          <div className={styles.formRow}>
+            <div className={styles.formCol}>
+              <div className={styles.formContainer}>
+                <label className={styles.formLabel}>
+                  Nama Depan <span className={styles.requiredField}>*</span>
+                </label>
                 <input
-                  type="tel"
-                  placeholder="Phone Number"
-                  value={phoneNumber}
-                  onChange={handlePhoneChange}
+                  type="text"
+                  placeholder="First"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   required
                   className={styles.formInput}
-                  style={{ flexGrow: 1 }}
                 />
               </div>
             </div>
 
-            <div className={styles.formContainer}>
-              <label className={styles.formLabel}>
-                Email <span className={styles.requiredField}>*</span>
-              </label>
+            <div className={styles.formCol}>
+              <div className={styles.formContainer}>
+                <label className={styles.formLabel}>
+                  Nama Belakang <span className={styles.requiredField}>*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Last"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className={styles.formInput}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.formContainer}>
+            <label className={styles.formLabel}>
+              Nomor Telepon <span className={styles.requiredField}>*</span>
+            </label>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <div
+                className={styles.formInput}
+                style={{
+                  position: "relative",
+                  width: "100px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                  overflow: "hidden",
+                }}
+              >
+                <span
+                  style={{
+                    pointerEvents: "none",
+                    fontWeight: "medium",
+                    color: "#000000",
+                  }}
+                >
+                  {countryCode}
+                </span>
+
+                <span
+                  style={{
+                    fontSize: "10px",
+                    marginLeft: "4px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  ▼
+                </span>
+
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  disabled={isLoadingCountries}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "pointer",
+                  }}
+                >
+                  {isLoadingCountries ? (
+                    <option>Loading...</option>
+                  ) : (
+                    countryOptions.map((option: any, index) => (
+                      <option key={index} value={option.code}>
+                        {option.name} ({option.code})
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
               <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="tel"
+                placeholder="Phone Number"
+                value={phoneNumber}
+                onChange={handlePhoneChange}
+                required
+                className={styles.formInput}
+                style={{ flexGrow: 1 }}
+              />
+            </div>
+          </div>
+
+          <div className={styles.formContainer}>
+            <label className={styles.formLabel}>
+              Email <span className={styles.requiredField}>*</span>
+            </label>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className={styles.formInput}
+            />
+          </div>
+
+          <div className={styles.formContainer}>
+            <label className={styles.formLabel}>
+              Kata Sandi <span className={styles.requiredField}>*</span>
+            </label>
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className={styles.formInput}
               />
-            </div>
-
-            <div className={styles.formContainer}>
-              <label className={styles.formLabel}>
-                Kata Sandi <span className={styles.requiredField}>*</span>
-              </label>
-              <div className={styles.passwordWrapper}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className={styles.formInput}
+              {showPassword ? (
+                <FaEyeSlash
+                  className={styles.eyeIcon}
+                  onClick={() => setShowPassword(false)}
                 />
-                {showPassword ? (
-                  <FaEyeSlash
-                    className={styles.eyeIcon}
-                    onClick={() => setShowPassword(false)}
-                  />
-                ) : (
-                  <FaEye
-                    className={styles.eyeIcon}
-                    onClick={() => setShowPassword(true)}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className={styles.formContainer}>
-              <label className={styles.formLabel}>
-                Tulis Ulang Kata Sandi{" "}
-                <span className={styles.requiredField}>*</span>
-              </label>
-              <div className={styles.passwordWrapper}>
-                <input
-                  type={showConfirm ? "text" : "password"}
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className={styles.formInput}
+              ) : (
+                <FaEye
+                  className={styles.eyeIcon}
+                  onClick={() => setShowPassword(true)}
                 />
-                {showConfirm ? (
-                  <FaEyeSlash
-                    className={styles.eyeIcon}
-                    onClick={() => setShowConfirm(false)}
-                  />
-                ) : (
-                  <FaEye
-                    className={styles.eyeIcon}
-                    onClick={() => setShowConfirm(true)}
-                  />
-                )}
-              </div>
+              )}
             </div>
-
-            {error && <div className={styles.alert}>{error}</div>}
-
-            <button
-              type="submit"
-              className={styles.submitButton}
-              disabled={loading}
-            >
-              {loading ? <div className={styles.spinner}></div> : "Daftar →"}
-            </button>
-
-            <p className={styles.footer}>
-              Sudah punya akun?{" "}
-              <a href="/login" className={styles.link}>
-                Masuk
-              </a>
-            </p>
-          </form>
-        </div>
-
-        <div className={styles.registerRight}>
-          <p className={styles.subtitle}>Yuk,</p>
-          <h1>
-            Buat
-            <br />
-            Akunmu
-          </h1>
-          <div className={styles.roleImage}>
-            <img src="/images/create-account.svg" />
           </div>
+
+          <div className={styles.formContainer}>
+            <label className={styles.formLabel}>
+              Tulis Ulang Kata Sandi{" "}
+              <span className={styles.requiredField}>*</span>
+            </label>
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showConfirm ? "text" : "password"}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className={styles.formInput}
+              />
+              {showConfirm ? (
+                <FaEyeSlash
+                  className={styles.eyeIcon}
+                  onClick={() => setShowConfirm(false)}
+                />
+              ) : (
+                <FaEye
+                  className={styles.eyeIcon}
+                  onClick={() => setShowConfirm(true)}
+                />
+              )}
+            </div>
+          </div>
+
+          {error && <div className={styles.alert}>{error}</div>}
+
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={loading}
+          >
+            {loading ? <div className={styles.spinner}></div> : "Daftar →"}
+          </button>
+
+          <p className={styles.footer}>
+            Sudah punya akun?{" "}
+            <a href="/login" className={styles.link}>
+              Masuk
+            </a>
+          </p>
+        </form>
+      </div>
+
+      <div className={styles.registerRight}>
+        <p className={styles.subtitle}>Yuk,</p>
+        <h1>
+          Buat
+          <br />
+          Akunmu
+        </h1>
+        <div className={styles.roleImage}>
+          <img src="/images/create-account.svg" alt="Create Account" />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -453,12 +444,15 @@ export default function RegisterPage() {
     setRole(null);
   };
 
-  if (step === "selection")
+  if (step === "selection") {
     return <RoleSelection onSelectRole={handleRoleSelect} />;
-  if (step === "form" && role)
+  }
+
+  if (step === "form" && role) {
     return (
       <RegisterForm role={role} onBackToSelection={handleBackToSelection} />
     );
+  }
 
   return null;
 }

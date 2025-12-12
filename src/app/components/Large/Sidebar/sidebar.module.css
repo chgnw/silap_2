@@ -1,8 +1,8 @@
 /* Sidebar */
 .sidebar {
-  width: 300px;
-  background-color: #a4b465;
-  color: #ffffff;
+  width: clamp(260px, 20vw, 300px);
+  background-color: var(--color-primary);
+  color: var(--color-white);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -13,7 +13,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1.5rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -21,7 +21,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
   font-weight: 700;
 }
 
@@ -29,26 +29,28 @@
   display: none;
   background: none;
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 1.5rem;
   cursor: pointer;
+  padding: 0.25rem;
 }
 
 .sidebarNav {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 1.5rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
   flex-grow: 1;
+  overflow-y: auto;
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
+  gap: clamp(0.75rem, 1vw, 1rem);
+  padding: clamp(0.625rem, 1vw, 0.75rem) clamp(0.75rem, 1vw, 1rem);
   border-radius: 8px;
-  color: #ffffff;
+  color: var(--color-white);
   text-decoration: none;
   font-weight: 500;
   transition: background-color 0.2s ease;
@@ -56,43 +58,48 @@
   background: none;
   width: 100%;
   text-align: left;
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 1.25vw, 1rem);
+  cursor: pointer;
 }
 
 .navLink:hover {
   background-color: rgba(255, 255, 255, 0.5);
-  color: #000000;
+  color: var(--color-black);
 }
 
 .iconContainer {
-  background: #ffffff;
-  color: #a4b465;
-  padding: 0.875rem;
+  background: var(--color-white);
+  color: var(--color-primary);
+  padding: clamp(0.625rem, 1vw, 0.875rem);
   border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .isSelected,
 .isSelected:hover {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--color-white);
+  color: var(--color-black);
 }
 
 .isSelected .iconContainer {
-  background-color: #a4b465;
-  color: #ffffff;
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 
 .sidebarFooter {
-  padding: 1.5rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logoutButton {
   background-color: transparent;
 }
+
 .logoutButton:hover {
   background-color: rgba(239, 68, 68, 0.2);
-  color: #ed1c24;
+  color: var(--color-error);
 }
 
 .loading {
@@ -105,7 +112,7 @@
   width: 16px;
   height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffffff;
+  border-top-color: var(--color-white);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -117,17 +124,25 @@
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 260px;
+  }
+}
+
 @media (max-width: 996px) {
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
+    width: min(300px, 85vw);
     height: 100vh;
     transform: translateX(-100%);
     z-index: 1001;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
+
   .sidebarHeader {
     justify-content: space-between;
   }

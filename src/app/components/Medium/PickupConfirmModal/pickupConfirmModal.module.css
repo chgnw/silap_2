@@ -1,0 +1,251 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: clamp(0.5rem, 2vw, 1rem);
+}
+
+.modal {
+  background-color: var(--color-white);
+  width: 100%;
+  max-width: min(500px, 95vw);
+  max-height: 90vh;
+  border-radius: clamp(0.75rem, 2vw, 1rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 2vw, 1.25rem);
+  background: var(--color-primary-dark);
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo {
+  height: clamp(22px, 4vw, 28px);
+  width: auto;
+  object-fit: contain;
+}
+
+.brandText {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 700;
+  color: var(--color-white);
+  letter-spacing: 2px;
+}
+
+.closeButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: var(--color-white);
+  width: clamp(28px, 4vw, 32px);
+  height: clamp(28px, 4vw, 32px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Title */
+.title {
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 2vw, 1.25rem) 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.title h2 {
+  font-size: clamp(0.9375rem, 2vw, 1.125rem);
+  font-weight: 600;
+  color: var(--color-black);
+  margin: 0;
+}
+
+.title p {
+  font-size: clamp(0.6875rem, 1.5vw, 0.8125rem);
+  color: var(--color-gray);
+  margin: 0.25rem 0 0;
+}
+
+/* Image Container */
+.imageContainer {
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 2vw, 1.25rem) 0;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.previewImage {
+  width: 100%;
+  max-height: clamp(100px, 15vw, 150px);
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 2px solid #eee;
+}
+
+/* Receipt Content */
+.receiptContent {
+  padding: 0.5rem clamp(1rem, 2vw, 1.25rem);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dividerDashed {
+  border-top: 1px dashed #ccc;
+  margin: clamp(0.5rem, 1.5vw, 0.75rem) 0;
+}
+
+.receiptRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: clamp(0.25rem, 0.75vw, 0.375rem) 0;
+  gap: 0.5rem;
+}
+
+.receiptRowFull {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: clamp(0.25rem, 0.75vw, 0.375rem) 0;
+}
+
+.receiptLabel {
+  font-size: clamp(0.6875rem, 1.5vw, 0.8125rem);
+  color: var(--color-gray);
+  flex-shrink: 0;
+}
+
+.receiptValue {
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+  font-weight: 500;
+  color: var(--color-black);
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}
+
+.receiptValueFull {
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+  font-weight: 500;
+  color: var(--color-black);
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+/* Footer */
+.footer {
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 2vw, 1.25rem);
+  border-top: 1px solid #eee;
+  background-color: #fafafa;
+  flex-shrink: 0;
+}
+
+.footerText {
+  font-size: clamp(0.6875rem, 1.25vw, 0.75rem);
+  color: var(--color-gray);
+  text-align: center;
+  margin: 0 0 clamp(0.75rem, 2vw, 1rem);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
+.cancelButton {
+  flex: 1;
+  padding: clamp(0.625rem, 1.5vw, 0.875rem);
+  background-color: var(--color-white);
+  border: 1px solid #ddd;
+  border-radius: 0.75rem;
+  font-size: clamp(0.8125rem, 1.5vw, 0.9375rem);
+  font-weight: 500;
+  color: var(--color-dark-gray);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmButton {
+  flex: 1.5;
+  padding: clamp(0.625rem, 1.5vw, 0.875rem);
+  background-color: var(--color-primary-dark);
+  border: none;
+  border-radius: 0.75rem;
+  font-size: clamp(0.8125rem, 1.5vw, 0.9375rem);
+  font-weight: 600;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background-color: #264a36;
+}
+
+.confirmButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+  }
+
+  .confirmButton {
+    flex: 1;
+  }
+}

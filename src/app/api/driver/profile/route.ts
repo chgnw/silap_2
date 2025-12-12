@@ -11,7 +11,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { firstName, lastName, phoneNumber } = body;
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      province,
+      regency,
+      subdistrict,
+      village,
+      address,
+      postalCode,
+    } = body;
 
     // Validate required fields
     if (!firstName) {
@@ -37,7 +47,13 @@ export async function POST(request: NextRequest) {
       SET 
         first_name = ?,
         last_name = ?,
-        phone_number = ?
+        phone_number = ?,
+        province = ?,
+        regency = ?,
+        subdistrict = ?,
+        village = ?,
+        address = ?,
+        postal_code = ?
       WHERE id = ?
     `;
 
@@ -45,6 +61,12 @@ export async function POST(request: NextRequest) {
       firstName,
       lastName || null,
       phoneNumber || null,
+      province || null,
+      regency || null,
+      subdistrict || null,
+      village || null,
+      address || null,
+      postalCode || null,
       userId,
     ]);
 
@@ -55,6 +77,12 @@ export async function POST(request: NextRequest) {
           firstName,
           lastName,
           phoneNumber,
+          province,
+          regency,
+          subdistrict,
+          village,
+          address,
+          postalCode,
         },
       },
       { status: 200 }
@@ -67,6 +95,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-
-

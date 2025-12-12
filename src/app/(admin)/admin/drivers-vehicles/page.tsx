@@ -39,6 +39,7 @@ type VehicleCategory = {
 type Driver = {
   id: number;
   user_id: number;
+  id_card_number: string | null;
   license_number: string | null;
   is_verified: boolean;
   is_available: boolean;
@@ -72,6 +73,9 @@ export default function DriversVehiclesPage() {
     type: "driver" | "vehicleCategory" | "vehicle";
   } | null>(null);
 
+  // Un-verify confirmation modal
+  const [isUnverifyModalOpen, setIsUnverifyModalOpen] = useState(false);
+
   // =========================================
   // DRIVERS SECTION
   // =========================================
@@ -80,6 +84,7 @@ export default function DriversVehiclesPage() {
   const [driverMode, setDriverMode] = useState<ModalMode>("add");
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [driverForm, setDriverForm] = useState({
+    id_card_number: "",
     license_number: "",
     is_verified: false,
   });
@@ -130,18 +135,43 @@ export default function DriversVehiclesPage() {
       }
 
       setDriverForm({
+        id_card_number: driver.id_card_number || "",
         license_number: driver.license_number || "",
         is_verified: driver.is_verified,
       });
     } else {
       setSelectedDriver(null);
       setDriverForm({
+        id_card_number: "",
         license_number: "",
         is_verified: false,
       });
     }
 
     setIsDriverModalOpen(true);
+  };
+
+  // Check if trying to un-verify
+  const isUnverifying = selectedDriver?.is_verified && !driverForm.is_verified;
+
+  const handleToggleVerified = (checked: boolean) => {
+    if (!checked && selectedDriver?.is_verified) {
+      // Trying to un-verify, show confirmation
+      setIsUnverifyModalOpen(true);
+    } else {
+      setDriverForm({
+        ...driverForm,
+        is_verified: checked,
+      });
+    }
+  };
+
+  const confirmUnverify = () => {
+    setDriverForm({
+      ...driverForm,
+      is_verified: false,
+    });
+    setIsUnverifyModalOpen(false);
   };
 
   const handleSaveDriver = async (e: React.FormEvent) => {
@@ -153,6 +183,7 @@ export default function DriversVehiclesPage() {
 
       const payload = {
         id: selectedDriver?.id,
+        id_card_number: driverForm.id_card_number || null,
         license_number: driverForm.license_number || null,
         is_verified: driverForm.is_verified,
       };
@@ -166,7 +197,14 @@ export default function DriversVehiclesPage() {
       const result = await response.json();
 
       if (result.message === "SUCCESS") {
-        showToast("success", "Driver updated successfully!");
+        if (result.reset) {
+          showToast(
+            "success",
+            "Driver di-unverify dan semua data telah direset!"
+          );
+        } else {
+          showToast("success", "Driver updated successfully!");
+        }
         setIsDriverModalOpen(false);
         fetchDrivers();
       } else {
@@ -201,7 +239,15 @@ export default function DriversVehiclesPage() {
         accessorFn: (row) => row.user?.email || "-",
       },
       {
-        header: "License Number",
+        header: "ID Card (No. KTP)",
+        accessorKey: "id_card_number",
+        cell: ({ getValue }) => {
+          const value = getValue() as string | null;
+          return value ? `${value.slice(0, 4)}...${value.slice(-4)}` : "-";
+        },
+      },
+      {
+        header: "License (No. SIM)",
         accessorKey: "license_number",
         cell: ({ getValue }) => {
           const value = getValue() as string | null;
@@ -820,21 +866,50 @@ export default function DriversVehiclesPage() {
             </>
           )}
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>License Number</label>
-            <input
-              className={styles.formInput}
-              value={
-                driverMode === "view"
-                  ? selectedDriver?.license_number || "-"
-                  : driverForm.license_number
-              }
-              onChange={(e) =>
-                setDriverForm({ ...driverForm, license_number: e.target.value })
-              }
-              disabled={driverMode === "view"}
-              placeholder="e.g., 1234567890123456"
-            />
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>ID Card Number (KTP)</label>
+              <input
+                className={styles.formInput}
+                value={
+                  driverMode === "view"
+                    ? selectedDriver?.id_card_number || "-"
+                    : driverForm.id_card_number
+                }
+                onChange={(e) =>
+                  setDriverForm({
+                    ...driverForm,
+                    id_card_number: e.target.value,
+                  })
+                }
+                disabled={driverMode === "view"}
+                placeholder="e.g., 3201234567890001"
+                minLength={16}
+                maxLength={16}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>License Number (SIM)</label>
+              <input
+                className={styles.formInput}
+                value={
+                  driverMode === "view"
+                    ? selectedDriver?.license_number || "-"
+                    : driverForm.license_number
+                }
+                onChange={(e) =>
+                  setDriverForm({
+                    ...driverForm,
+                    license_number: e.target.value,
+                  })
+                }
+                disabled={driverMode === "view"}
+                placeholder="e.g., 1234567890123456"
+                minLength={16}
+                maxLength={16}
+              />
+            </div>
           </div>
 
           {driverMode === "view" ? (
@@ -880,20 +955,50 @@ export default function DriversVehiclesPage() {
           ) : (
             <>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  <input
-                    type="checkbox"
-                    checked={driverForm.is_verified}
-                    onChange={(e) =>
-                      setDriverForm({
-                        ...driverForm,
-                        is_verified: e.target.checked,
-                      })
-                    }
-                    style={{ marginRight: "8px" }}
-                  />
-                  Verified Driver
-                </label>
+                {(() => {
+                  const missingFields: string[] = [];
+                  if (!driverForm.id_card_number)
+                    missingFields.push("ID Card Number (KTP)");
+                  if (!driverForm.license_number)
+                    missingFields.push("License Number (SIM)");
+                  const canVerify = missingFields.length === 0;
+
+                  return (
+                    <>
+                      <div className={styles.toggleContainer}>
+                        <label
+                          className={`${styles.toggleSwitch} ${
+                            !canVerify && !driverForm.is_verified
+                              ? styles.toggleDisabled
+                              : ""
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={driverForm.is_verified}
+                            onChange={(e) => {
+                              if (canVerify || !e.target.checked) {
+                                handleToggleVerified(e.target.checked);
+                              }
+                            }}
+                            disabled={!canVerify && !driverForm.is_verified}
+                          />
+                          <span className={styles.toggleSlider}></span>
+                        </label>
+                        <span className={styles.toggleLabel}>
+                          Verified Driver
+                        </span>
+                      </div>
+                      {!canVerify && !driverForm.is_verified && (
+                        <p className={styles.verificationWarning}>
+                          *{missingFields.join(" and ")}{" "}
+                          {missingFields.length > 1 ? "are" : "is"} required to
+                          verify this driver
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </>
           )}
@@ -1234,6 +1339,85 @@ export default function DriversVehiclesPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? "Deleting..." : "Yes, Delete"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Un-verify Confirmation Modal */}
+      <Modal
+        isOpen={isUnverifyModalOpen}
+        onClose={() => setIsUnverifyModalOpen(false)}
+        title="Konfirmasi Un-verify Driver"
+      >
+        <div className={styles.singleLayout}>
+          <div>
+            <p style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+              Apakah Anda yakin ingin un-verify driver ini?
+            </p>
+            <div
+              style={{
+                backgroundColor: "#fff3cd",
+                border: "1px solid #ffc107",
+                borderRadius: "8px",
+                padding: "1rem",
+                marginTop: "1rem",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#856404",
+                  marginBottom: "0.5rem",
+                  fontWeight: 600,
+                }}
+              >
+                ⚠️ Perhatian:
+              </p>
+              <ul
+                style={{
+                  fontSize: "0.85rem",
+                  color: "#856404",
+                  margin: 0,
+                  paddingLeft: "1.2rem",
+                }}
+              >
+                <li>Status driver akan menjadi non-aktif</li>
+                <li>Kendaraan yang di-assign akan dilepas</li>
+                <li>Area operasional akan direset</li>
+                <li>Driver harus setup ulang setelah di-verify kembali</li>
+              </ul>
+            </div>
+            <p
+              style={{
+                fontSize: "0.85rem",
+                color: "#dc2626",
+                marginTop: "1rem",
+                fontStyle: "italic",
+              }}
+            >
+              * Jika driver sedang memiliki order aktif, proses un-verify akan
+              ditolak sampai semua order selesai.
+            </p>
+          </div>
+
+          <div
+            className={styles.modalFooter}
+            style={{ width: "100%", borderTop: "none" }}
+          >
+            <button
+              type="button"
+              onClick={() => setIsUnverifyModalOpen(false)}
+              className={`${styles.btnBase} ${styles.btnCancel}`}
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={confirmUnverify}
+              className={`${styles.btnBase} ${styles.btnDeleteConfirm}`}
+            >
+              Ya, Un-verify
             </button>
           </div>
         </div>
