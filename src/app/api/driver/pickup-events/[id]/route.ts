@@ -47,7 +47,7 @@ export async function GET(
       JOIN ms_user u ON pe.user_id = u.id
       JOIN ms_pickup_type pt ON pe.pickup_type_id = pt.id
       LEFT JOIN ms_vehicle_category vc ON pe.vehicle_category_id = vc.id
-      LEFT JOIN tr_pickups p ON pe.id = p.pickup_event_id
+      LEFT JOIN tr_pickup p ON pe.id = p.pickup_event_id
       LEFT JOIN ms_transaction_status ts ON p.transaction_status_id = ts.id
       WHERE pe.id = ?
     `;

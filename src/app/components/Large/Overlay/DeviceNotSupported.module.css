@@ -5,7 +5,11 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, #2f5e44 0%, #a4b465 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-dark) 0%,
+    var(--color-primary) 100%
+  );
   z-index: 9999;
   justify-content: center;
   align-items: center;
@@ -20,7 +24,7 @@
 
 .content {
   text-align: center;
-  color: white;
+  color: var(--color-white);
   max-width: 250px;
 }
 
@@ -31,7 +35,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {

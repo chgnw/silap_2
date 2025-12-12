@@ -1,38 +1,49 @@
 .sectionWrap {
-  padding: 5rem 8rem;
-  display:flex;
-  justify-content:center;
-  background: transparent;}
+  padding: clamp(1rem, 5vw, 5rem) clamp(1rem, 8vw, 8rem);
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
 
 .card {
-  width:100%;
-  background: #A4B465;
-  border-radius: 4rem;
-  padding: 3.25rem 0;
-  position: relative;}
+  width: 100%;
+  background: var(--color-primary);
+  border-radius: clamp(2rem, 5vw, 4rem);
+  padding: clamp(1.25rem, 4vw, 3.25rem) 0;
+  position: relative;
+}
 
 .heading {
-  text-align:center;
-  color: #2F5E44;
-  font-size: 5rem;
-  margin-bottom: 3rem;
-  font-weight: 700;}
+  text-align: center;
+  color: var(--color-primary-dark);
+  font-size: clamp(1.25rem, 6vw, 5rem);
+  margin-bottom: clamp(1rem, 4vw, 3rem);
+  font-weight: 700;
+  padding: 0 1rem;
+}
 
 .mudah {
-  width: 250px;}
+  width: clamp(60px, 20vw, 250px);
+}
 
 .mockupWrap {
   position: relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;}
-  .dashboard {
-    position: relative;
-    border-radius: 3.25rem;
-    overflow: hidden;
-    background: transparent;}
-    .dashboard img {
-      width: 1000px;}
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.dashboard {
+  position: relative;
+  border-radius: clamp(1.5rem, 4vw, 3.25rem);
+  overflow: hidden;
+  background: transparent;
+}
+
+.dashboard img {
+  width: min(1000px, 100%);
+}
 
 /* floating tags */
 .tagTopRight {
@@ -64,11 +75,6 @@
 
 /* responsive */
 @media (max-width: 1400px) {
-  .heading {
-    font-size: 4rem;
-    margin-bottom: 2rem;
-  }
-
   .tagTopRight {
     transform: translate(470px, -220px) scale(0.9);
     width: 180px;
@@ -85,64 +91,25 @@
   }
 
   .dashboard img {
-    width: 800px;
+    width: min(800px, 100%);
   }
 }
 
 @media (max-width: 1200px) {
-  .sectionWrap {
-    padding: 2.5rem 4rem;
-  }
-
-  .heading {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-
   .tagTopRight {
-    transform: translate(500px, -200px) scale(0.8);
+    transform: translate(400px, -180px) scale(0.8);
   }
 
   .tagRight {
-    transform: translate(500px, 100px) scale(0.8);
+    transform: translate(400px, 80px) scale(0.8);
   }
 
   .tagLeft {
-    transform: translate(-500px, 80px) scale(0.8);
-  }
-
-  .mudah {
-    width: 180px;
+    transform: translate(-400px, 80px) scale(0.8);
   }
 }
 
 @media (max-width: 992px) {
-  .tagTopRight {
-    transform: translate(400px, -160px) scale(0.7);
-  }
-
-  .tagRight {
-    transform: translate(400px, 100px) scale(0.7);
-  }
-
-  .tagLeft {
-    transform: translate(-400px, 100px) scale(0.7);
-  }
-  
-  .card { 
-    padding: 20px; 
-  }
-
-  .dashboard img {
-    width: 700px;
-  }
-}
-
-@media (max-width: 768px) {
-  .sectionWrap {
-    padding: 2.5rem;
-  }
-
   .tagTopRight,
   .tagRight,
   .tagLeft {
@@ -151,38 +118,11 @@
 
   .dashboard img {
     width: 100%;
-    
   }
 }
 
 @media (max-width: 576px) {
   .dashboard {
-    border-radius: 2rem;
-  }
-
-  .sectionWrap {
-    padding: 1.5rem;
-  }
-
-  .heading {
-    font-size: 2rem;
-  }
-
-  .mudah {
-    width: 140px;
-  }
-
-  .card {
-    border-radius: 3rem;
-  }
-}
-
-@media (max-width: 376px) {
-  .heading {
-    font-size: 1.5rem;
-  }
-
-  .mudah {
-    width: 80px;
+    border-radius: 1.5rem;
   }
 }

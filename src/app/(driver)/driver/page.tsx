@@ -7,6 +7,8 @@ import styles from "./driver.module.css";
 import Image from "next/image";
 import { showToast } from "@/lib/toastHelper";
 import { IoWarning } from "react-icons/io5";
+import { FaMapMarkerAlt, FaCheckCircle } from "react-icons/fa";
+import RegencySelector from "@/app/components/Medium/RegencySelector/RegencySelector";
 
 interface Vehicle {
   id: number;
@@ -31,11 +33,11 @@ interface DriverInfo {
   phone: string;
   profile_picture: string | null;
   role_name: string;
-  is_verified: boolean;
-  is_active: boolean;
+  is_verified: number; // 0 or 1 from database
+  is_active: number; // 0 or 1 from database
   total_deliveries: number;
   assigned_vehicle_id: number | null;
-  active_since: string | null;
+  operational_area: string | null;
   vehicle_brand: string | null;
   vehicle_model: string | null;
   vehicle_license_plate: string | null;
@@ -55,6 +57,8 @@ export default function DriverPage() {
   const [activating, setActivating] = useState(false);
   const [showVehicleDropdown, setShowVehicleDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [operationalArea, setOperationalArea] = useState("");
+  const [savingArea, setSavingArea] = useState(false);
 
   // Fetch driver info
   const fetchDriverInfo = useCallback(async () => {
@@ -64,7 +68,8 @@ export default function DriverPage() {
 
       if (data.message === "SUCCESS") {
         setDriverInfo(data.data);
-        setIsActive(data.data.is_active);
+        setIsActive(Boolean(data.data.is_active));
+        setOperationalArea(data.data.operational_area || "");
 
         if (data.data.assigned_vehicle_id) {
           // Fetch assigned vehicle details
@@ -107,9 +112,48 @@ export default function DriverPage() {
     }
   }, [status, router, fetchDriverInfo, fetchVehicles]);
 
+  // Save operational area
+  const saveOperationalArea = async (area: string) => {
+    if (!area) return;
+
+    setSavingArea(true);
+    try {
+      const res = await fetch("/api/driver/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ operational_area: area }),
+      });
+
+      const data = await res.json();
+      if (data.message === "SUCCESS") {
+        showToast("success", "Area operasional berhasil disimpan");
+      } else {
+        showToast("error", data.error || "Gagal menyimpan area operasional");
+      }
+    } catch (error) {
+      console.error("Error saving operational area:", error);
+      showToast("error", "Gagal menyimpan area operasional");
+    } finally {
+      setSavingArea(false);
+    }
+  };
+
+  // Handle operational area change
+  const handleOperationalAreaChange = (area: string) => {
+    setOperationalArea(area);
+    if (area) {
+      saveOperationalArea(area);
+    }
+  };
+
   const handleActivateDriver = async () => {
     if (!selectedVehicle && !isActive) {
       showToast("error", "Silakan pilih armada terlebih dahulu");
+      return;
+    }
+
+    if (!operationalArea && !isActive) {
+      showToast("error", "Silakan pilih area operasional terlebih dahulu");
       return;
     }
 
@@ -197,7 +241,24 @@ export default function DriverPage() {
   return (
     <div className={styles.container}>
       <main className={styles.main}>
-        {/* Instructions */}
+        {/* Verification Status */}
+        {driverInfo && driverInfo.is_verified !== 1 && (
+          <div className={styles.verificationCard}>
+            <div className={styles.verificationIcon}>
+              <IoWarning size={24} />
+            </div>
+            <div className={styles.verificationContent}>
+              <h3>Menunggu Verifikasi</h3>
+              <p>
+                Akun Anda belum diverifikasi oleh admin. Setelah diverifikasi,
+                Anda dapat memilih kendaraan, area operasional, dan mulai
+                menerima order.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Instructions - show if not active */}
         {!isActive && (
           <>
             <div className={styles.instructionCard}>
@@ -216,11 +277,20 @@ export default function DriverPage() {
           </>
         )}
 
+        {/* Vehicle Selection - show if not active, disabled if not verified */}
         {!isActive && (
-          <div className={styles.selectVehicleSection}>
+          <div
+            className={`${styles.selectVehicleSection} ${
+              driverInfo?.is_verified !== 1 ? styles.disabledSection : ""
+            }`}
+          >
             <button
               className={styles.selectVehicleButton}
-              onClick={() => setShowVehicleDropdown(!showVehicleDropdown)}
+              onClick={() =>
+                driverInfo?.is_verified === 1 &&
+                setShowVehicleDropdown(!showVehicleDropdown)
+              }
+              disabled={driverInfo?.is_verified !== 1}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
                 <path
@@ -241,6 +311,11 @@ export default function DriverPage() {
                   ? selectedVehicle.license_plate
                   : "Pilih Armada"}
               </span>
+              {selectedVehicle && (
+                <FaCheckCircle
+                  style={{ color: "#66ea72", marginLeft: "0.5rem" }}
+                />
+              )}
               <svg
                 width="20"
                 height="20"
@@ -258,7 +333,7 @@ export default function DriverPage() {
               </svg>
             </button>
 
-            {showVehicleDropdown && (
+            {showVehicleDropdown && driverInfo?.is_verified === 1 && (
               <div className={styles.dropdown}>
                 <input
                   type="text"
@@ -298,6 +373,42 @@ export default function DriverPage() {
           </div>
         )}
 
+        {/* Operational Area Selection - show if not active, disabled if not verified */}
+        {!isActive && (
+          <div
+            className={`${styles.operationalAreaSection} ${
+              driverInfo?.is_verified !== 1 ? styles.disabledSection : ""
+            }`}
+          >
+            <div className={styles.operationalAreaHeader}>
+              <FaMapMarkerAlt className={styles.areaIcon} />
+              <span>Area Operasional</span>
+              {operationalArea && (
+                <FaCheckCircle
+                  style={{
+                    color: "var(--color-primary-dark)",
+                  }}
+                />
+              )}
+            </div>
+            <div className={styles.regencySelectorWrapper}>
+              <RegencySelector
+                value={operationalArea}
+                onChange={handleOperationalAreaChange}
+                label=""
+                placeholder="Pilih Area Operasional"
+                disabled={savingArea || driverInfo?.is_verified !== 1}
+              />
+            </div>
+            {operationalArea && (
+              <div className={styles.selectedAreaInfo}>
+                <FaMapMarkerAlt />
+                <span>{operationalArea}</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Driver Info (show when active) */}
         {isActive && driverInfo && (
           <div className={styles.infoCard}>
@@ -317,7 +428,7 @@ export default function DriverPage() {
               <div className={styles.driverDetails}>
                 <div className={styles.driverName}>
                   {driverInfo.name}
-                  {driverInfo.is_verified && (
+                  {driverInfo.is_verified === 1 && (
                     <svg
                       width="20"
                       height="20"
@@ -375,13 +486,35 @@ export default function DriverPage() {
           </div>
         )}
 
-        <div className={styles.activationSection}>
+        {/* Operational Area Info (show when active) */}
+        {isActive && operationalArea && (
+          <div className={styles.infoCard}>
+            <h3 className={styles.sectionTitle}>Area Operasional</h3>
+            <div className={styles.operationalAreaCard}>
+              <FaMapMarkerAlt className={styles.operationalAreaIcon} />
+              <span className={styles.operationalAreaText}>
+                {operationalArea}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Activation Section - always show, disabled if not verified */}
+        <div
+          className={`${styles.activationSection} ${
+            driverInfo?.is_verified !== 1 ? styles.disabledSection : ""
+          }`}
+        >
           <button
             className={`${styles.activationButton} ${
               isActive ? styles.active : styles.inactive
             }`}
             onClick={handleActivateDriver}
-            disabled={activating || (!selectedVehicle && !isActive)}
+            disabled={
+              activating ||
+              driverInfo?.is_verified !== 1 ||
+              (!isActive && (!selectedVehicle || !operationalArea))
+            }
           >
             <div className={styles.powerIcon}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
@@ -402,6 +535,22 @@ export default function DriverPage() {
           >
             {isActive ? "Aktif" : "Non Aktif"}
           </div>
+          {driverInfo?.is_verified !== 1 ? (
+            <p className={styles.activationHint}>
+              Menunggu verifikasi admin untuk mengaktifkan akun
+            </p>
+          ) : (
+            !isActive &&
+            (!selectedVehicle || !operationalArea) && (
+              <p className={styles.activationHint}>
+                {!selectedVehicle && !operationalArea
+                  ? "Pilih armada dan area operasional untuk mengaktifkan akun"
+                  : !selectedVehicle
+                  ? "Pilih armada untuk mengaktifkan akun"
+                  : "Pilih area operasional untuk mengaktifkan akun"}
+              </p>
+            )
+          )}
         </div>
       </main>
     </div>

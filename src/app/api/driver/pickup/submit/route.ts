@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     // Check if pickup already exists (should exist from accept)
     const checkPickupSql = `
-      SELECT id FROM tr_pickups 
+      SELECT id FROM tr_pickup 
       WHERE pickup_event_id = ? AND partner_id = ?
     `;
     const existingPickup = (await query(checkPickupSql, [
@@ -89,13 +89,13 @@ export async function POST(req: NextRequest) {
 
     const pickupId = existingPickup[0].id;
 
-    // Update tr_pickups to completed status
+    // Update tr_pickup to completed status
     const notes = is_sorted
       ? `Sampah sudah dipilah - Total: ${total_weight} kg`
       : `Sampah belum dipilah - Total: ${total_weight} kg`;
 
     const updatePickupSql = `
-      UPDATE tr_pickups
+      UPDATE tr_pickup
       SET 
         transaction_status_id = 4,
         notes = ?,
@@ -236,7 +236,7 @@ export async function POST(req: NextRequest) {
 
     // Get transaction code for response
     const getTransactionSql = `
-      SELECT transaction_code FROM tr_pickups WHERE id = ?
+      SELECT transaction_code FROM tr_pickup WHERE id = ?
     `;
     const transactionResult = (await query(getTransactionSql, [
       pickupId,

@@ -67,7 +67,7 @@ export async function POST(
 
     // Check if already accepted
     const checkSql = `
-      SELECT id FROM tr_pickups 
+      SELECT id FROM tr_pickup 
       WHERE pickup_event_id = ?
     `;
     const existingPickup = (await query(checkSql, [eventId])) as any[];
@@ -85,9 +85,9 @@ export async function POST(
     // Use the same transaction_code from tr_pickup_event
     const transactionCode = event.transaction_code;
 
-    // Insert to tr_pickups with status 2 (Pending/Accepted)
+    // Insert to tr_pickup with status 2 (Pending/Accepted)
     const insertSql = `
-      INSERT INTO tr_pickups 
+      INSERT INTO tr_pickup 
       (transaction_code, user_id, pickup_event_id, partner_id, transaction_status_id, 
        pickup_address, request_time, pickup_schedule)
       VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)

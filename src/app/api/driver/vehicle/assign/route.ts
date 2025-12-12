@@ -12,6 +12,7 @@ export async function POST(req: Request) {
     }
 
     const { vehicle_id } = await req.json();
+    console.log("vehicle_id: ", vehicle_id);
 
     if (!vehicle_id) {
       return NextResponse.json(
@@ -25,15 +26,13 @@ export async function POST(req: Request) {
     // Check if vehicle is available
     const checkVehicleSql = `
       SELECT id, status FROM ms_vehicle 
-      WHERE id = ? AND status = 'available'
+      WHERE id = ? AND status = 'inactive'
     `;
     const vehicleCheck = (await query(checkVehicleSql, [vehicle_id])) as any[];
-
     if (vehicleCheck.length === 0) {
-      return NextResponse.json(
-        { error: "Vehicle not available" },
-        { status: 400 }
-      );
+      return NextResponse.json({ 
+        error: "Vehicle not available" 
+      },{ status: 400 });
     }
 
     // Check if driver exists
@@ -42,16 +41,15 @@ export async function POST(req: Request) {
       WHERE user_id = ?
     `;
     const driverCheck = (await query(checkDriverSql, [userId])) as any[];
-
     if (driverCheck.length === 0) {
-      return NextResponse.json({ error: "Driver not found" }, { status: 404 });
+      return NextResponse.json({ 
+        error: "Driver not found" 
+      }, { status: 404 });
     }
-
     const driver = driverCheck[0];
-
     // If driver has assigned vehicle, unassign it first
     if (driver.assigned_vehicle_id) {
-      await query(`UPDATE ms_vehicle SET status = 'available' WHERE id = ?`, [
+      await query(`UPDATE ms_vehicle SET status = 'inactive' WHERE id = ?`, [
         driver.assigned_vehicle_id,
       ]);
     }
@@ -62,8 +60,7 @@ export async function POST(req: Request) {
       [vehicle_id, userId]
     );
 
-    // Update vehicle status to in_use
-    await query(`UPDATE ms_vehicle SET status = 'in_use' WHERE id = ?`, [
+    await query(`UPDATE ms_vehicle SET status = 'active' WHERE id = ?`, [
       vehicle_id,
     ]);
 

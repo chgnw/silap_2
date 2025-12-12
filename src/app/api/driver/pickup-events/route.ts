@@ -18,11 +18,12 @@ export async function GET(req: Request) {
       );
     }
 
-    // Get driver info with assigned vehicle and vehicle category
+    // Get driver info with assigned vehicle, vehicle category, and operational area
     const driverSql = `
       SELECT 
         d.id as driver_id,
         d.assigned_vehicle_id,
+        d.operational_area,
         v.vehicle_category_id,
         vc.category_name,
         vc.min_weight as category_min_weight,
@@ -33,8 +34,6 @@ export async function GET(req: Request) {
       WHERE d.user_id = ?
     `;
     const driverData = (await query(driverSql, [userId])) as any[];
-    console.log("=== DRIVER DATA ===");
-    console.log("driver data: ", driverData);
     if (driverData.length === 0) {
       return NextResponse.json(
         {
@@ -46,7 +45,11 @@ export async function GET(req: Request) {
 
     const driver = driverData[0];
 
-    if (!driver.assigned_vehicle_id || !driver.vehicle_category_id) {
+    if (
+      !driver.assigned_vehicle_id ||
+      !driver.vehicle_category_id ||
+      !driver.operational_area
+    ) {
       return NextResponse.json(
         {
           message: "SUCCESS",
@@ -58,20 +61,25 @@ export async function GET(req: Request) {
               completed: 0,
               pending: 0,
             },
+            setup_required: {
+              vehicle: !driver.assigned_vehicle_id,
+              operational_area: !driver.operational_area,
+            },
           },
         },
         { status: 200 }
       );
     }
 
-    // Get pickup events for today that match driver's vehicle CATEGORY and weight range
-    // Only show events that haven't been accepted (not in tr_pickups yet) and not completed/cancelled
+    // Get pickup events for today that match driver's vehicle CATEGORY, weight range, and operational area
+    // Only show events that haven't been accepted (not in tr_pickup yet) and not completed/cancelled
     const eventsSql = `
       SELECT 
         pe.id,
         pe.transaction_code,
         pe.user_id,
         pe.pickup_address,
+        pe.pickup_regency,
         pe.pickup_weight,
         pe.pickup_type_id,
         pe.event_date,
@@ -96,10 +104,11 @@ export async function GET(req: Request) {
         AND pe.vehicle_category_id = ?
         AND pe.pickup_weight >= ?
         AND pe.pickup_weight <= ?
+        AND pe.pickup_regency = ?
         AND pe.event_status = 'pending'
         AND NOT EXISTS (
-          SELECT 1 FROM tr_pickups p 
-          WHERE p.pickup_event_id = pe.id
+          SELECT 1 FROM tr_pickup tp 
+          WHERE tp.pickup_event_id = pe.id
         )
       ORDER BY pe.pickup_time ASC
     `;
@@ -111,11 +120,13 @@ export async function GET(req: Request) {
     console.log("driver.category_name:", driver.category_name);
     console.log("driver.category_min_weight:", driver.category_min_weight);
     console.log("driver.category_max_weight:", driver.category_max_weight);
+    console.log("driver.operational_area:", driver.operational_area);
 
     const pickupEvents = await query(eventsSql, [
       driver.vehicle_category_id,
       driver.category_min_weight,
       driver.category_max_weight,
+      driver.operational_area,
     ]);
     console.log("=== PICKUP EVENTS RESULT ===");
     console.log("pickup events count:", pickupEvents.length);
@@ -168,23 +179,25 @@ export async function GET(req: Request) {
            AND pe.vehicle_category_id = ?
            AND pe.pickup_weight >= ?
            AND pe.pickup_weight <= ?
+           AND pe.pickup_regency = ?
            AND pe.event_status = 'pending'
            AND NOT EXISTS (
-             SELECT 1 FROM tr_pickups p 
-             WHERE p.pickup_event_id = pe.id
+             SELECT 1 FROM tr_pickup tp 
+             WHERE tp.pickup_event_id = pe.id
            )
         ) as total_orders,
         (SELECT COUNT(*) 
-         FROM tr_pickups p
-         WHERE p.partner_id = ?
-           AND DATE(p.created_at) = CURDATE()
-           AND p.transaction_status_id = 4
+         FROM tr_pickup tp
+         WHERE tp.driver_id = ?
+           AND DATE(tp.created_at) = CURDATE()
+           AND tp.transaction_status_id = 4
         ) as completed
     `;
     const stats = (await query(statsSql, [
       driver.vehicle_category_id,
       driver.category_min_weight,
       driver.category_max_weight,
+      driver.operational_area,
       driver.driver_id,
     ])) as any[];
     console.log("=== STATS RESULT ===");

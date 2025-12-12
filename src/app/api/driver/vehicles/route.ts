@@ -27,11 +27,12 @@ export async function GET() {
         vc.description as category_description
       FROM ms_vehicle v
       LEFT JOIN ms_vehicle_category vc ON v.vehicle_category_id = vc.id
-      WHERE v.status = 'available'
+      WHERE v.status = 'inactive'
       ORDER BY vc.category_name ASC, v.brand ASC, v.model ASC
     `;
 
     const vehicles = await query(sql);
+    console.log("vehicles: ", vehicles);
 
     return NextResponse.json(
       {

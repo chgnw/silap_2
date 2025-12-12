@@ -34,6 +34,72 @@
   margin: 0 auto;
 }
 
+/* Verification Card */
+.verificationCard {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 4px 20px rgba(238, 90, 90, 0.4);
+  animation: pulseWarning 2s ease-in-out infinite;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes pulseWarning {
+  0%,
+  100% {
+    box-shadow: 0 4px 20px rgba(238, 90, 90, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 6px 28px rgba(238, 90, 90, 0.6);
+    transform: scale(1.01);
+  }
+}
+
+.verificationIcon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: iconPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.verificationContent {
+  flex: 1;
+}
+
+.verificationContent h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.verificationContent p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  opacity: 0.95;
+}
+
 .instructionCard {
   background: #2f5e44;
   color: white;
@@ -85,10 +151,15 @@
   transition: all 0.3s;
 }
 
-.selectVehicleButton:hover {
+.selectVehicleButton:hover:not(:disabled) {
   background: #8aa36e;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.selectVehicleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Dropdown */
@@ -178,6 +249,88 @@
   color: #999;
 }
 
+/* Operational Area Section */
+.operationalAreaSection {
+  margin: 1.5rem 0;
+  background: white;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.operationalAreaHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.areaIcon {
+  color: #2f5e44;
+  font-size: 1.25rem;
+}
+
+.regencySelectorWrapper {
+  margin-bottom: 0.75rem;
+}
+
+.selectedAreaInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #e8f5e9;
+  border-radius: 8px;
+  color: #2f5e44;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.selectedAreaInfo svg {
+  flex-shrink: 0;
+}
+
+/* Disabled Section Overlay */
+.disabledSection {
+  opacity: 0.5;
+  pointer-events: none;
+  position: relative;
+}
+
+/* Operational Area Card (when active) */
+.operationalAreaCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.operationalAreaIcon {
+  color: #2f5e44;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.operationalAreaText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Activation Hint */
+.activationHint {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+  max-width: 280px;
+}
+
 /* Info Cards */
 .infoCard {
   background: white;
@@ -262,30 +415,6 @@
   font-size: 1rem;
   font-weight: 700;
   color: #2f5e44;
-}
-
-/* Timer */
-.timer {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.timerBox {
-  background: #9db380;
-  color: white;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  min-width: 48px;
-  text-align: center;
-}
-
-.timerSeparator {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #666;
 }
 
 /* Vehicle Card */

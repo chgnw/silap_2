@@ -7,6 +7,8 @@ import dynamic from "next/dynamic";
 
 import { showToast } from "@/lib/toastHelper";
 import style from "./pickup.module.css";
+import RegencySelector from "@/app/components/Medium/RegencySelector/RegencySelector";
+import PickupConfirmModal from "@/app/components/Medium/PickupConfirmModal/PickupConfirmModal";
 
 const Calendar = dynamic(
   () => import("@/app/components/Large/Calendar/Calendar"),
@@ -45,6 +47,7 @@ interface AddressData {
   name: string;
   phone: string;
   address: string;
+  regency?: string;
 }
 
 export default function PickUpPage() {
@@ -88,6 +91,10 @@ export default function PickUpPage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [notes, setNotes] = useState("");
+
+  // Regency & Confirmation Modal
+  const [pickupRegency, setPickupRegency] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
   const timeInputRef = useRef<HTMLInputElement>(null);
@@ -166,7 +173,12 @@ export default function PickUpPage() {
         address:
           session.user.address ||
           "Masukkan alamat pengiriman atau atur alamat pada menu profile.",
+        regency: session.user.regency || "",
       });
+      // Set default regency from profile if available
+      if (session.user.regency) {
+        setPickupRegency(session.user.regency);
+      }
     }
   }, [session, status]);
 
@@ -292,6 +304,9 @@ export default function PickUpPage() {
       }
 
       if (response.status === 200 && result.message === "SUCCESS") {
+        // Close confirmation modal
+        setShowConfirmModal(false);
+
         // Reset input
         setWeight("");
         setSelectedDate("");
@@ -311,6 +326,10 @@ export default function PickUpPage() {
           setSelectedPickupType(pickupOptions[0]);
         }
         setIsEditingAddress(false);
+        // Reset regency to profile default
+        if (session?.user?.regency) {
+          setPickupRegency(session.user.regency);
+        }
 
         showToast(response.status, "Jadwal penjemputan berhasil ditambahkan!");
         setRefreshKey((prev) => prev + 1);
@@ -378,10 +397,20 @@ export default function PickUpPage() {
       !selectedPickupType ||
       !selectedVehicle
     ) {
-      alert("Mohon lengkapi informasi penjemputan sampah.");
+      showToast("error", "Mohon lengkapi informasi penjemputan sampah.");
       return;
     }
 
+    if (!pickupRegency) {
+      showToast("error", "Mohon pilih wilayah pickup.");
+      return;
+    }
+
+    // Show confirmation modal
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSubmit = () => {
     // Create FormData for file upload
     const formData = new FormData();
 
@@ -393,6 +422,7 @@ export default function PickUpPage() {
     formData.append("time", selectedTime);
     formData.append("pickupType", JSON.stringify(selectedPickupType));
     formData.append("notes", notes);
+    formData.append("pickupRegency", pickupRegency);
 
     // Add image if selected
     if (selectedImage) {
@@ -451,6 +481,18 @@ export default function PickUpPage() {
               <FiEdit style={{ color: "#2F5E44" }} size={16} />
             )}
           </div>
+        </div>
+
+        {/* Wilayah Pickup */}
+        <div
+          className={style.detailCard}
+          style={{ flexDirection: "column", alignItems: "stretch" }}
+        >
+          <RegencySelector
+            value={pickupRegency}
+            onChange={setPickupRegency}
+            defaultFromProfile={addressData.regency}
+          />
         </div>
 
         {/* Berat */}
@@ -831,6 +873,27 @@ export default function PickUpPage() {
       <div className={`${style.rightSide} calendar-container`}>
         <Calendar refreshTrigger={refreshKey} />
       </div>
+
+      {/* Confirmation Modal */}
+      <PickupConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleConfirmSubmit}
+        isSubmitting={isSubmitting}
+        data={{
+          name: addressData.name,
+          phone: addressData.phone,
+          address: addressData.address,
+          regency: pickupRegency,
+          weight: weight,
+          date: selectedDate,
+          time: selectedTime,
+          vehicleType: selectedVehicle?.name || "",
+          pickupType: selectedPickupType?.name || "",
+          notes: notes,
+          imagePreview: imagePreview,
+        }}
+      />
     </div>
   );
 }

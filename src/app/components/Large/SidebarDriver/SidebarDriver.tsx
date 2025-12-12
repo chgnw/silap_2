@@ -41,7 +41,7 @@ export default function SidebarDriver({
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ""}`}>
       <div className={styles.sidebarHeader}>
-        <a href="/" className={styles.sidebarLogo}>
+        <a href="/driver" className={styles.sidebarLogo}>
           <Image
             src="/assets/logo-silap-dashboard.svg"
             alt="SILAP Logo"

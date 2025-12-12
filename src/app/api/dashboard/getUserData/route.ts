@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       query<{ total: number }>(
         `
           SELECT COALESCE(SUM(pi.quantity), 0) AS total
-          FROM tr_pickups p
+          FROM tr_pickup p
           JOIN tr_pickup_items pi ON p.id = pi.pickup_id
           WHERE p.user_id = ? 
           AND DATE(p.created_at) BETWEEN ? AND ?
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
           SELECT 
               c.waste_category_name AS category,
               COALESCE(SUM(pi.quantity), 0) AS total
-          FROM tr_pickups p
+          FROM tr_pickup p
           JOIN tr_pickup_items pi ON p.id = pi.pickup_id
           JOIN ms_waste_item i ON pi.waste_item_id = i.id
           JOIN ms_waste_category c ON i.waste_category_id = c.id
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
           SELECT 
               DATE(p.created_at) AS date,
               COALESCE(SUM(pi.quantity), 0) AS total
-          FROM tr_pickups p
+          FROM tr_pickup p
           JOIN tr_pickup_items pi ON p.id = pi.pickup_id
           WHERE p.user_id = ?
           AND DATE(p.created_at) BETWEEN ? AND ?

@@ -1,29 +1,18 @@
 "use client";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { usePathname } from "next/navigation";
-import { Container, Row, Col } from "react-bootstrap";
 import styles from "./auth.module.css";
 import Header from "../components/Large/Navbar/Navbar";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isRegisterPage = pathname?.includes("/register");
-
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div
-      className={`${styles.layoutContainer} ${
-        isRegisterPage ? styles.registerBg : styles.loginBg
-      }`}
-    >
+    <div className={styles.layoutContainer}>
       <Header theme="light" />
-      <div className={styles.authWrapper}>
-        <Container fluid className={styles.containerCustom}>
-          <Row className={styles.row}>
-            <Col className={styles.authCard}>{children}</Col>
-          </Row>
-        </Container>
-      </div>
+      <main className={styles.authMain}>{children}</main>
     </div>
   );
 }

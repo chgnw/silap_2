@@ -2,109 +2,47 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start; 
-  gap: 10px; 
-  margin-bottom: 20px;
+  justify-content: flex-start;
+  gap: clamp(8px, 2vw, 10px);
+  margin-bottom: clamp(12px, 3vw, 20px);
 }
 
 .listIcon {
-  background-color: #2F5E44;
+  background-color: var(--color-primary-dark);
   border-radius: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 130px;   
-  height: 130px; 
+  width: clamp(45px, 12vw, 130px);
+  height: clamp(45px, 12vw, 130px);
   flex-shrink: 0;
+}
+
+.listIcon svg {
+  width: clamp(20px, 6vw, 80px);
+  height: clamp(20px, 6vw, 80px);
 }
 
 .listTextWrapper {
   flex-grow: 1;
+  min-width: 0;
 }
 
 .listTitle {
-  color: #FFFFFF;
-  font-size: 1.5rem;
+  color: var(--color-white);
+  font-size: clamp(0.9375rem, 2vw, 1.5rem);
   font-weight: bold;
-  margin-bottom: 5px; 
+  margin-bottom: 5px;
 }
 
-.col-md-6{
-    padding-left: 0px !important;
+.col-md-6 {
+  padding-left: 0px !important;
 }
 
 .listDescription {
-  color: #FFFFFF;
-  font-size: 1.5rem;
+  color: var(--color-white);
+  font-size: clamp(0.75rem, 2vw, 1.5rem);
   text-align: justify;
-  line-height: normal; 
-  margin-bottom: 0; 
-}
-
-@media (max-width: 1200px) {
-  .listIcon {
-    width: 100px;
-    height: 100px;
-  }
-
-  .listIcon svg {
-    width: 60px;
-    height: 60px;
-  }
-}
-
-@media (max-width: 992px) {
-  .listIcon {
-    width: 90px;
-    height: 90px;
-  }
-
-  .listIcon svg {
-    width: 50px;
-    height: 50px;
-  }
-
-  .listTitle {
-    font-size: 1.25rem;
-  }
-
-  .listDescription {
-    font-size: 1.25rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .listIcon {
-    width: 70px;
-    height: 70px;
-  }
-
-  .listIcon svg {
-    width: 30px;
-    height: 30px;
-  }
-
-  .listDescription {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 376px) {
-  .listIcon {
-    width: 50px;
-    height: 50px;
-  }
-
-  .listIcon svg {
-    width: 15px;
-    height: 15px;
-  }
-
-  .listTitle {
-    font-size: 1rem;
-  }
-
-  .listDescription {
-    font-size: 0.75rem;
-  }
+  line-height: 1.4;
+  margin-bottom: 0;
 }
