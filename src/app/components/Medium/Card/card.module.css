@@ -1,6 +1,6 @@
 .cardCustom {
   width: calc(100% / 4 - 0.75rem);
-  max-width: 300px;
+  max-width: 260px;
   aspect-ratio: 1 / 1;
   border-radius: clamp(12px, 3vw, 20px);
   overflow: hidden;
@@ -51,8 +51,8 @@
 }
 
 .cardCustom svg {
-  width: clamp(40px, 8vw, 100px);
-  height: clamp(40px, 8vw, 100px);
+  width: clamp(40px, 8vw, 80px);
+  height: clamp(40px, 8vw, 80px);
 }
 
 .cardCustom img {

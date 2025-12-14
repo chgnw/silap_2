@@ -7,8 +7,8 @@
   background-color: var(--color-white);
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  height: 100%;
-  min-height: clamp(160px, 20vw, 200px);
+  width: 300px;
+  aspect-ratio: 4/3;
 }
 
 .categoryItem:hover {
@@ -24,13 +24,13 @@
   width: clamp(50px, 8vw, 80px);
   height: clamp(50px, 8vw, 80px);
   border-radius: 50%;
-  background-color: #f5f5f5;
+  background-color: var(--background);
   margin: 0 auto clamp(0.75rem, 2vw, 1rem);
   transition: all 0.3s ease;
 }
 
 .categoryItem:hover .categoryIconWrapper {
-  background-color: #e8f5e9;
+  background-color: var(--primary-color-light);
 }
 
 .categoryIcon {
@@ -81,4 +81,16 @@
   color: var(--color-primary-dark);
   font-weight: 600;
   text-align: right;
+}
+
+@media (max-width: 768px) {
+  .categoryItem {
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 600px) {
+  .categoryItem {
+    min-width: 100%;
+  }
 }

@@ -27,9 +27,11 @@
 
 .categoryGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: clamp(1rem, 3vw, 2rem);
   width: 100%;
+  justify-content: center;
+  justify-items: center;
 }
 
 .loadingState,

@@ -37,7 +37,7 @@
    LEFT SIDE (LOGIN)
    ======================== */
 .left {
-  flex: 1;
+  flex: 0 1;
   color: var(--color-white);
   display: flex;
   align-items: center;

@@ -45,7 +45,7 @@ export default function RegencySelector({
 
   // Constants
   const MAX_RETRIES = 5;
-  const REQUEST_TIMEOUT = 10000; // 10 seconds
+  const REQUEST_TIMEOUT = 8000; // 8 seconds
 
   // Load provinces on mount
   useEffect(() => {
@@ -186,13 +186,10 @@ export default function RegencySelector({
 
       const { latitude, longitude } = position.coords;
 
-      // Use OpenStreetMap Nominatim for reverse geocoding (free, no API key needed)
+      // Use local proxy to avoid CORS issues with Nominatim
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
+        `/api/geocode/reverse?lat=${latitude}&lon=${longitude}`,
         {
-          headers: {
-            "Accept-Language": "id",
-          },
           signal: abortController.signal,
         }
       );

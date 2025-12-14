@@ -20,7 +20,7 @@ interface RewardItem {
   reward_name: string;
   vendor_name: string;
   image_path: string;
-  points_required: number;
+  point_required: number;
   total_redeemed: number;
   stock: number;
 }
@@ -292,7 +292,7 @@ export default function PointPage() {
               name="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari barang yang anda diinginkan"
+              placeholder="Cari barang yang anda inginkan..."
             />
             <button type="submit" style={{ display: "none" }}>
               Search
@@ -345,7 +345,7 @@ export default function PointPage() {
                     </div>
 
                     <div className={styles.contentPoint}>
-                      <h1>{item.points_required} Points</h1>
+                      <h1>{item.point_required} Points</h1>
                     </div>
 
                     <div className={styles.contentFooter}>
