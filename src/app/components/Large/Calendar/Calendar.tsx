@@ -45,7 +45,6 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
       }
 
       const data = await response.json();
-      console.log("data event: ", data);
 
       const formattedEvents = data.data.map((item: any) => {
         const dateOnly = item.event_date.split('T')[0];
