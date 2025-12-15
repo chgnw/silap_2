@@ -412,8 +412,7 @@ export default function DriversVehiclesPage() {
       if (result.message === "SUCCESS") {
         showToast(
           "success",
-          `Vehicle category ${
-            vehicleCategoryMode === "add" ? "added" : "updated"
+          `Vehicle category ${vehicleCategoryMode === "add" ? "added" : "updated"
           } successfully!`
         );
         setIsVehicleCategoryModalOpen(false);
@@ -507,7 +506,7 @@ export default function DriversVehiclesPage() {
     model: "",
     license_plate: "",
     vin: "",
-    status: "active",
+    status: "available",
   });
 
   const fetchVehicles = async () => {
@@ -540,7 +539,7 @@ export default function DriversVehiclesPage() {
         model: vehicle.model || "",
         license_plate: vehicle.license_plate || "",
         vin: vehicle.vin || "",
-        status: vehicle.status || "active",
+        status: vehicle.status || "available",
       });
     } else {
       setVehicleForm({
@@ -549,7 +548,7 @@ export default function DriversVehiclesPage() {
         model: "",
         license_plate: "",
         vin: "",
-        status: "active",
+        status: "available",
       });
     }
 
@@ -574,10 +573,10 @@ export default function DriversVehiclesPage() {
         model: vehicleForm.model || null,
         license_plate: vehicleForm.license_plate || null,
         vin: vehicleForm.vin || null,
-        status: vehicleForm.status || "active",
+        status: vehicleForm.status || "available",
         ...(vehicleMode === "edit" && { id: selectedVehicle?.id }),
       };
-      console.log(payload);
+
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -714,8 +713,8 @@ export default function DriversVehiclesPage() {
         deleteTarget.type === "driver"
           ? "/api/admin/driver/delete"
           : deleteTarget.type === "vehicleCategory"
-          ? "/api/admin/vehicle-category/delete"
-          : "/api/admin/vehicle/delete";
+            ? "/api/admin/vehicle-category/delete"
+            : "/api/admin/vehicle/delete";
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -765,25 +764,22 @@ export default function DriversVehiclesPage() {
 
       <div className={styles.tabsContainer}>
         <button
-          className={`${styles.tabButton} ${
-            activeTab === "drivers" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tabButton} ${activeTab === "drivers" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("drivers")}
         >
           Drivers
         </button>
         <button
-          className={`${styles.tabButton} ${
-            activeTab === "vehicleCategories" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tabButton} ${activeTab === "vehicleCategories" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("vehicleCategories")}
         >
           Vehicle Categories
         </button>
         <button
-          className={`${styles.tabButton} ${
-            activeTab === "vehicles" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tabButton} ${activeTab === "vehicles" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("vehicles")}
         >
           Vehicles
@@ -825,9 +821,8 @@ export default function DriversVehiclesPage() {
                 <label className={styles.formLabel}>Name</label>
                 <input
                   className={styles.formInput}
-                  value={`${selectedDriver.user.first_name} ${
-                    selectedDriver.user.last_name || ""
-                  }`.trim()}
+                  value={`${selectedDriver.user.first_name} ${selectedDriver.user.last_name || ""
+                    }`.trim()}
                   disabled
                 />
               </div>
@@ -967,11 +962,10 @@ export default function DriversVehiclesPage() {
                     <>
                       <div className={styles.toggleContainer}>
                         <label
-                          className={`${styles.toggleSwitch} ${
-                            !canVerify && !driverForm.is_verified
-                              ? styles.toggleDisabled
-                              : ""
-                          }`}
+                          className={`${styles.toggleSwitch} ${!canVerify && !driverForm.is_verified
+                            ? styles.toggleDisabled
+                            : ""
+                            }`}
                         >
                           <input
                             type="checkbox"
@@ -1038,13 +1032,12 @@ export default function DriversVehiclesPage() {
       <Modal
         isOpen={isVehicleCategoryModalOpen}
         onClose={() => setIsVehicleCategoryModalOpen(false)}
-        title={`${
-          vehicleCategoryMode === "add"
-            ? "Add"
-            : vehicleCategoryMode === "edit"
+        title={`${vehicleCategoryMode === "add"
+          ? "Add"
+          : vehicleCategoryMode === "edit"
             ? "Edit"
             : "Detail"
-        } Vehicle Category`}
+          } Vehicle Category`}
       >
         <form
           className={styles.singleLayout}
@@ -1158,13 +1151,12 @@ export default function DriversVehiclesPage() {
       <Modal
         isOpen={isVehicleModalOpen}
         onClose={() => setIsVehicleModalOpen(false)}
-        title={`${
-          vehicleMode === "add"
-            ? "Add"
-            : vehicleMode === "edit"
+        title={`${vehicleMode === "add"
+          ? "Add"
+          : vehicleMode === "edit"
             ? "Edit"
             : "Detail"
-        } Vehicle`}
+          } Vehicle`}
       >
         <form className={styles.singleLayout} onSubmit={handleSaveVehicle}>
           <div className={styles.formGroup}>
@@ -1207,7 +1199,7 @@ export default function DriversVehiclesPage() {
                   setVehicleForm({ ...vehicleForm, brand: e.target.value })
                 }
                 disabled={vehicleMode === "view"}
-                placeholder="e.g., Toyota, Honda"
+                placeholder="e.g., Toyota, Hino"
               />
             </div>
 
@@ -1220,7 +1212,7 @@ export default function DriversVehiclesPage() {
                   setVehicleForm({ ...vehicleForm, model: e.target.value })
                 }
                 disabled={vehicleMode === "view"}
-                placeholder="e.g., Avanza, Beat"
+                placeholder="e.g., Hilux, Dutro"
               />
             </div>
           </div>
@@ -1233,11 +1225,11 @@ export default function DriversVehiclesPage() {
               onChange={(e) =>
                 setVehicleForm({
                   ...vehicleForm,
-                  license_plate: e.target.value,
+                  license_plate: e.target.value.replace(/\s/g, "").toUpperCase(),
                 })
               }
               disabled={vehicleMode === "view"}
-              placeholder="e.g., B 1234 XYZ"
+              placeholder="e.g., B1234XYZ"
             />
           </div>
 
@@ -1249,7 +1241,10 @@ export default function DriversVehiclesPage() {
               className={styles.formInput}
               value={vehicleForm.vin}
               onChange={(e) =>
-                setVehicleForm({ ...vehicleForm, vin: e.target.value })
+                setVehicleForm({
+                  ...vehicleForm,
+                  vin: e.target.value.replace(/\s/g, "").toUpperCase(),
+                })
               }
               disabled={vehicleMode === "view"}
               placeholder="e.g., 1HGBH41JXMN109186"
@@ -1267,9 +1262,10 @@ export default function DriversVehiclesPage() {
               }
               disabled={vehicleMode === "view"}
             >
-              <option value="active">Active</option>
+              <option value="available">Available</option>
+              <option value="in-use">In Use</option>
               <option value="maintenance">Maintenance</option>
-              <option value="inactive">Inactive</option>
+              <option value="unavailable">Unavailable</option>
             </select>
           </div>
 

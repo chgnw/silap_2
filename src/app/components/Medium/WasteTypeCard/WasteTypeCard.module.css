@@ -1,13 +1,14 @@
 .categoryItem {
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   padding: clamp(1rem, 2.5vw, 1.5rem);
   border: 2px solid #e0e0e0;
   border-radius: clamp(0.75rem, 2vw, 1rem);
   background-color: var(--color-white);
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: 300px;
+  width: 100%;
   aspect-ratio: 4/3;
 }
 
@@ -30,20 +31,26 @@
 }
 
 .categoryItem:hover .categoryIconWrapper {
-  background-color: var(--primary-color-light);
+  background-color: var(--color-primary-dark);
 }
 
 .categoryIcon {
+  color: var(--color-primary-dark);
   width: clamp(30px, 5vw, 50px);
   height: clamp(30px, 5vw, 50px);
   object-fit: contain;
 }
 
+.categoryItem:hover .categoryIcon {
+  color: var(--color-primary);
+}
+
 .categoryContent {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: clamp(0.5rem, 1.5vw, 0.75rem);
-  flex: 1;
+  flex: 0 1;
 }
 
 .categoryName {

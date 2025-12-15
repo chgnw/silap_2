@@ -12,6 +12,7 @@ import {
   FaTimes,
   FaUser,
   FaSignOutAlt,
+  FaBars,
 } from "react-icons/fa";
 import { useState, useTransition } from "react";
 import styles from "./sidebar.module.css";
@@ -46,7 +47,7 @@ export default function DashboardSidebar({
   };
 
   return (
-    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ""}`}>
+    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
       <div className={styles.sidebarHeader}>
         <a href="/" className={styles.sidebarLogo}>
           <Image
@@ -56,7 +57,10 @@ export default function DashboardSidebar({
             height={60}
           />
         </a>
-        <button className={styles.closeButton} onClick={toggleSidebar}>
+        <button className={styles.closeButton} onClick={toggleSidebar} style={{ display: 'block' }}>
+          <FaBars />
+        </button>
+        <button className={`${styles.closeButton} ${styles.mobileClose}`} onClick={toggleSidebar}>
           <FaTimes />
         </button>
       </div>
@@ -64,9 +68,8 @@ export default function DashboardSidebar({
       <nav className={styles.sidebarNav}>
         <Link
           href="/dashboard"
-          className={`${styles.navLink} ${
-            pathname === "/dashboard" ? styles.isSelected : ""
-          } ${loadingPath === "/dashboard" && isPending ? styles.loading : ""}`}
+          className={`${styles.navLink} ${pathname === "/dashboard" ? styles.isSelected : ""
+            } ${loadingPath === "/dashboard" && isPending ? styles.loading : ""}`}
           onClick={handleLinkClick("/dashboard")}
         >
           <div className={styles.iconContainer}>
@@ -80,13 +83,11 @@ export default function DashboardSidebar({
 
         <Link
           href="/dashboard/pickup"
-          className={`${styles.navLink} ${
-            pathname === "/dashboard/pickup" ? styles.isSelected : ""
-          } ${
-            loadingPath === "/dashboard/pickup" && isPending
+          className={`${styles.navLink} ${pathname === "/dashboard/pickup" ? styles.isSelected : ""
+            } ${loadingPath === "/dashboard/pickup" && isPending
               ? styles.loading
               : ""
-          }`}
+            }`}
           onClick={handleLinkClick("/dashboard/pickup")}
         >
           <div className={styles.iconContainer}>
@@ -100,13 +101,11 @@ export default function DashboardSidebar({
 
         <Link
           href="/dashboard/point"
-          className={`${styles.navLink} ${
-            pathname === "/dashboard/point" ? styles.isSelected : ""
-          } ${
-            loadingPath === "/dashboard/point" && isPending
+          className={`${styles.navLink} ${pathname === "/dashboard/point" ? styles.isSelected : ""
+            } ${loadingPath === "/dashboard/point" && isPending
               ? styles.loading
               : ""
-          }`}
+            }`}
           onClick={handleLinkClick("/dashboard/point")}
         >
           <div className={styles.iconContainer}>
@@ -120,13 +119,11 @@ export default function DashboardSidebar({
 
         <Link
           href="/dashboard/order"
-          className={`${styles.navLink} ${
-            pathname === "/dashboard/order" ? styles.isSelected : ""
-          } ${
-            loadingPath === "/dashboard/order" && isPending
+          className={`${styles.navLink} ${pathname === "/dashboard/order" ? styles.isSelected : ""
+            } ${loadingPath === "/dashboard/order" && isPending
               ? styles.loading
               : ""
-          }`}
+            }`}
           onClick={handleLinkClick("/dashboard/order")}
         >
           <div className={styles.iconContainer}>
@@ -140,13 +137,11 @@ export default function DashboardSidebar({
 
         <Link
           href="/dashboard/profile"
-          className={`${styles.navLink} ${
-            pathname === "/dashboard/profile" ? styles.isSelected : ""
-          } ${
-            loadingPath === "/dashboard/profile" && isPending
+          className={`${styles.navLink} ${pathname === "/dashboard/profile" ? styles.isSelected : ""
+            } ${loadingPath === "/dashboard/profile" && isPending
               ? styles.loading
               : ""
-          }`}
+            }`}
           onClick={handleLinkClick("/dashboard/profile")}
         >
           <div className={styles.iconContainer}>
