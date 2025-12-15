@@ -1,5 +1,31 @@
-.navbar {
-  background-color: #a4b465 !important;
+/* Wrapper for sticky behavior */
+.navbarWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), background-color 0.3s ease, backdrop-filter 0.3s ease;
+  background-color: transparent; /* Default transparent */
+}
+
+/* Scrolled State - Glassmorphism with Brand Color */
+.scrolled {
+  background-color: rgba(47, 94, 68, 0.95); /* Brand Green #2f5e44 with opacity */
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Hidden State - Slide up */
+.hidden {
+  transform: translateY(-100%);
+}
+
+/* Override BS styles for transparency */
+.bsNavbar {
+  background: transparent !important;
+  padding: 0 !important;
 }
 
 .container {
@@ -7,36 +33,58 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 4rem;
+  padding: 1.25rem 4rem; /* Adjusted padding */
+  transition: padding 0.3s ease;
 }
 
-/* Logo styling removed - now handled via component props */
+.scrolled .container {
+  padding: 1rem 4rem; /* Smaller padding when scrolled */
+}
 
 .menu {
   display: flex;
-  align-items: baseline;
-  gap: 4rem;
-  font-size: 1rem;
+  align-items: center;
+  gap: 3rem;
+  font-size: 0.95rem;
   font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .navLinkDark .nav-link {
-  color: #000000 !important;
+  color: #1f2937 !important;
+  transition: color 0.2s;
+}
+.navLinkDark .nav-link:hover {
+  color: #a4b465 !important;
 }
 
 .navLinkLight .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+  transition: color 0.2s;
+}
+.navLinkLight .nav-link:hover {
   color: #ffffff !important;
 }
 
 .navLinkLight .dropdown-toggle::after,
 .navLinkLight .dropdown-toggle {
-  color: #ffffff !important;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .login {
   display: flex;
   align-items: center;
   gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.login:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 1200px) {
@@ -46,8 +94,19 @@
 }
 
 @media (max-width: 991px) {
+  .navbarWrapper {
+    background-color: #0c3420 !important; /* Force solid color on mobile */
+  }
+
   .container {
     flex-wrap: wrap;
+  }
+
+  .bsNavbar :global(.navbar-collapse) {
+    background: #0c3420;
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
   }
 
   .menu {
@@ -55,7 +114,11 @@
     align-items: flex-start;
     gap: 1rem;
     width: 100%;
-    margin-top: 1rem;
+  }
+
+  .login {
+    width: 100%;
+    justify-content: center;
   }
 }
 

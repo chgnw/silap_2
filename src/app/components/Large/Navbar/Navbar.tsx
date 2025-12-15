@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import Image from "next/image";
 import { FaUser } from "react-icons/fa";
@@ -16,12 +16,26 @@ type HeaderProps = {
 export default function Header({ theme = "dark" }: HeaderProps) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  // Determine Page Type for Menu Content
+  const isAuthPage = pathname === "/login" || pathname === "/register";
   const isLoginPage = pathname === "/login";
 
+  // Scroll Logic
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Theme Overrides: specific pages should always use light theme (white text)
+  const isLightPage = ["/services", "/pricing", "/about"].includes(pathname);
+  const baseTheme = isLightPage ? "light" : theme;
+
+  // Force "light" theme (white text/logo) when scrolled because background becomes dark green
+  const effectiveTheme = isScrolled ? "light" : baseTheme;
+
   const navLinkClass =
-    theme === "light" ? styles.navLinkLight : styles.navLinkDark;
-  const bootstrapVariant = theme === "light" ? "dark" : "light";
-  const logoColor = theme === "light" ? "#FFFFFF" : "#a4b465";
+    effectiveTheme === "light" ? styles.navLinkLight : styles.navLinkDark;
+  const bootstrapVariant = effectiveTheme === "light" ? "dark" : "light";
+  const logoColor = effectiveTheme === "light" ? "#FFFFFF" : "#a4b465";
 
   const handleLogout = async () => {
     try {
@@ -31,17 +45,50 @@ export default function Header({ theme = "dark" }: HeaderProps) {
     }
   };
 
+  useEffect(() => {
+    const controlNavbar = () => {
+      const currentScrollY = window.scrollY;
+
+      // Determine if scrolled (for glass effect)
+      if (currentScrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+
+      // Determine visibility
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down & past 100px -> Hide
+        setIsVisible(false);
+      } else {
+        // Scrolling up -> Show
+        setIsVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", controlNavbar);
+    return () => window.removeEventListener("scroll", controlNavbar);
+  }, [lastScrollY]);
+
+  const navbarClasses = `
+    ${styles.navbarWrapper} 
+    ${isScrolled ? styles.scrolled : ''} 
+    ${!isVisible ? styles.hidden : ''}
+  `;
+
   return (
-    <>
-      <Navbar expand="lg" variant={bootstrapVariant}>
+    <div className={navbarClasses}>
+      <Navbar expand="lg" variant={bootstrapVariant} className={styles.bsNavbar}>
         <div className={styles.container}>
           <Navbar.Brand href="/">
-            <SilapLogo color={logoColor} width={50} height={50} />
+            <SilapLogo color={logoColor} width={45} height={45} />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className={`ms-auto ${styles.menu} ${navLinkClass}`}>
-              {theme === "dark" ? (
+              {!isAuthPage ? (
                 <>
                   <Nav.Link href="/" className="fw-bold">
                     HOME
@@ -99,7 +146,7 @@ export default function Header({ theme = "dark" }: HeaderProps) {
           </Navbar.Collapse>
         </div>
       </Navbar>
-    </>
+    </div>
   );
 }
 /* Navbar */
