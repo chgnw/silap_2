@@ -34,6 +34,16 @@
   cursor: pointer;
 }
 
+.hamburgerShow {
+  display: block;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 /* Breadcrumbs */
 .breadcrumbs {
   display: flex;
@@ -167,6 +177,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -849,7 +860,7 @@
 
 @media (max-width: 568px) {
   /* Mobile order: Filter > Profile > Stats > Target > Pie > Line */
-  
+
   .topRow {
     grid-template-columns: 1fr;
   }
