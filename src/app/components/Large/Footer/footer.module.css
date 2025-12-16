@@ -1,0 +1,154 @@
+.footer {
+  background: #1a2e22; /* Dark Green Brand Color */
+  color: #fff;
+  padding: 5rem 0 2rem;
+  margin-top: auto; /* Push to bottom if content is short */
+}
+
+.container {
+  width: min(1200px, 92vw);
+  margin: 0 auto;
+}
+
+.topSection {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 3rem;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brandColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  max-width: 350px;
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.brandName {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brandDesc {
+  color: #a3b8ad;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.socials {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.socials a {
+  color: #fff;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.socials a:hover {
+  background: #a4b465;
+  transform: translateY(-2px);
+}
+
+.linksColumn h4,
+.contactColumn h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+.linksColumn ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.linksColumn a {
+  color: #a3b8ad;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.linksColumn a:hover {
+  color: #a4b465;
+}
+
+.contactColumn p {
+  color: #a3b8ad;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.contactColumn .email {
+  color: #fff;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.bottomSection {
+  padding-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  color: #6b8c7a;
+  font-size: 0.9rem;
+}
+
+.legalLinks {
+  display: flex;
+  gap: 2rem;
+}
+
+.legalLinks a {
+  color: #6b8c7a;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.legalLinks a:hover {
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .topSection {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .topSection {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  
+  .bottomSection {
+    flex-direction: column;
+    text-align: center;
+  }
+}

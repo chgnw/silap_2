@@ -1,0 +1,160 @@
+.page {
+  background: #f8fafc;
+  color: #1f2937;
+  padding-bottom: 5rem;
+}
+
+.hero {
+  position: relative;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  background: #2f5e44;
+  overflow: hidden;
+  padding: 4rem 1rem;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.section {
+  padding: 5rem 1rem;
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+}
+
+.visionMission {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: -4rem;
+  position: relative;
+  z-index: 2;
+}
+
+.vmCard {
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.vmIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  background: #eef3eb;
+  width: 70px;
+  height: 70px;
+  line-height: 70px;
+  border-radius: 50%;
+  color: #2f5e44;
+}
+
+.vmCard h2 {
+  font-size: 1.8rem;
+  color: #2f5e44;
+  margin-bottom: 1rem;
+  font-weight: 800;
+}
+
+.vmCard p {
+  color: #6b7280;
+  line-height: 1.7;
+}
+
+/* Team Section */
+.teamSection {
+  text-align: center;
+  padding-top: 6rem;
+}
+
+.teamHeader {
+  margin-bottom: 3.5rem;
+}
+
+.teamHeader h2 {
+  font-size: 2.5rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.teamHeader p {
+  color: #6b7280;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+  justify-content: center;
+}
+
+.teamCard {
+  background: #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+  transition: transform 0.3s ease;
+  border: 1px solid #f1f5f9;
+}
+
+.teamCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.teamImage {
+  width: 100%;
+  height: 320px;
+  background: #e2e8f0;
+  object-fit: cover;
+}
+
+.teamInfo {
+  padding: 1.5rem;
+}
+
+.teamName {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 0.3rem;
+}
+
+.teamRole {
+  color: #a4b465;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.teamMajor {
+  color: #6b7280;
+  font-size: 0.9rem;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.8rem;
+}

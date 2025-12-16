@@ -59,10 +59,10 @@ export async function POST(req: NextRequest) {
                     CONCAT('Bayar ', py.payment_type) AS title,
                     py.payment_time AS date,
                     CASE 
-                      WHEN py.transaction_status_id = 1 THEN 'Pending'
-                      WHEN py.transaction_status_id = 2 THEN 'Berhasil'
-                      WHEN py.transaction_status_id = 3 THEN 'Dibatalkan'
-                      ELSE 'Proses'
+                        WHEN py.transaction_status_id = 1 THEN 'Pending'
+                        WHEN py.transaction_status_id = 2 THEN 'Berhasil'
+                        WHEN py.transaction_status_id = 3 THEN 'Dibatalkan'
+                        ELSE 'Proses'
                     END AS status,
                     JSON_OBJECT(
                         'method', py.payment_method,
