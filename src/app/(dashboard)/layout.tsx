@@ -20,7 +20,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const pathname = usePathname();
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -44,32 +44,38 @@ export default function DashboardLayout({
       {/* Content Area */}
       <div className={styles.contentWrapper}>
         <header className={styles.mainHeader}>
-          <button className={styles.hamburgerButton} onClick={toggleSidebar}>
-            <FaBars />
-          </button>
+          <div className={styles.headerLeft}>
+            <button
+              className={`${styles.hamburgerButton} ${!isSidebarOpen ? styles.hamburgerShow : ""
+                }`}
+              onClick={toggleSidebar}
+            >
+              <FaBars />
+            </button>
 
-          <nav className={styles.breadcrumbs} aria-label="breadcrumb">
-            {breadcrumbParts.map((part, index) => {
-              const href = "/" + breadcrumbParts.slice(0, index + 1).join("/");
-              const isLast = index === breadcrumbParts.length - 1;
-              return (
-                <React.Fragment key={href}>
-                  {isLast ? (
-                    <span className={styles.breadcrumbActive}>
-                      {capitalize(part)}
-                    </span>
-                  ) : (
-                    <Link href={href} className={styles.breadcrumbLink}>
-                      {capitalize(part)}
-                    </Link>
-                  )}
-                  {!isLast && (
-                    <span className={styles.breadcrumbSeparator}>&gt;</span>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </nav>
+            <nav className={styles.breadcrumbs} aria-label="breadcrumb">
+              {breadcrumbParts.map((part, index) => {
+                const href = "/" + breadcrumbParts.slice(0, index + 1).join("/");
+                const isLast = index === breadcrumbParts.length - 1;
+                return (
+                  <React.Fragment key={href}>
+                    {isLast ? (
+                      <span className={styles.breadcrumbActive}>
+                        {capitalize(part)}
+                      </span>
+                    ) : (
+                      <Link href={href} className={styles.breadcrumbLink}>
+                        {capitalize(part)}
+                      </Link>
+                    )}
+                    {!isLast && (
+                      <span className={styles.breadcrumbSeparator}>&gt;</span>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </nav>
+          </div>
 
           <div className={styles.headerRight}>
             <button className={styles.notificationButton}>

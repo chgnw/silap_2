@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     await query("START TRANSACTION");
     try {
       // Ambil data user dan lock
-      const userSql = `SELECT id, points FROM ms_users WHERE id = ? FOR UPDATE`;
+      const userSql = `SELECT id, points FROM ms_user WHERE id = ? FOR UPDATE`;
       const userResult: any = await query(userSql, [user_id]);
 
       if (userResult.length === 0) {
@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
 
       // Ambil data reward dan lock
       const rewardSql = `
-                SELECT id, reward_name, points_required, stock 
-                FROM ms_rewards 
+                SELECT id, reward_name, point_required, stock 
+                FROM ms_reward 
                 WHERE id IN (?) 
                 FOR UPDATE
             `;
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
           throw new Error(`Stok '${dbReward.reward_name}' habis/tidak cukup.`);
         }
 
-        const subtotal = dbReward.points_required * item.quantity;
+        const subtotal = dbReward.point_required * item.quantity;
         grandTotalPoints += subtotal;
 
         // Data to insert
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
           transaction_code,
           user_id,
           item.reward_id,
-          dbReward.points_required,
+          dbReward.point_required,
           item.quantity,
           subtotal,
         ]);
@@ -79,9 +79,9 @@ export async function POST(req: NextRequest) {
       }
 
       // Kalau cukup
-      // Insert ke tr_redemptions
+      // Insert ke tr_redemption
       const insertRedeemSql = `
-                INSERT INTO tr_redemptions (
+                INSERT INTO tr_redemption (
                     transaction_code, user_id, reward_id, 
                     points_per_item, quantity, total_points_spent
                 ) VALUES ?
@@ -89,13 +89,13 @@ export async function POST(req: NextRequest) {
       await query(insertRedeemSql, [insertValues]);
 
       // Potong Poin User
-      const updateUserSql = `UPDATE ms_users SET points = points - ? WHERE id = ?`;
+      const updateUserSql = `UPDATE ms_user SET points = points - ? WHERE id = ?`;
       await query(updateUserSql, [grandTotalPoints, user_id]);
 
       // Potong Stok Reward
       for (const item of items) {
         await query(
-          `UPDATE ms_rewards SET stock = stock - ?, total_redeemed = total_redeemed + ? WHERE id = ?`,
+          `UPDATE ms_reward SET stock = stock - ?, total_redeemed = total_redeemed + ? WHERE id = ?`,
           [item.quantity, item.quantity, item.reward_id]
         );
       }

@@ -9,9 +9,8 @@ export async function GET() {
         waste_category_name AS name,
         icon_name AS icon,
         unit,
-        points_per_unit
+        point_per_unit
       FROM ms_waste_category
-      WHERE is_deleted = FALSE
       ORDER BY id
     `;
     const rows = await query(sql);

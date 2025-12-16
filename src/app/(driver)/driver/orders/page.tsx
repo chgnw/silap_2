@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./orders.module.css";
 import { showToast } from "@/lib/toastHelper";
-import { FaShoppingBag, FaSync } from "react-icons/fa";
+import { FaShoppingBag, FaSync, FaCog } from "react-icons/fa";
 import { IoIosDocument } from "react-icons/io";
 import { FaCircleCheck } from "react-icons/fa6";
 
@@ -36,6 +36,11 @@ interface TodayStats {
   completed: number;
 }
 
+interface SetupRequired {
+  vehicle: boolean;
+  operational_area: boolean;
+}
+
 export default function DriverOrdersPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -46,25 +51,43 @@ export default function DriverOrdersPage() {
   });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [setupRequired, setSetupRequired] = useState<SetupRequired | null>(
+    null
+  );
+  const [isDriverActive, setIsDriverActive] = useState(false);
+
+  // Fetch driver active status
+  const fetchDriverStatus = async () => {
+    try {
+      const res = await fetch("/api/driver/info");
+      const data = await res.json();
+      if (data.message === "SUCCESS") {
+        setIsDriverActive(data.data.is_active === 1);
+      }
+    } catch (error) {
+      console.error("Error fetching driver status:", error);
+    }
+  };
 
   useEffect(() => {
     if (status === "authenticated") {
+      fetchDriverStatus();
       fetchPickupEvents();
     } else if (status === "unauthenticated") {
       router.push("/login");
     }
   }, [status, router]);
 
-  // Auto-refresh every 15 seconds
+  // Auto-refresh every 15 seconds - only if driver is active
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== "authenticated" || !isDriverActive) return;
 
     const interval = setInterval(() => {
       fetchPickupEvents(true); // Silent refresh
     }, 15000); // 15 seconds
 
     return () => clearInterval(interval);
-  }, [status]);
+  }, [status, isDriverActive]);
 
   const fetchPickupEvents = async (silent = false) => {
     try {
@@ -80,6 +103,7 @@ export default function DriverOrdersPage() {
       if (data.message === "SUCCESS") {
         setPickupEvents(data.data.pickup_events || []);
         setTodayStats(data.data.today_stats);
+        setSetupRequired(data.data.setup_required || null);
       } else {
         if (!silent) {
           showToast("error", "Gagal memuat data pickup");
@@ -100,6 +124,7 @@ export default function DriverOrdersPage() {
   };
 
   const handleRefresh = () => {
+    fetchDriverStatus(); // Update driver active status
     fetchPickupEvents(false);
     showToast("success", "Data berhasil diperbarui");
   };
@@ -122,6 +147,14 @@ export default function DriverOrdersPage() {
       {/* Header */}
       <div className={styles.header}>
         <h1 className={styles.title}>Order Pick Up</h1>
+        <div className={styles.headerButtons}>
+          <button
+            className={styles.settingsButton}
+            onClick={() => router.push("/driver/settings")}
+            title="Pengaturan"
+          >
+            <FaCog />
+          </button>
         <button
           className={styles.refreshButton}
           onClick={handleRefresh}
@@ -129,6 +162,7 @@ export default function DriverOrdersPage() {
         >
           <FaSync className={refreshing ? styles.spinning : ""} />
         </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -172,7 +206,49 @@ export default function DriverOrdersPage() {
 
       {/* Pickup Events List */}
       <div className={styles.eventsContainer}>
-        {pickupEvents.length === 0 ? (
+        {setupRequired ? (
+          <div className={styles.emptyState}>
+            <Image
+              src="/images/karung.png"
+              alt="Setup required"
+              width={120}
+              height={120}
+            />
+            <p style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
+              Pengaturan Diperlukan
+            </p>
+            <p
+              style={{
+                fontSize: "0.875rem",
+                color: "#666",
+                textAlign: "center",
+              }}
+            >
+              {setupRequired.vehicle && setupRequired.operational_area
+                ? "Kendaraan dan area operasional belum diatur. Silakan atur kendaraan dan area operasional Anda."
+                : setupRequired.vehicle
+                ? "Kendaraan belum diassign. Silahkan pilih kendaraan Anda pada menu awal."
+                : "Area operasional belum diatur. Silakan atur area operasional Anda."}
+            </p>
+            {setupRequired.operational_area && (
+              <button
+                onClick={() => router.push("/driver/settings")}
+                style={{
+                  marginTop: "1rem",
+                  padding: "0.75rem 1.5rem",
+                  backgroundColor: "#2f5e44",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "0.5rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Atur Area Operasional
+              </button>
+            )}
+          </div>
+        ) : pickupEvents.length === 0 ? (
           <div className={styles.emptyState}>
             <Image
               src="/images/karung.png"

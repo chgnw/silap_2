@@ -19,12 +19,20 @@ export async function GET() {
         u.email,
         u.phone_number as phone,
         u.profile_picture,
+        u.province,
+        u.regency,
+        u.subdistrict,
+        u.village,
+        u.address,
+        u.postal_code,
         r.role_name as role_name,
         d.is_verified,
         d.is_available as is_active,
         d.total_deliveries,
+        d.id_card_number,
+        d.license_number,
         d.assigned_vehicle_id,
-        d.active_since,
+        d.operational_area,
         v.brand as vehicle_brand,
         v.model as vehicle_model,
         v.license_plate as vehicle_license_plate,
@@ -32,7 +40,7 @@ export async function GET() {
         vc.category_name as vehicle_category,
         vc.max_weight as vehicle_max_weight,
         vc.id as vehicle_category_id
-      FROM ms_users u
+      FROM ms_user u
       LEFT JOIN ms_role r ON u.role_id = r.id
       LEFT JOIN ms_driver d ON u.id = d.user_id
       LEFT JOIN ms_vehicle v ON d.assigned_vehicle_id = v.id

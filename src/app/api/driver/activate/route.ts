@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { vehicle_id, activate } = body;
 
-    const userSql = "SELECT id FROM ms_users WHERE email = ?";
+    const userSql = "SELECT id FROM ms_user WHERE email = ?";
     const users = (await query(userSql, [session.user.email])) as any[];
 
     if (users.length === 0) {

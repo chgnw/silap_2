@@ -5,9 +5,10 @@ import { query } from "@/lib/db";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user?.email) {
@@ -33,7 +34,7 @@ export async function GET(
       WHERE v.id = ?
     `;
 
-    const vehicles = (await query(sql, [params.id])) as any[];
+    const vehicles = (await query(sql, [id])) as any[];
 
     if (vehicles.length === 0) {
       return NextResponse.json({ error: "Vehicle not found" }, { status: 404 });

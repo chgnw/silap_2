@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         }
 
         // Cari user berdasarkan email
-        const users = await query("SELECT id FROM ms_users WHERE email = ?", [email]);
+        const users = await query("SELECT id FROM ms_user WHERE email = ?", [email]);
         if (!users || users.length === 0) {
             return NextResponse.json({ 
                 message: "Akun tidak ditemukan." 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
         // Hash password baru
         const hashed = await bcrypt.hash(password, 10);
-        await query("UPDATE ms_users SET password = ? WHERE id = ?", [hashed, userId]);
+        await query("UPDATE ms_user SET password = ? WHERE id = ?", [hashed, userId]);
 
         return NextResponse.json({ 
             message: "Kata sandi berhasil diperbarui." 

@@ -1,4 +1,3 @@
-import { Col } from 'react-bootstrap';
 import styles from './card.module.css';
 
 type CardProps = {

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userSql = "SELECT id FROM ms_users WHERE email = ?";
+    const userSql = "SELECT id FROM ms_user WHERE email = ?";
     const users = (await query(userSql, [session.user.email])) as any[];
 
     if (users.length === 0) {
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     await writeFile(filepath, buffer);
 
     const profilePictureUrl = `/upload/profilePicture/${filename}`;
-    const updateSql = "UPDATE ms_users SET profile_picture = ? WHERE id = ?";
+    const updateSql = "UPDATE ms_user SET profile_picture = ? WHERE id = ?";
     await query(updateSql, [profilePictureUrl, userId]);
 
     return NextResponse.json(

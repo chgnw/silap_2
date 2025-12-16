@@ -45,6 +45,27 @@
   margin: 0;
 }
 
+.headerButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settingsButton {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--color-primary-dark);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(157, 179, 128, 0.3);
+}
+
 .refreshButton {
   width: 40px;
   height: 40px;

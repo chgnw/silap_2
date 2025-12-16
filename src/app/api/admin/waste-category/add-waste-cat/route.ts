@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const wasteCategoryName = formData.get("waste_category_name");
     const unit = formData.get("unit");
-    const pointsPerUnit = formData.get("points_per_unit");
+    const pointsPerUnit = formData.get("point_per_unit");
     const imageFile = formData.get("image") as File | null;
 
     if (!wasteCategoryName || !unit || !pointsPerUnit) {
@@ -60,9 +60,9 @@ export async function POST(req: NextRequest) {
     }
 
     const sql = `
-            INSERT INTO ms_waste_category (waste_category_name, icon_name, unit, points_per_unit)
-            VALUES (?, ?, ?, ?);
-        `;
+        INSERT INTO ms_waste_category (waste_category_name, icon_name, unit, point_per_unit)
+        VALUES (?, ?, ?, ?);
+    `;
     const result = (await query(sql, [
       wasteCategoryName,
       dbImagePath,
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
           waste_category_name: wasteCategoryName,
           icon_name: dbImagePath,
           unit: unit,
-          points_per_unit: pointsPerUnit,
+          point_per_unit: pointsPerUnit,
         },
       },
       { status: 200 }

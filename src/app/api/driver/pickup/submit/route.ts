@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     // Get driver info
     const userSql = `
-      SELECT id FROM ms_users 
+      SELECT id FROM ms_user
       WHERE email = ?
     `;
     const userResult = (await query(userSql, [session.user.email])) as any[];
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     // Check if pickup already exists (should exist from accept)
     const checkPickupSql = `
-      SELECT id FROM tr_pickups 
+      SELECT id FROM tr_pickup 
       WHERE pickup_event_id = ? AND partner_id = ?
     `;
     const existingPickup = (await query(checkPickupSql, [
@@ -89,13 +89,13 @@ export async function POST(req: NextRequest) {
 
     const pickupId = existingPickup[0].id;
 
-    // Update tr_pickups to completed status
+    // Update tr_pickup to completed status
     const notes = is_sorted
       ? `Sampah sudah dipilah - Total: ${total_weight} kg`
       : `Sampah belum dipilah - Total: ${total_weight} kg`;
 
     const updatePickupSql = `
-      UPDATE tr_pickups
+      UPDATE tr_pickup
       SET 
         transaction_status_id = 4,
         notes = ?,
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       // Get points_per_unit for each category from ms_waste_category
       const categoryIds = categories.map((cat: any) => cat.category_id);
       const getCategoriesSql = `
-        SELECT id, points_per_unit 
+        SELECT id, point_per_unit 
         FROM ms_waste_category 
         WHERE id IN (?)
       `;
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
 
       // Create map for quick lookup of points per category
       const categoryPointsMap = new Map(
-        categoriesData.map((cat: any) => [cat.id, cat.points_per_unit])
+        categoriesData.map((cat: any) => [cat.id, cat.point_per_unit])
       );
 
       // Calculate points for each category (for updating user points)
@@ -224,10 +224,10 @@ export async function POST(req: NextRequest) {
 
     const customerId = eventUserResult[0].user_id;
 
-    // Update user points in ms_users
+    // Update user points in ms_user
     if (totalPoints > 0) {
       const updateUserPointsSql = `
-        UPDATE ms_users 
+        UPDATE ms_user 
         SET points = points + ? 
         WHERE id = ?
       `;
@@ -236,7 +236,7 @@ export async function POST(req: NextRequest) {
 
     // Get transaction code for response
     const getTransactionSql = `
-      SELECT transaction_code FROM tr_pickups WHERE id = ?
+      SELECT transaction_code FROM tr_pickup WHERE id = ?
     `;
     const transactionResult = (await query(getTransactionSql, [
       pickupId,

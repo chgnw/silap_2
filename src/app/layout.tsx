@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={montserrat.variable}>
+      <body className={`${montserrat.variable} ${montserrat.className}`}>
         <DeviceNotSupported />
         <Providers>
           <main>{children}</main>

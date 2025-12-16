@@ -11,21 +11,23 @@ export async function POST(req: Request) {
 
     const checkSql = `
       SELECT id, role_id, first_name, last_name, email 
-      FROM ms_users 
+      FROM ms_user 
       WHERE email = ?
     `;
     const existing = (await query(checkSql, [email])) as any[];
 
     if (existing.length === 0) {
       return NextResponse.json(
-        { error: "User with this email not found. Please register first." },
+        {
+          error: "Email tidak ditemukan. Silahkan registrasi terlebih dahulu.",
+        },
         { status: 404 }
       );
     }
 
     const user = existing[0];
 
-    if (user.role_id === 3) {
+    if (user.role_id === 1) {
       return NextResponse.json(
         { error: "This user is already an admin" },
         { status: 409 }
@@ -33,8 +35,8 @@ export async function POST(req: Request) {
     }
 
     const updateSql = `
-      UPDATE ms_users 
-      SET role_id = 3
+      UPDATE ms_user 
+      SET role_id = 1
       WHERE id = ?
     `;
 
@@ -45,7 +47,7 @@ export async function POST(req: Request) {
         message: "SUCCESS",
         detail: `${user.first_name} ${
           user.last_name || ""
-        } has been promoted to admin`,
+        } berhasil dijadikan admin`,
       },
       { status: 200 }
     );

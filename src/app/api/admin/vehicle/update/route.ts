@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       model || null,
       license_plate || null,
       vin || null,
-      status || "available",
+      status || "active",
       id,
     ]);
 

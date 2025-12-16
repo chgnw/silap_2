@@ -1,4 +1,5 @@
 import React from "react";
+import { FaRecycle } from "react-icons/fa";
 import styles from "./WasteTypeCard.module.css";
 
 interface WasteCategory {
@@ -14,18 +15,21 @@ interface WasteTypeCardProps {
 }
 
 const WasteTypeCard = ({ category }: WasteTypeCardProps) => {
+  const [imageError, setImageError] = React.useState(false);
+
   return (
     <div className={styles.categoryItem}>
       <div className={styles.categoryIconWrapper}>
-        <img
-          src={
-            category.icon
-              ? `/upload${category.icon}`
-              : "/assets/recycle-icon.svg"
-          }
-          alt={category.name}
-          className={styles.categoryIcon}
-        />
+        {category.icon && !imageError ? (
+          <img
+            src={`/upload${category.icon}`}
+            alt={category.name}
+            className={styles.categoryIcon}
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <FaRecycle className={styles.categoryIcon} />
+        )}
       </div>
       <div className={styles.categoryContent}>
         <h3 className={styles.categoryName}>{category.name}</h3>
