@@ -15,6 +15,7 @@ export async function GET() {
                 created_at,
                 updated_at
             FROM ms_subscription_plan
+            WHERE is_active = TRUE
             ORDER BY price ASC
         `;
 

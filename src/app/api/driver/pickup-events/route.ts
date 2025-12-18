@@ -114,13 +114,13 @@ export async function GET(req: Request) {
     `;
 
     // Debug: Check query parameters
-    console.log("=== QUERY PARAMETERS ===");
-    console.log("CURDATE() will compare with event_date");
-    console.log("driver.vehicle_category_id:", driver.vehicle_category_id);
-    console.log("driver.category_name:", driver.category_name);
-    console.log("driver.category_min_weight:", driver.category_min_weight);
-    console.log("driver.category_max_weight:", driver.category_max_weight);
-    console.log("driver.operational_area:", driver.operational_area);
+    // console.log("=== QUERY PARAMETERS ===");
+    // console.log("CURDATE() will compare with event_date");
+    // console.log("driver.vehicle_category_id:", driver.vehicle_category_id);
+    // console.log("driver.category_name:", driver.category_name);
+    // console.log("driver.category_min_weight:", driver.category_min_weight);
+    // console.log("driver.category_max_weight:", driver.category_max_weight);
+    // console.log("driver.operational_area:", driver.operational_area);
 
     const pickupEvents = await query(eventsSql, [
       driver.vehicle_category_id,
@@ -128,9 +128,9 @@ export async function GET(req: Request) {
       driver.category_max_weight,
       driver.operational_area,
     ]);
-    console.log("=== PICKUP EVENTS RESULT ===");
-    console.log("pickup events count:", pickupEvents.length);
-    console.log("pickup events: ", pickupEvents);
+    // console.log("=== PICKUP EVENTS RESULT ===");
+    // console.log("pickup events count:", pickupEvents.length);
+    // console.log("pickup events: ", pickupEvents);
 
     // Debug: Check all events without filters
     const debugSql = `
@@ -165,8 +165,8 @@ export async function GET(req: Request) {
       driver.category_min_weight,
       driver.category_max_weight,
     ]);
-    console.log("=== DEBUG: ALL EVENTS (LATEST 5) ===");
-    console.log(debugEvents);
+    // console.log("=== DEBUG: ALL EVENTS (LATEST 5) ===");
+    // console.log(debugEvents);
 
     // Get today's stats
     // total_orders: pickup events available today (not yet accepted and not cancelled/completed)
@@ -200,8 +200,8 @@ export async function GET(req: Request) {
       driver.operational_area,
       driver.driver_id,
     ])) as any[];
-    console.log("=== STATS RESULT ===");
-    console.log("stats: ", stats[0]);
+    // console.log("=== STATS RESULT ===");
+    // console.log("stats: ", stats[0]);
 
     return NextResponse.json(
       {

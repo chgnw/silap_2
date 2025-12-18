@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 
@@ -13,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { LuPackageCheck } from "react-icons/lu";
 import { MdAccessTimeFilled } from "react-icons/md";
+import { FaLocationDot } from "react-icons/fa6";
 import styles from "./order.module.css";
 
 const OrderHistoryTable = dynamic(
@@ -27,10 +29,230 @@ const OrderHistoryTable = dynamic(
   }
 );
 
+interface ActiveOrder {
+  event_id: number;
+  pickup_id: number | null;
+  transaction_code: string;
+  pickup_address: string;
+  pickup_weight: number;
+  pickup_regency: string;
+  event_date: string;
+  pickup_time: string;
+  pickup_type: string;
+  vehicle_category: string;
+  current_step: number;
+  is_completed: boolean;
+  has_driver: boolean;
+  driver: {
+    id: number;
+    name: string;
+    phone: string;
+    image: string | null;
+  } | null;
+  vehicle: {
+    id: number;
+    name: string;
+    license_plate: string;
+    category: string;
+  } | null;
+}
+
+interface ReceiptItem {
+  id: number;
+  category_name: string;
+  icon: string | null;
+  weight: number;
+  points_per_kg: number;
+  points_earned: number;
+}
+
+interface Receipt {
+  pickup_id: number;
+  transaction_code: string;
+  completion_time: string;
+  address: string;
+  items: ReceiptItem[];
+  total_weight: number;
+  total_points: number;
+  user_current_points: number;
+}
+
+const STEPS = [
+  { id: 1, label: "Pesenan dibuat", icon: FaFileAlt },
+  { id: 2, label: "Pesenan dikonfirmasi", icon: FaCheck },
+  { id: 3, label: "Menunggu Waktu Penjemputan", icon: MdAccessTimeFilled },
+  { id: 4, label: "Armada Menuju lokasi Pick Up", icon: FaTruck },
+  { id: 5, label: "Armada Pick Up", icon: LuPackageCheck },
+  { id: 6, label: "Pesenan Selesai", icon: FaFlagCheckered },
+];
+
 export default function HistoryPage() {
+  const { data: session, update: updateSession } = useSession();
   const [activeTab, setActiveTab] = useState<"onProgress" | "done">(
     "onProgress"
   );
+  const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [receiptLoading, setReceiptLoading] = useState(false);
+
+  // Load persisted receipt from localStorage on mount
+  useEffect(() => {
+    const savedReceipt = localStorage.getItem("silap_pending_receipt");
+    if (savedReceipt) {
+      try {
+        const parsedReceipt = JSON.parse(savedReceipt);
+        setReceipt(parsedReceipt);
+        setShowReceipt(true);
+      } catch (e) {
+        localStorage.removeItem("silap_pending_receipt");
+      }
+    }
+  }, []);
+
+  // Check if the completed order has already been acknowledged
+  const isOrderAcknowledged = (pickupId: number | null): boolean => {
+    if (!pickupId) return false;
+    const acknowledged = localStorage.getItem("silap_acknowledged_pickups");
+    if (!acknowledged) return false;
+    try {
+      const ids = JSON.parse(acknowledged) as number[];
+      return ids.includes(pickupId);
+    } catch {
+      return false;
+    }
+  };
+
+  const fetchActiveOrder = useCallback(async () => {
+    try {
+      const res = await fetch("/api/dashboard/pickup/active-order");
+      const data = await res.json();
+
+      if (data.message === "SUCCESS") {
+        const orderData = data.data;
+
+        // If order is completed and already acknowledged, treat as no active order
+        if (orderData?.is_completed && orderData?.pickup_id && isOrderAcknowledged(orderData.pickup_id)) {
+          setActiveOrder(null);
+        } else {
+          setActiveOrder(orderData);
+        }
+        setError(null);
+      } else {
+        setError(data.detail || "Gagal memuat data");
+      }
+    } catch (err) {
+      console.error("Error fetching active order:", err);
+      setError("Terjadi kesalahan");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial fetch
+  useEffect(() => {
+    if (activeTab === "onProgress") {
+      fetchActiveOrder();
+    }
+  }, [activeTab, fetchActiveOrder]);
+
+  // Silent polling every 15 seconds
+  useEffect(() => {
+    if (activeTab !== "onProgress") return;
+    if (activeOrder?.is_completed) return; // Stop polling if completed
+
+    const interval = setInterval(() => {
+      fetchActiveOrder();
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [activeTab, activeOrder?.is_completed, fetchActiveOrder]);
+
+  const handleCopyResi = () => {
+    if (activeOrder?.transaction_code) {
+      navigator.clipboard.writeText(activeOrder.transaction_code);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const formatTime = (timeStr: string) => {
+    return timeStr.substring(0, 5);
+  };
+
+  const fetchReceipt = async (pickupId: number) => {
+    try {
+      setReceiptLoading(true);
+      const res = await fetch(`/api/dashboard/pickup/receipt?pickup_id=${pickupId}`);
+      const data = await res.json();
+      if (data.message === "SUCCESS") {
+        setReceipt(data.data);
+        setShowReceipt(true);
+        // Save to localStorage so it persists across page navigations
+        localStorage.setItem("silap_pending_receipt", JSON.stringify(data.data));
+
+        // Update session with new points balance
+        if (session && data.data.user_current_points !== undefined) {
+          await updateSession({
+            ...session,
+            user: {
+              ...session.user,
+              points: data.data.user_current_points,
+            },
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching receipt:", err);
+    } finally {
+      setReceiptLoading(false);
+    }
+  };
+
+  // Function to close receipt and clear from localStorage
+  const handleCloseReceipt = () => {
+    // Mark this pickup as acknowledged so it won't show again
+    if (receipt?.pickup_id) {
+      const acknowledged = localStorage.getItem("silap_acknowledged_pickups");
+      let ids: number[] = [];
+      if (acknowledged) {
+        try {
+          ids = JSON.parse(acknowledged);
+        } catch {
+          ids = [];
+        }
+      }
+      if (!ids.includes(receipt.pickup_id)) {
+        ids.push(receipt.pickup_id);
+        // Keep only last 10 IDs to prevent localStorage bloat
+        if (ids.length > 10) ids = ids.slice(-10);
+        localStorage.setItem("silap_acknowledged_pickups", JSON.stringify(ids));
+      }
+    }
+    // Set activeOrder to null FIRST to prevent useEffect from re-triggering
+    setActiveOrder(null);
+    setShowReceipt(false);
+    setReceipt(null);
+    localStorage.removeItem("silap_pending_receipt");
+    // Refresh to get any remaining orders
+    fetchActiveOrder();
+  };
+
+  // Auto-show receipt when order is completed (and not already acknowledged)
+  useEffect(() => {
+    if (activeOrder?.is_completed && activeOrder?.pickup_id && !receipt && !isOrderAcknowledged(activeOrder.pickup_id)) {
+      fetchReceipt(activeOrder.pickup_id);
+    }
+  }, [activeOrder?.is_completed, activeOrder?.pickup_id, receipt]);
 
   return (
     <div className={styles.orderContainer}>
@@ -38,18 +260,16 @@ export default function HistoryPage() {
 
       <div className={styles.activeTabContainer}>
         <button
-          className={`${styles.tabs} ${
-            activeTab === "onProgress" ? styles.active : ""
-          }`}
+          className={`${styles.tabs} ${activeTab === "onProgress" ? styles.active : ""
+            }`}
           onClick={() => setActiveTab("onProgress")}
         >
           Sedang Diproses
         </button>
 
         <button
-          className={`${styles.tabs} ${
-            activeTab === "done" ? styles.active : ""
-          }`}
+          className={`${styles.tabs} ${activeTab === "done" ? styles.active : ""
+            }`}
           onClick={() => setActiveTab("done")}
         >
           Selesai
@@ -57,212 +277,311 @@ export default function HistoryPage() {
       </div>
 
       {activeTab == "onProgress" && (
-        <div className={styles.onProgressContainer}>
-          <div className={styles.leftSide}>
-            {/* Informasi armada */}
-            <div className={styles.vehicleInfoContainer}>
-              <h1>Armada SILAP</h1>
-
-              <div className={styles.vehicleDetailContainer}>
-                <div className={styles.vehicleImage}>
-                  <Image
-                    src="/images/dummy-truck.png"
-                    alt="Vehicle"
-                    width={200}
-                    height={150}
-                    loading="lazy"
-                  />
-                </div>
-
-                <div className={styles.vehicleDetail}>
-                  <span>Toyota Hilux Rangga</span>
-                  <span style={{ color: "#2F5E44" }}>B 1234 SLP</span>
-                  <span>Putih</span>
-                </div>
-              </div>
+        <>
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner}></div>
+              <p>Memuat data pesanan...</p>
             </div>
-
-            {/* Informasi driver */}
-            <div className={styles.driverInfoContainer}>
-              <h1>Informasi Driver</h1>
-
-              <div className={styles.driverDetailContainer}>
-                <div className={styles.driverImage}>
-                  <Image
-                    src="/images/dummy-profiles.png"
-                    alt="Driver"
-                    width={100}
-                    height={100}
-                    loading="lazy"
-                  />
-                </div>
-
-                <div className={styles.driverDetail}>
-                  <span>Driver Name</span>
-                  <span style={{ color: "#666" }}>(+62) 89612345678</span>
-                </div>
-              </div>
+          ) : error ? (
+            <div className={styles.errorContainer}>
+              <p>{error}</p>
+              <button onClick={fetchActiveOrder}>Coba Lagi</button>
             </div>
-          </div>
+          ) : !activeOrder ? (
+            <div className={styles.emptyContainer}>
+              <div className={styles.emptyIcon}>📦</div>
+              <h2>Tidak Ada Pesanan Aktif</h2>
+              <p>Anda tidak memiliki pesanan pickup yang sedang diproses hari ini.</p>
+              <a href="/dashboard/pickup" className={styles.createOrderButton}>
+                Buat Pesanan Baru
+              </a>
+            </div>
+          ) : (
+            <div className={styles.onProgressContainer}>
+              {/* Left Side - Only show if driver is assigned */}
+              {activeOrder.has_driver && (
+                <div className={styles.leftSide}>
+                  {/* Informasi armada */}
+                  <div className={styles.vehicleInfoContainer}>
+                    <h1>Armada SILAP</h1>
 
-          <div className={styles.rightSide}>
-            <div className={styles.cardContainer}>
-              <h1 className={styles.title}>Pesenan Sedang Diproses</h1>
+                    <div className={styles.vehicleDetailContainer}>
+                      <div className={styles.vehicleImage}>
+                        <Image
+                          src="/images/dummy-truck.png"
+                          alt="Vehicle"
+                          width={200}
+                          height={150}
+                          loading="lazy"
+                        />
+                      </div>
 
-              <div className={styles.stepperContainer}>
-                <div className={styles.stepperLine}></div>
-
-                {/* Pesanan Dibuat */}
-                <div className={styles.stepItem}>
-                  <div className={styles.iconWrapper}>
-                    <FaFileAlt size={20} color="#555" />
-                  </div>
-                  <div className={styles.stepText}>
-                    <span className={styles.stepLabel}>Pesenan dibuat</span>
-                    <span className={styles.stepTime}>08.00</span>
-                  </div>
-                </div>
-
-                {/* Pesanan Terkonfirmasi */}
-                <div className={styles.stepItem}>
-                  <div className={styles.iconWrapper}>
-                    <FaCheck size={20} color="#555" />
-                  </div>
-                  <div className={styles.stepText}>
-                    <span className={styles.stepLabel}>
-                      Pesenan dikonfirmasi
-                    </span>
-                    <span className={styles.stepTime}>08.10</span>
-                  </div>
-                </div>
-
-                {/* Menunggu waktu penjemputan */}
-                <div className={styles.stepItem}>
-                  <div className={styles.iconWrapper}>
-                    <MdAccessTimeFilled size={20} color="#555" />
-                  </div>
-                  <div className={styles.stepText}>
-                    <span className={styles.stepLabel}>
-                      Menunggu Waktu Penjemputan
-                    </span>
-                    <span className={styles.stepTime}>08.10</span>
-                  </div>
-                </div>
-
-                {/* Sedang dalam penjemputan */}
-                <div className={`${styles.stepItem} ${styles.active}`}>
-                  <div className={styles.iconWrapperActive}>
-                    <FaTruck size={20} color="#fff" />
-                  </div>
-                  <div className={styles.stepText}>
-                    <span className={styles.stepLabel}>
-                      Armada Menuju lokasi Pick Up
-                    </span>
-                    <span className={styles.stepTime}>13.00</span>
-                  </div>
-                </div>
-
-                {/* Pickup */}
-                <div className={styles.stepItem}>
-                  <div className={styles.iconWrapper}>
-                    <LuPackageCheck size={20} color="#555" />
-                  </div>
-                  <div className={styles.stepText}>
-                    <span className={styles.stepLabel}>Armada Pick Up</span>
-                    <span className={styles.stepTime}>13.30</span>
-                  </div>
-                </div>
-
-                {/* Selesai */}
-                <div className={styles.stepItem}>
-                  <div className={styles.iconWrapper}>
-                    <FaFlagCheckered size={20} color="#555" />
-                  </div>
-                  <div className={styles.stepText}>
-                    <span className={styles.stepLabel}>Pesenan Selesai</span>
-                    <span className={styles.stepTime}>13.40</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.detailsGrid}>
-                <div className={styles.column}>
-                  {/* Lokasi Armada */}
-                  <div className={styles.detailSection}>
-                    <h3 className={styles.sectionHeader}>
-                      <span
-                        className={`${styles.dot} ${styles.limeDot}`}
-                      ></span>
-                      Lokasi Armada
-                    </h3>
-                    <div className={styles.row}>
-                      <span className={styles.label}>Wilayah</span>
-                      <span className={styles.value}>Jakarta Barat</span>
-                    </div>
-                    <div className={styles.row}>
-                      <span className={styles.label}>Kode Pos</span>
-                      <span className={styles.value}>11560</span>
+                      <div className={styles.vehicleDetail}>
+                        <span>{activeOrder.vehicle?.name || "Kendaraan SILAP"}</span>
+                        <span style={{ color: "#2F5E44" }}>
+                          {activeOrder.vehicle?.license_plate || "-"}
+                        </span>
+                        <span>{activeOrder.vehicle?.category || "-"}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Info Pick Up */}
-                  <div className={styles.detailSection}>
-                    <h3 className={styles.sectionHeader}>
-                      <span className={`${styles.dot} ${styles.redDot}`}></span>
-                      Info Pick Up
-                    </h3>
+                  {/* Informasi driver */}
+                  <div className={styles.driverInfoContainer}>
+                    <h1>Informasi Driver</h1>
 
-                    <div
-                      className={styles.row}
-                      style={{ alignItems: "center" }}
-                    >
-                      <span className={styles.label}>No Resi</span>
-                      <span className={styles.valueResi}>
-                        <FaCopy size={16} className={styles.copyIcon} />{" "}
-                        JV-115601811
-                      </span>
-                    </div>
+                    <div className={styles.driverDetailContainer}>
+                      <div className={styles.driverImage}>
+                        {activeOrder.driver?.image ? (
+                          <Image
+                            src={activeOrder.driver.image}
+                            alt="Driver"
+                            width={100}
+                            height={100}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Image
+                            src="/images/dummy-profiles.png"
+                            alt="Driver"
+                            width={100}
+                            height={100}
+                            loading="lazy"
+                          />
+                        )}
+                      </div>
 
-                    <div className={styles.addressBlock}>
-                      <span className={styles.label}>Alamat</span>
-                      <div className={styles.addressContent}>
-                        <strong>Javier Adios</strong>
-                        <div>(+62)82210121343</div>
-                        <div className={styles.addressText}>
-                          Gedung Millenium Centennial Center Jl. Jenderal
-                          Sudirman Kav. 25, RT.10/RW.1, Karet
-                        </div>
+                      <div className={styles.driverDetail}>
+                        <span>{activeOrder.driver?.name || "Driver SILAP"}</span>
+                        <span style={{ color: "#666" }}>
+                          {activeOrder.driver?.phone || "-"}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                <div className={styles.column}>
-                  {/* Waktu Pick Up */}
-                  <div className={styles.detailSection}>
-                    <h3 className={styles.sectionHeader}>
-                      <span
-                        className={`${styles.dot} ${styles.cyanDot}`}
-                      ></span>
-                      Waktu Pick Up
-                    </h3>
-                    <div className={styles.row}>
-                      <span className={styles.label}>Tanggal</span>
-                      <span className={styles.value}>18 November 2025</span>
+              <div className={activeOrder.has_driver ? styles.rightSide : styles.fullWidth}>
+                <div className={styles.cardContainer}>
+                  <h1 className={styles.title}>Pesanan Sedang Diproses</h1>
+
+                  <div className={styles.stepperContainer}>
+                    <div className={styles.stepperLine}></div>
+
+                    {STEPS.map((step) => {
+                      const isActive = step.id === activeOrder.current_step;
+                      const isCompleted = step.id < activeOrder.current_step;
+                      const Icon = step.icon;
+
+                      return (
+                        <div
+                          key={step.id}
+                          className={`${styles.stepItem} ${isActive ? styles.active : ""} ${isCompleted ? styles.completed : ""
+                            }`}
+                        >
+                          <div
+                            className={
+                              isActive
+                                ? styles.iconWrapperActive
+                                : isCompleted
+                                  ? styles.iconWrapperCompleted
+                                  : styles.iconWrapper
+                            }
+                          >
+                            <Icon
+                              size={20}
+                              color={isActive || isCompleted ? "#fff" : "#555"}
+                            />
+                          </div>
+                          <div className={styles.stepText}>
+                            <span className={styles.stepLabel}>{step.label}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className={styles.detailsGrid}>
+                    <div className={styles.column}>
+                      {/* Lokasi Armada */}
+                      <div className={styles.detailSection}>
+                        <h3 className={styles.sectionHeader}>
+                          <span
+                            className={`${styles.dot} ${styles.limeDot}`}
+                          ></span>
+                          Lokasi Armada
+                        </h3>
+                        <div className={styles.row}>
+                          <span className={styles.label}>Wilayah</span>
+                          <span className={styles.value}>
+                            {activeOrder.pickup_regency || "-"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Info Pick Up */}
+                      <div className={styles.detailSection}>
+                        <h3 className={styles.sectionHeader}>
+                          <span className={`${styles.dot} ${styles.redDot}`}></span>
+                          Info Pick Up
+                        </h3>
+
+                        <div
+                          className={styles.row}
+                          style={{ alignItems: "center" }}
+                        >
+                          <span className={styles.label}>No Resi</span>
+                          <span className={styles.valueResi}>
+                            <FaCopy
+                              size={16}
+                              className={styles.copyIcon}
+                              onClick={handleCopyResi}
+                              title="Salin nomor resi"
+                            />{" "}
+                            {activeOrder.transaction_code}
+                          </span>
+                        </div>
+
+                        <div className={styles.addressBlock}>
+                          <span className={styles.label}>Alamat</span>
+                          <div className={styles.addressContent}>
+                            <div className={styles.addressText}>
+                              {activeOrder.pickup_address}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className={styles.row}>
-                      <span className={styles.label}>Jam</span>
-                      <span className={styles.value}>12.00 - 13.00</span>
+
+                    <div className={styles.column}>
+                      {/* Waktu Pick Up */}
+                      <div className={styles.detailSection}>
+                        <h3 className={styles.sectionHeader}>
+                          <span
+                            className={`${styles.dot} ${styles.cyanDot}`}
+                          ></span>
+                          Waktu Pick Up
+                        </h3>
+                        <div className={styles.row}>
+                          <span className={styles.label}>Tanggal</span>
+                          <span className={styles.value}>
+                            {formatDate(activeOrder.event_date)}
+                          </span>
+                        </div>
+                        <div className={styles.row}>
+                          <span className={styles.label}>Jam</span>
+                          <span className={styles.value}>
+                            {formatTime(activeOrder.pickup_time)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Berat Sampah */}
+                      <div className={styles.detailSection}>
+                        <h3 className={styles.sectionHeader}>
+                          <span
+                            className={`${styles.dot} ${styles.orangeDot}`}
+                          ></span>
+                          Detail Pickup
+                        </h3>
+                        <div className={styles.row}>
+                          <span className={styles.label}>Berat</span>
+                          <span className={styles.value}>
+                            ~{activeOrder.pickup_weight} Kg
+                          </span>
+                        </div>
+                        <div className={styles.row}>
+                          <span className={styles.label}>Tipe</span>
+                          <span className={styles.value}>
+                            {activeOrder.pickup_type}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Completed message */}
+                  {activeOrder.is_completed && (
+                    <div className={styles.completedMessage}>
+                      <FaFlagCheckered size={24} color="#2F5E44" />
+                      <p>Pesanan Anda telah selesai! Terima kasih telah menggunakan SILAP.</p>
+                      {activeOrder.pickup_id && (
+                        <button
+                          className={styles.viewReceiptButton}
+                          onClick={() => fetchReceipt(activeOrder.pickup_id!)}
+                          disabled={receiptLoading}
+                        >
+                          {receiptLoading ? "Memuat..." : "Lihat Rincian Poin"}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
 
       {activeTab == "done" && <OrderHistoryTable />}
+
+      {/* Receipt Modal */}
+      {showReceipt && receipt && (
+        <div className={styles.modalOverlay} onClick={handleCloseReceipt}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>🎉 Pickup Selesai!</h2>
+              <button className={styles.closeButton} onClick={handleCloseReceipt}>×</button>
+            </div>
+
+            <div className={styles.receiptInfo}>
+              <p className={styles.transactionCode}>{receipt.transaction_code}</p>
+            </div>
+
+            <div className={styles.receiptItems}>
+              <h3>Rincian Poin</h3>
+              {receipt.items.length > 0 ? (
+                <table className={styles.receiptTable}>
+                  <thead>
+                    <tr>
+                      <th>Kategori</th>
+                      <th>Berat</th>
+                      <th>Poin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {receipt.items.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.category_name}</td>
+                        <td>{item.weight} Kg</td>
+                        <td className={styles.pointsCell}>+{item.points_earned}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className={styles.totalRow}>
+                      <td><strong>Total</strong></td>
+                      <td><strong>{receipt.total_weight} Kg</strong></td>
+                      <td className={styles.pointsCell}><strong>+{receipt.total_points} Pts</strong></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              ) : (
+                <p className={styles.noItemsMessage}>
+                  Sampah tidak dipilah. Poin akan dihitung berdasarkan berat total.
+                </p>
+              )}
+            </div>
+
+            <button className={styles.closeReceiptButton} onClick={handleCloseReceipt}>
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

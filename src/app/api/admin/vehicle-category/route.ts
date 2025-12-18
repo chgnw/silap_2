@@ -13,6 +13,7 @@ export async function GET() {
         created_at,
         updated_at
       FROM ms_vehicle_category
+      WHERE is_active = TRUE
       ORDER BY min_weight ASC
     `;
 

@@ -1,6 +1,6 @@
 /* Sidebar Driver */
 .sidebar {
-  width: clamp(260px, 20vw, 300px);
+  width: clamp(260px, 20vw, 350px);
   background-color: var(--color-primary);
   color: var(--color-white);
   display: flex;

@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import path from "path";
+import fs from "fs/promises";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { category_name } = body;
+    const formData = await req.formData();
+    const category_name = formData.get("category_name") as string;
+    const iconFile = formData.get("icon") as File | null;
+
+    if (!category_name) {
+      return NextResponse.json(
+        {
+          message: "FAILED",
+          detail: "Nama kategori tidak ditemukan!",
+        },
+        { status: 400 }
+      );
+    }
 
     const sqlCheck = `
             SELECT id FROM ms_reward_category
@@ -21,11 +34,47 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const sql = `
+    // Handle icon file upload
+    let dbIconPath = null;
+    if (iconFile && iconFile.size > 0) {
+      const uploadDir = path.join(
+        process.cwd(),
+        "public",
+        "upload",
+        "rewardCatIcon"
+      );
+      await fs.mkdir(uploadDir, { recursive: true });
+
+      const timestamp = Date.now();
+      const originalName = iconFile.name.replaceAll(" ", "_");
+      const filename = `${timestamp}_${originalName}`;
+
+      const arrayBuffer = await iconFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      const finalFilePath = path.join(uploadDir, filename);
+      await fs.writeFile(finalFilePath, buffer);
+
+      dbIconPath = `/rewardCatIcon/${filename}`;
+    }
+
+    let sql: string;
+    let params: any[];
+    if (dbIconPath) {
+      sql = `
+            INSERT INTO ms_reward_category (category_name, icon_path)
+            VALUES (?, ?)
+        `;
+      params = [category_name, dbIconPath];
+    } else {
+      sql = `
             INSERT INTO ms_reward_category (category_name)
             VALUE (?)
         `;
-    const result = (await query(sql, [category_name])) as any;
+      params = [category_name];
+    }
+
+    const result = (await query(sql, params)) as any;
     if (result.affectedRows === 0) {
       return NextResponse.json(
         {
@@ -40,6 +89,10 @@ export async function POST(req: NextRequest) {
       {
         message: "SUCCESS",
         detail: "Berhasil menambahkan kategori baru",
+        data: {
+          category_name,
+          icon_path: dbIconPath,
+        },
       },
       { status: 200 }
     );

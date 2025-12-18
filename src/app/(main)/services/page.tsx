@@ -1,14 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import styles from './services.module.css';
 import pricingStyles from '../pricing/pricing.module.css';
+
+interface FAQ {
+    question: string;
+    answer: string;
+}
 
 export default function ServicesPage() {
     const statsRef = useRef<HTMLElement | null>(null);
     const fleetTrackRef = useRef<HTMLDivElement | null>(null);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
+    const [faqItems, setFaqItems] = useState<FAQ[]>([]);
     const alurRef = useRef<HTMLDivElement | null>(null);
 
 
@@ -57,12 +63,23 @@ export default function ServicesPage() {
 
     const coverageCities = ['Jakarta', 'Depok', 'Bekasi', 'Tangerang', 'Bandung', 'Surabaya', 'Yogyakarta', 'Semarang', 'Bali', 'Medan'];
 
-    const faqItems = [
-        { question: 'Bagaimana cara menjadwalkan penjemputan?', answer: 'Mudah! Buka aplikasi SILAP, pilih menu "Jemput Sampah", tentukan lokasi, tanggal, dan jam, lalu konfirmasi pesanan Anda.' },
-        { question: 'Apakah ada biaya minimum untuk penjemputan?', answer: 'Biaya dihitung berdasarkan jarak dan estimasi volume sampah. Anda akan melihat total biaya (transparan) sebelum konfirmasi pesanan.' },
-        { question: 'Sampah apa saja yang bisa dijemput?', answer: 'Kami menerima sampah organik, anorganik (plastik, kertas, logam), dan sampah elektronik (e-waste). Pastikan untuk memilahnya terlebih dahulu.' },
-        { question: 'Bagaimana cara menukar poin reward?', answer: 'Poin yang Anda kumpulkan bisa ditukarkan di menu "Rewards" dengan voucher belanja, donasi lingkungan, atau potongan biaya layanan.' },
-    ];
+    // Fetch FAQs from API
+    useEffect(() => {
+        const fetchFaqs = async () => {
+            try {
+                const response = await fetch('/api/faq');
+                const result = await response.json();
+
+                if (result.message === 'SUCCESS' && result.data) {
+                    setFaqItems(result.data);
+                }
+            } catch (error) {
+                console.error('Error fetching FAQs:', error);
+            }
+        };
+
+        fetchFaqs();
+    }, []);
 
     // MATCHING PRICING DATA EXACTLY
     const pricingPlans = [

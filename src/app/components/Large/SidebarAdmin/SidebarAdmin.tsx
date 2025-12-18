@@ -14,7 +14,9 @@ import {
   FaTimes,
   FaSignOutAlt,
   FaBars,
+  FaCalendarAlt,
 } from "react-icons/fa";
+import { MdSubscriptions } from "react-icons/md";
 import { useState, useTransition, useEffect } from "react";
 import styles from "./sidebarAdmin.module.css";
 
@@ -169,6 +171,25 @@ export default function DashboardSidebar({
         </Link>
 
         <Link
+          href="/admin/subscriptions"
+          className={`${styles.navLink} ${pathname === "/admin/subscriptions" ? styles.isSelected : ""
+            } ${loadingPath === "/admin/subscriptions" && isPending ? styles.loading : ""
+            }`}
+          onClick={handleLinkClick("/admin/subscriptions")}
+        >
+          <div className={styles.iconContainer}>
+            <MdSubscriptions size={24} />
+          </div>
+          <span>Subscriptions</span>
+          {pendingCount > 0 && (
+            <span className={styles.badge}>{pendingCount}</span>
+          )}
+          {loadingPath === "/admin/subscriptions" && isPending && (
+            <div className={styles.loadingSpinner}></div>
+          )}
+        </Link>
+
+        <Link
           href="/admin/others"
           className={`${styles.navLink} ${pathname === "/admin/others" ? styles.isSelected : ""
             } ${loadingPath === "/admin/others" && isPending ? styles.loading : ""
@@ -179,9 +200,6 @@ export default function DashboardSidebar({
             <FaCogs size={24} />
           </div>
           <span>Others</span>
-          {pendingCount > 0 && (
-            <span className={styles.badge}>{pendingCount}</span>
-          )}
           {loadingPath === "/admin/others" && isPending && (
             <div className={styles.loadingSpinner}></div>
           )}

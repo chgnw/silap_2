@@ -1,52 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
-import path from "path";
-import fs from "fs/promises";
 
-export async function POST (req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { id } = body;
 
     if (!id) {
-      return NextResponse.json({ 
-        message: "ID is required" 
+      return NextResponse.json({
+        message: "ID is required"
       }, { status: 400 });
     }
 
-    const checkSql = "SELECT icon_name FROM ms_waste_category WHERE id = ?";
+    const checkSql = "SELECT id FROM ms_waste_category WHERE id = ? AND is_active = TRUE";
     const existingData = await query(checkSql, [id]) as any[];
 
     if (existingData.length === 0) {
-      return NextResponse.json({ 
-        message: "Item not found" 
+      return NextResponse.json({
+        message: "Item not found"
       }, { status: 404 });
     }
 
-    const imageUrl = existingData[0].icon_name;
-    if (imageUrl) {
-      const filePath = path.join(process.cwd(), "public", imageUrl);
-      
-      try {
-        await fs.unlink(filePath);
-        console.log("File deleted:", filePath);
-      } catch (err) {
-        console.warn("Gagal hapus file (mungkin file sudah hilang manual):", err);
-      }
-    }
+    // Soft delete - set is_active to FALSE
+    const updateSql = "UPDATE ms_waste_category SET is_active = FALSE WHERE id = ?";
+    await query(updateSql, [id]);
 
-    const deleteSql = "DELETE FROM ms_waste_category WHERE id = ?";
-    await query(deleteSql, [id]);
-
-    return NextResponse.json({ 
-      message: "Deleted successfully" 
+    return NextResponse.json({
+      message: "Deleted successfully"
     }, { status: 200 });
 
   } catch (error: any) {
     console.error("Error deleting item:", error);
-    return NextResponse.json({ 
-      message: "Internal Server Error", 
-      error: error.message 
+    return NextResponse.json({
+      message: "Internal Server Error",
+      error: error.message
     }, { status: 500 });
   }
 }

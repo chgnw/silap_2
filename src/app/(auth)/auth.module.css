@@ -5,7 +5,21 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--color-primary);
+  min-height: 100vh;
+}
+
+.loginBackground {
+  background: linear-gradient(to bottom,
+      #a4b465 0%,
+      #a4b465 70%,
+      #e7f0d2 70%,
+      #e7f0d2 85%,
+      #d2ea9b 85%,
+      #d2ea9b 100%);
+}
+
+.registerBackground {
+  background: #a4b465;
 }
 
 .authMain {
@@ -375,7 +389,7 @@
    REGISTER - ROLE SELECTION
    ======================== */
 .registerCard {
-  width: min(1000px, 100%);
+  width: min(900px, 100%);
   background: transparent;
   border-radius: 24px;
   padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.5rem);
@@ -402,8 +416,7 @@
 
 .roleSelection {
   display: flex;
-  gap: clamp(1rem, 2vw, 1.5rem);
-  justify-content: center;
+  justify-content: space-between;
   margin-bottom: 2rem;
   flex-wrap: wrap;
 }
@@ -543,6 +556,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

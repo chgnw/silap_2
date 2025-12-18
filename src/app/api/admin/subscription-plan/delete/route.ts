@@ -13,33 +13,19 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check if plan is in use by any subscription
-        const checkSql = `
-            SELECT COUNT(*) as count FROM tr_user_subscription 
-            WHERE subscription_plan_id = ?
-        `;
-        const result = await query(checkSql, [id]) as any[];
-        if (result[0].count > 0) {
+        // Check if plan exists and is active
+        const checkSql = `SELECT id FROM ms_subscription_plan WHERE id = ? AND is_active = TRUE`;
+        const existingData = await query(checkSql, [id]) as any[];
+
+        if (existingData.length === 0) {
             return NextResponse.json(
-                { error: "Cannot delete plan that is in use by subscriptions" },
-                { status: 400 }
+                { error: "Subscription plan not found" },
+                { status: 404 }
             );
         }
 
-        // Check if plan is referenced in pending payments
-        const checkPaymentSql = `
-            SELECT COUNT(*) as count FROM tr_payment_history 
-            WHERE subscription_plan_id = ?
-        `;
-        const paymentResult = await query(checkPaymentSql, [id]) as any[];
-        if (paymentResult[0].count > 0) {
-            return NextResponse.json(
-                { error: "Cannot delete plan that has pending payments" },
-                { status: 400 }
-            );
-        }
-
-        const sql = `DELETE FROM ms_subscription_plan WHERE id = ?`;
+        // Soft delete - set is_active to FALSE
+        const sql = `UPDATE ms_subscription_plan SET is_active = FALSE WHERE id = ?`;
         await query(sql, [id]);
 
         return NextResponse.json(

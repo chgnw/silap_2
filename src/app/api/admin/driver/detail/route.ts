@@ -22,6 +22,7 @@ export async function POST(request: Request) {
       SELECT 
         d.id,
         d.user_id,
+        d.id_card_number,
         d.license_number,
         d.is_verified,
         d.is_available,
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
     const driver = {
       id: row.id,
       user_id: row.user_id,
+      id_card_number: row.id_card_number,
       license_number: row.license_number,
       is_verified: row.is_verified,
       is_available: row.is_available,

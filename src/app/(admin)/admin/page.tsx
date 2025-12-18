@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { FaUser, FaRecycle, FaGift, FaTruck,  FaCogs } from 'react-icons/fa';
+import { MdSubscriptions } from "react-icons/md";
 import styles from './admin.module.css';
 
 export default function AdminHomePage() {
@@ -32,6 +33,13 @@ export default function AdminHomePage() {
       icon: <FaTruck size={40} />,
       href: '/admin/drivers-vehicles',
       color: '#1565C0'
+    },
+    {
+      title: 'Subscriptions',
+      desc: 'Kelola dan verifikasi langganan.',
+      icon: <MdSubscriptions size={40} />,
+      href: '/admin/subscriptions',
+      color: '#ED1C24'
     },
     {
       title: 'Other Config',

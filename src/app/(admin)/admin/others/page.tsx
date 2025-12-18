@@ -2,24 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { FaEye, FaEdit, FaTrash, FaCheckCircle } from "react-icons/fa";
+import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 
 import { showToast } from "@/lib/toastHelper";
 import AdminTable from "../../../components/Large/DataTable/DataTable";
 import Modal from "../../../components/Large/Modal/Modal";
-import styles from "../drivers-vehicles/driversVehicles.module.css";
-
-type SubscriptionPlan = {
-  id: number;
-  plan_name: string;
-  description: string | null;
-  price: number;
-  duration_days: number;
-  pickup_frequency: string | null;
-  max_weight: number | null;
-  created_at?: string;
-  updated_at?: string;
-};
+import styles from "./others.module.css";
 
 type Tier = {
   id: number;
@@ -33,55 +21,23 @@ type Tier = {
   updated_at?: string;
 };
 
-type PendingPayment = {
+type FAQ = {
   id: number;
-  transaction_code: string;
-  user_id: number;
-  subscription_plan_id: number;
-  payment_type: string;
-  payment_method: string | null;
-  payment_proof_url: string | null;
-  total_payment: number;
-  transaction_status_id: number;
-  payment_time: string;
-  created_at: string;
-  first_name: string;
-  last_name: string | null;
-  email: string;
-  phone_number: string | null;
-  plan_name: string;
-  price: number;
-  duration_days: number;
-  pickup_frequency: string | null;
-  transaction_status_name: string;
+  question: string;
+  answer: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
 };
 
 type ModalMode = "view" | "edit" | "add";
-type ActiveTab = "subscriptions" | "pendingPayments" | "tiers";
+type ActiveTab = "tiers" | "faqs";
 
 export default function OthersPage() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("subscriptions");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("tiers");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // =========================================
-  // SUBSCRIPTION PLANS SECTION
-  // =========================================
-  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
-  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
-  const [planModalMode, setPlanModalMode] = useState<ModalMode>("add");
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-  const [isPlanDeleteModalOpen, setIsPlanDeleteModalOpen] = useState(false);
-  const [planDeleteTarget, setPlanDeleteTarget] = useState<number | null>(null);
-
-  const [planForm, setPlanForm] = useState({
-    plan_name: "",
-    description: "",
-    price: "",
-    duration_days: "",
-    pickup_frequency: "",
-    max_weight: "",
-  });
 
   // =========================================
   // TIERS SECTION
@@ -106,37 +62,25 @@ export default function OthersPage() {
   const [previewUrl, setPreviewUrl] = useState<string>("");
 
   // =========================================
-  // PENDING PAYMENTS SECTION
+  // FAQ SECTION
   // =========================================
-  const [pendingPayments, setPendingPayments] = useState<PendingPayment[]>([]);
-  const [isViewPaymentModalOpen, setIsViewPaymentModalOpen] = useState(false);
-  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<PendingPayment | null>(null);
-  const [referenceNumber, setReferenceNumber] = useState("");
-  const [referenceError, setReferenceError] = useState("");
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [isFaqModalOpen, setIsFaqModalOpen] = useState(false);
+  const [faqModalMode, setFaqModalMode] = useState<ModalMode>("add");
+  const [selectedFaq, setSelectedFaq] = useState<FAQ | null>(null);
+  const [isFaqDeleteModalOpen, setIsFaqDeleteModalOpen] = useState(false);
+  const [faqDeleteTarget, setFaqDeleteTarget] = useState<number | null>(null);
+
+  const [faqForm, setFaqForm] = useState({
+    question: "",
+    answer: "",
+    is_active: true,
+    sort_order: "0",
+  });
 
   // =========================================
   // FETCH FUNCTIONS
   // =========================================
-  const fetchSubscriptionPlans = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/admin/subscription-plan");
-      const result = await response.json();
-
-      if (result.message === "SUCCESS") {
-        setSubscriptionPlans(result.data || []);
-      } else {
-        showToast("error", "Failed to fetch subscription plans");
-      }
-    } catch (error) {
-      console.error("Error fetching subscription plans:", error);
-      showToast("error", "Error fetching subscription plans");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const fetchTiers = async () => {
     setIsLoading(true);
     try {
@@ -156,132 +100,22 @@ export default function OthersPage() {
     }
   };
 
-  const fetchPendingPayments = async () => {
+  const fetchFaqs = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/admin/subscription");
+      const response = await fetch("/api/admin/faq");
       const result = await response.json();
 
       if (result.message === "SUCCESS") {
-        setPendingPayments(result.data || []);
+        setFaqs(result.data || []);
       } else {
-        showToast("error", "Failed to fetch pending payments");
+        showToast("error", "Failed to fetch FAQs");
       }
     } catch (error) {
-      console.error("Error fetching pending payments:", error);
-      showToast("error", "Error fetching pending payments");
+      console.error("Error fetching FAQs:", error);
+      showToast("error", "Error fetching FAQs");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  // =========================================
-  // SUBSCRIPTION PLANS ACTIONS
-  // =========================================
-  const handleActionPlan = (mode: ModalMode, plan?: SubscriptionPlan) => {
-    setPlanModalMode(mode);
-    setSelectedPlan(plan || null);
-
-    if (plan) {
-      setPlanForm({
-        plan_name: plan.plan_name,
-        description: plan.description || "",
-        price: plan.price.toString(),
-        duration_days: plan.duration_days.toString(),
-        pickup_frequency: plan.pickup_frequency || "",
-        max_weight: plan.max_weight?.toString() || "",
-      });
-    } else {
-      setPlanForm({
-        plan_name: "",
-        description: "",
-        price: "",
-        duration_days: "30",
-        pickup_frequency: "",
-        max_weight: "",
-      });
-    }
-
-    setIsPlanModalOpen(true);
-  };
-
-  const handleSavePlan = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const url =
-        planModalMode === "add"
-          ? "/api/admin/subscription-plan/add"
-          : "/api/admin/subscription-plan/update";
-
-      const payload = {
-        plan_name: planForm.plan_name,
-        description: planForm.description || null,
-        price: parseFloat(planForm.price),
-        duration_days: parseInt(planForm.duration_days),
-        pickup_frequency: planForm.pickup_frequency || null,
-        max_weight: planForm.max_weight ? parseFloat(planForm.max_weight) : null,
-        ...(planModalMode === "edit" && { id: selectedPlan?.id }),
-      };
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json();
-
-      if (result.message === "SUCCESS") {
-        showToast(
-          "success",
-          `Subscription plan ${planModalMode === "add" ? "added" : "updated"} successfully!`
-        );
-        setIsPlanModalOpen(false);
-        fetchSubscriptionPlans();
-      } else {
-        showToast("error", result.error || result.detail || "Operation failed");
-      }
-    } catch (error) {
-      console.error("Error saving subscription plan:", error);
-      showToast("error", "Error saving subscription plan");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const triggerDeletePlan = (id: number) => {
-    setPlanDeleteTarget(id);
-    setIsPlanDeleteModalOpen(true);
-  };
-
-  const confirmDeletePlan = async () => {
-    if (!planDeleteTarget) return;
-
-    setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/admin/subscription-plan/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: planDeleteTarget }),
-      });
-
-      const result = await response.json();
-
-      if (result.message === "SUCCESS") {
-        showToast("success", "Subscription plan deleted successfully!");
-        setIsPlanDeleteModalOpen(false);
-        fetchSubscriptionPlans();
-      } else {
-        showToast("error", result.error || result.detail || "Delete failed");
-      }
-    } catch (error) {
-      console.error("Error deleting subscription plan:", error);
-      showToast("error", "Error deleting subscription plan");
-    } finally {
-      setIsSubmitting(false);
-      setPlanDeleteTarget(null);
     }
   };
 
@@ -435,153 +269,112 @@ export default function OthersPage() {
   };
 
   // =========================================
-  // PENDING PAYMENT ACTIONS
+  // FAQ ACTIONS
   // =========================================
-  const handleViewPayment = (payment: PendingPayment) => {
-    setSelectedPayment(payment);
-    setIsViewPaymentModalOpen(true);
-  };
+  const handleFaqAction = (mode: ModalMode, faq?: FAQ) => {
+    setFaqModalMode(mode);
+    setSelectedFaq(faq || null);
 
-  const handleOpenVerifyModal = (payment: PendingPayment) => {
-    setSelectedPayment(payment);
-    setReferenceNumber("");
-    setReferenceError("");
-    setIsVerifyModalOpen(true);
-  };
-
-  const validateReferenceNumber = (value: string): boolean => {
-    if (!value) {
-      setReferenceError("Reference number is required");
-      return false;
+    if (faq) {
+      setFaqForm({
+        question: faq.question,
+        answer: faq.answer,
+        is_active: faq.is_active,
+        sort_order: faq.sort_order.toString(),
+      });
+    } else {
+      setFaqForm({
+        question: "",
+        answer: "",
+        is_active: true,
+        sort_order: "0",
+      });
     }
 
-    const refPattern = /^[A-Za-z0-9\-_\/]{5,25}$/;
-    if (!refPattern.test(value)) {
-      setReferenceError("Must be 5-25 characters (letters, numbers, dashes, underscores, slashes only)");
-      return false;
-    }
-
-    setReferenceError("");
-    return true;
+    setIsFaqModalOpen(true);
   };
 
-  const handleVerifyPayment = async (e: React.FormEvent) => {
+  const handleSaveFaq = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateReferenceNumber(referenceNumber)) {
-      return;
-    }
-
-    if (!selectedPayment) return;
-
     setIsSubmitting(true);
+
     try {
-      const response = await fetch("/api/admin/subscription/verify", {
+      const url =
+        faqModalMode === "add"
+          ? "/api/admin/faq/add"
+          : "/api/admin/faq/update";
+
+      const payload = {
+        question: faqForm.question,
+        answer: faqForm.answer,
+        is_active: faqForm.is_active,
+        sort_order: parseInt(faqForm.sort_order),
+        ...(faqModalMode === "edit" && { id: selectedFaq?.id }),
+      };
+
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          payment_id: selectedPayment.id,
-          reference_number: referenceNumber,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
 
       if (result.message === "SUCCESS") {
-        showToast("success", "Payment verified! Subscription activated.");
-        setIsVerifyModalOpen(false);
-        fetchPendingPayments();
+        showToast(
+          "success",
+          `FAQ ${faqModalMode === "add" ? "added" : "updated"} successfully!`
+        );
+        setIsFaqModalOpen(false);
+        fetchFaqs();
       } else {
-        showToast("error", result.error || result.detail || "Verification failed");
+        showToast("error", result.error || result.detail || "Operation failed");
       }
     } catch (error) {
-      console.error("Error verifying payment:", error);
-      showToast("error", "Error verifying payment");
+      console.error("Error saving FAQ:", error);
+      showToast("error", "Error saving FAQ");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const triggerDeleteFaq = (id: number) => {
+    setFaqDeleteTarget(id);
+    setIsFaqDeleteModalOpen(true);
+  };
+
+  const confirmDeleteFaq = async () => {
+    if (!faqDeleteTarget) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/admin/faq/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: faqDeleteTarget }),
+      });
+
+      const result = await response.json();
+
+      if (result.message === "SUCCESS") {
+        showToast("success", "FAQ deleted successfully!");
+        setIsFaqDeleteModalOpen(false);
+        fetchFaqs();
+      } else {
+        showToast("error", result.error || result.detail || "Delete failed");
+      }
+    } catch (error) {
+      console.error("Error deleting FAQ:", error);
+      showToast("error", "Error deleting FAQ");
+    } finally {
+      setIsSubmitting(false);
+      setFaqDeleteTarget(null);
     }
   };
 
   // =========================================
   // COLUMNS
   // =========================================
-  const columnsSubscriptionPlans = useMemo<ColumnDef<SubscriptionPlan>[]>(
-    () => [
-      {
-        header: "No",
-        accessorFn: (_, i) => i + 1,
-        size: 50,
-      },
-      {
-        header: "Plan Name",
-        accessorKey: "plan_name",
-      },
-      {
-        header: "Price",
-        accessorKey: "price",
-        cell: ({ getValue }) => {
-          const value = getValue() as number;
-          return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-          }).format(value);
-        },
-      },
-      {
-        header: "Duration",
-        accessorKey: "duration_days",
-        cell: ({ getValue }) => {
-          const days = getValue() as number;
-          return `${days} days`;
-        },
-      },
-      {
-        header: "Pickup Frequency",
-        accessorKey: "pickup_frequency",
-        cell: ({ getValue }) => {
-          const value = getValue() as string | null;
-          return value || "-";
-        },
-      },
-      {
-        header: "Max Weight (kg)",
-        accessorKey: "max_weight",
-        cell: ({ getValue }) => {
-          const value = getValue() as number | null;
-          return value !== null ? value : "Unlimited";
-        },
-      },
-      {
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }) => (
-          <div className={styles.actionRow}>
-            <button
-              onClick={() => handleActionPlan("view", row.original)}
-              className={`${styles.btnAction} ${styles.btnView}`}
-            >
-              <FaEye />
-            </button>
-            <button
-              onClick={() => handleActionPlan("edit", row.original)}
-              className={`${styles.btnAction} ${styles.btnEdit}`}
-            >
-              <FaEdit />
-            </button>
-            <button
-              onClick={() => triggerDeletePlan(row.original.id)}
-              className={`${styles.btnAction} ${styles.btnDelete}`}
-            >
-              <FaTrash />
-            </button>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
-
   const columnsTiers = useMemo<ColumnDef<Tier>[]>(
     () => [
       {
@@ -680,90 +473,9 @@ export default function OthersPage() {
     []
   );
 
-  const columnsPendingPayments = useMemo<ColumnDef<PendingPayment>[]>(
-    () => [
-      {
-        header: "No",
-        accessorFn: (_, i) => i + 1,
-        size: 50,
-      },
-      {
-        header: "Transaction Code",
-        accessorKey: "transaction_code",
-        cell: ({ getValue }) => {
-          const value = getValue() as string;
-          return (
-            <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
-              {value}
-            </span>
-          );
-        },
-      },
-      {
-        header: "Customer",
-        accessorFn: (row) => {
-          return `${row.first_name} ${row.last_name || ""}`.trim();
-        },
-      },
-      {
-        header: "Plan",
-        accessorKey: "plan_name",
-      },
-      {
-        header: "Amount",
-        accessorKey: "total_payment",
-        cell: ({ getValue }) => {
-          const value = getValue() as number;
-          return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-          }).format(value);
-        },
-      },
-      {
-        header: "Payment Date",
-        accessorKey: "payment_time",
-        cell: ({ getValue }) => {
-          const value = getValue() as string;
-          return new Date(value).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          });
-        },
-      },
-      {
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }) => (
-          <div className={styles.actionRow}>
-            <button
-              onClick={() => handleViewPayment(row.original)}
-              className={`${styles.btnAction} ${styles.btnView}`}
-              title="View Details"
-            >
-              <FaEye />
-            </button>
-            <button
-              onClick={() => handleOpenVerifyModal(row.original)}
-              className={`${styles.btnAction} ${styles.btnEdit}`}
-              title="Verify Payment"
-              style={{ backgroundColor: "#d4edda" }}
-            >
-              <FaCheckCircle />
-            </button>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
-    fetchSubscriptionPlans();
     fetchTiers();
-    fetchPendingPayments();
+    fetchFaqs();
   }, []);
 
   return (
@@ -771,40 +483,11 @@ export default function OthersPage() {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Others Management</h1>
         <i className={styles.pageSubtitle}>
-          Manage subscription plans, pending payments, and customer tiers.
+          Manage customer tiers and frequently asked questions.
         </i>
       </div>
 
       <div className={styles.tabsContainer}>
-        <button
-          className={`${styles.tabButton} ${activeTab === "subscriptions" ? styles.activeTab : ""
-            }`}
-          onClick={() => setActiveTab("subscriptions")}
-        >
-          Subscription Plans
-        </button>
-        <button
-          className={`${styles.tabButton} ${activeTab === "pendingPayments" ? styles.activeTab : ""
-            }`}
-          onClick={() => setActiveTab("pendingPayments")}
-        >
-          Pending Payments
-          {pendingPayments.length > 0 && (
-            <span
-              style={{
-                marginLeft: "8px",
-                backgroundColor: "#dc2626",
-                color: "white",
-                borderRadius: "9999px",
-                padding: "2px 8px",
-                fontSize: "0.75rem",
-                fontWeight: "600",
-              }}
-            >
-              {pendingPayments.length}
-            </span>
-          )}
-        </button>
         <button
           className={`${styles.tabButton} ${activeTab === "tiers" ? styles.activeTab : ""
             }`}
@@ -812,203 +495,89 @@ export default function OthersPage() {
         >
           Customer Tiers
         </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === "faqs" ? styles.activeTab : ""
+            }`}
+          onClick={() => setActiveTab("faqs")}
+        >
+          FAQ
+        </button>
       </div>
 
-      {activeTab === "subscriptions" ? (
-        <AdminTable
-          columns={columnsSubscriptionPlans}
-          data={subscriptionPlans}
-          isLoading={isLoading}
-          onAdd={() => handleActionPlan("add")}
-        />
-      ) : activeTab === "pendingPayments" ? (
-        <AdminTable
-          columns={columnsPendingPayments}
-          data={pendingPayments}
-          isLoading={isLoading}
-        />
-      ) : (
+      {activeTab === "tiers" ? (
         <AdminTable
           columns={columnsTiers}
           data={tiers}
           isLoading={isLoading}
           onAdd={() => handleAction("add")}
         />
-      )}
-
-      {/* Subscription Plan Form Modal */}
-      <Modal
-        isOpen={isPlanModalOpen}
-        onClose={() => setIsPlanModalOpen(false)}
-        title={`${planModalMode === "add" ? "Add" : planModalMode === "edit" ? "Edit" : "Detail"
-          } Subscription Plan`}
-      >
-        <form className={styles.singleLayout} onSubmit={handleSavePlan}>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Plan Name *</label>
-            <input
-              className={styles.formInput}
-              value={planForm.plan_name}
-              onChange={(e) =>
-                setPlanForm({ ...planForm, plan_name: e.target.value })
-              }
-              disabled={planModalMode === "view"}
-              required
-              placeholder="e.g., Individual, Business"
-            />
-          </div>
-
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Price (IDR) *</label>
-              <input
-                type="number"
-                className={styles.formInput}
-                value={planForm.price}
-                onChange={(e) =>
-                  setPlanForm({ ...planForm, price: e.target.value })
-                }
-                disabled={planModalMode === "view"}
-                required
-                placeholder="e.g., 75000"
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Duration (days) *</label>
-              <input
-                type="number"
-                className={styles.formInput}
-                value={planForm.duration_days}
-                onChange={(e) =>
-                  setPlanForm({ ...planForm, duration_days: e.target.value })
-                }
-                disabled={planModalMode === "view"}
-                required
-                placeholder="e.g., 30"
-              />
-            </div>
-          </div>
-
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Pickup Frequency</label>
-              <select
-                className={styles.formSelect}
-                value={planForm.pickup_frequency}
-                onChange={(e) =>
-                  setPlanForm({ ...planForm, pickup_frequency: e.target.value })
-                }
-                disabled={planModalMode === "view"}
-              >
-                <option value="">Select frequency</option>
-                <option value="Weekly">Weekly</option>
-                <option value="Bi-weekly">Bi-weekly</option>
-                <option value="Monthly">Monthly</option>
-                <option value="Flexible">Flexible</option>
-              </select>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Max Weight (kg)</label>
-              <input
-                type="number"
-                step="0.01"
-                className={styles.formInput}
-                value={planForm.max_weight}
-                onChange={(e) =>
-                  setPlanForm({ ...planForm, max_weight: e.target.value })
-                }
-                disabled={planModalMode === "view"}
-                placeholder="Leave empty for unlimited"
-              />
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Description</label>
-            <textarea
-              className={styles.formTextarea}
-              value={planForm.description}
-              onChange={(e) =>
-                setPlanForm({ ...planForm, description: e.target.value })
-              }
-              disabled={planModalMode === "view"}
-              rows={3}
-              placeholder="Deskripsi paket berlangganan..."
-            />
-          </div>
-
-          <div className={styles.modalFooter}>
-            {planModalMode === "view" ? (
-              <button
-                type="button"
-                onClick={() => setIsPlanModalOpen(false)}
-                className={`${styles.btnBase} ${styles.btnCancel}`}
-              >
-                Close
-              </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setIsPlanModalOpen(false)}
-                  className={`${styles.btnBase} ${styles.btnCancel}`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className={`${styles.btnBase} ${styles.btnSave}`}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Saving..." : "Save"}
-                </button>
-              </>
-            )}
-          </div>
-        </form>
-      </Modal>
-
-      {/* Delete Subscription Plan Modal */}
-      <Modal
-        isOpen={isPlanDeleteModalOpen}
-        onClose={() => !isSubmitting && setIsPlanDeleteModalOpen(false)}
-        title="Confirm Delete"
-      >
-        <div className={styles.singleLayout}>
-          <div>
-            <p style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>
-              Are you sure you want to delete this subscription plan?
-            </p>
-            <p style={{ fontSize: "0.9rem", color: "#666" }}>
-              This action cannot be undone.
-            </p>
-          </div>
-
-          <div
-            className={styles.modalFooter}
-            style={{ width: "100%", borderTop: "none" }}
-          >
+      ) : (
+        <div>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
             <button
-              type="button"
-              onClick={() => setIsPlanDeleteModalOpen(false)}
-              className={`${styles.btnBase} ${styles.btnCancel}`}
-              disabled={isSubmitting}
+              onClick={() => handleFaqAction("add")}
+              className={`${styles.btnBase} ${styles.btnSave}`}
+              style={{ padding: "0.6rem 1.5rem" }}
             >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={confirmDeletePlan}
-              className={`${styles.btnBase} ${styles.btnDeleteConfirm}`}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Deleting..." : "Yes, Delete"}
+              + Add FAQ
             </button>
           </div>
+
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "#666" }}>
+              Loading FAQs...
+            </div>
+          ) : faqs.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "#666" }}>
+              No FAQs found. Click "Add FAQ" to create one.
+            </div>
+          ) : (
+            <div className={styles.faqGrid}>
+              {faqs.map((faq) => (
+                <div
+                  key={faq.id}
+                  className={styles.faqCard}
+                  onClick={() => handleFaqAction("view", faq)}
+                >
+                  <div className={styles.faqContent}>
+                    <h3 className={styles.faqQuestion}>{faq.question}</h3>
+                    <p className={styles.faqAnswerPreview}>
+                      {faq.answer.length > 120
+                        ? `${faq.answer.substring(0, 120)}...`
+                        : faq.answer}
+                    </p>
+                    {!faq.is_active && (
+                      <span className={styles.faqInactiveBadge}>Inactive</span>
+                    )}
+                  </div>
+                  <div className={styles.faqActions}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFaqAction("edit", faq);
+                      }}
+                      className={`${styles.btnAction} ${styles.btnEdit}`}
+                      title="Edit"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerDeleteFaq(faq.id);
+                      }}
+                      className={`${styles.btnAction} ${styles.btnDelete}`}
+                      title="Delete"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </Modal>
+      )}
 
       {/* Tier Form Modal */}
       <Modal
@@ -1240,209 +809,154 @@ export default function OthersPage() {
         </div>
       </Modal>
 
-      {/* View Payment Modal */}
+      {/* FAQ Form Modal */}
       <Modal
-        isOpen={isViewPaymentModalOpen}
-        onClose={() => setIsViewPaymentModalOpen(false)}
-        title="Payment Details"
+        isOpen={isFaqModalOpen}
+        onClose={() => setIsFaqModalOpen(false)}
+        title={`${faqModalMode === "add" ? "Add" : faqModalMode === "edit" ? "Edit" : "View"
+          } FAQ`}
       >
-        {selectedPayment && (
-          <div className={styles.singleLayout}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Transaction Code</label>
-              <p style={{ fontFamily: "monospace", fontSize: "1rem" }}>
-                {selectedPayment.transaction_code}
-              </p>
-            </div>
+        <form className={styles.singleLayout} onSubmit={handleSaveFaq}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Question *</label>
+            <textarea
+              className={styles.formTextarea}
+              value={faqForm.question}
+              onChange={(e) =>
+                setFaqForm({ ...faqForm, question: e.target.value })
+              }
+              disabled={faqModalMode === "view"}
+              required
+              rows={2}
+              placeholder="Enter the question..."
+            />
+          </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Customer</label>
-                <p>
-                  {selectedPayment.first_name} {selectedPayment.last_name || ""}
-                </p>
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Email</label>
-                <p>{selectedPayment.email}</p>
-              </div>
-            </div>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Answer *</label>
+            <textarea
+              className={styles.formTextarea}
+              value={faqForm.answer}
+              onChange={(e) =>
+                setFaqForm({ ...faqForm, answer: e.target.value })
+              }
+              disabled={faqModalMode === "view"}
+              required
+              rows={5}
+              placeholder="Enter the answer..."
+            />
+          </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Plan</label>
-                <p>{selectedPayment.plan_name}</p>
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Duration</label>
-                <p>{selectedPayment.duration_days} days</p>
-              </div>
-            </div>
+          {faqModalMode !== "view" && (
+            <>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Sort Order</label>
+                  <input
+                    type="number"
+                    className={styles.formInput}
+                    value={faqForm.sort_order}
+                    onChange={(e) =>
+                      setFaqForm({ ...faqForm, sort_order: e.target.value })
+                    }
+                    placeholder="0"
+                  />
+                  <small style={{ color: "#666", fontSize: "0.85rem" }}>
+                    Lower numbers appear first
+                  </small>
+                </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Amount</label>
-                <p style={{ fontWeight: "600", color: "#2f5e44" }}>
-                  {new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0,
-                  }).format(selectedPayment.total_payment)}
-                </p>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Status</label>
+                  <div className={styles.toggleContainer}>
+                    <label className={styles.toggleSwitch}>
+                      <input
+                        type="checkbox"
+                        checked={faqForm.is_active}
+                        onChange={(e) =>
+                          setFaqForm({ ...faqForm, is_active: e.target.checked })
+                        }
+                      />
+                      <span className={styles.toggleSlider}></span>
+                    </label>
+                    <span className={styles.toggleLabel}>
+                      {faqForm.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Payment Method</label>
-                <p>{selectedPayment.payment_method || "-"}</p>
-              </div>
-            </div>
+            </>
+          )}
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Payment Proof</label>
-              {selectedPayment.payment_proof_url ? (
-                <img
-                  src={selectedPayment.payment_proof_url}
-                  alt="Payment proof"
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "300px",
-                    objectFit: "contain",
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    padding: "8px",
-                    backgroundColor: "#f9f9f9",
-                  }}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = "none";
-                    target.insertAdjacentHTML("afterend", '<p style="color:#dc2626;font-size:0.9rem;font-style:italic">File not found</p>');
-                  }}
-                />
-              ) : (
-                <p style={{ color: "#999", fontStyle: "italic" }}>
-                  No payment proof uploaded
-                </p>
-              )}
-            </div>
-
-            <div className={styles.modalFooter}>
+          <div className={styles.modalFooter}>
+            {faqModalMode === "view" ? (
               <button
                 type="button"
-                onClick={() => setIsViewPaymentModalOpen(false)}
+                onClick={() => setIsFaqModalOpen(false)}
                 className={`${styles.btnBase} ${styles.btnCancel}`}
               >
                 Close
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsViewPaymentModalOpen(false);
-                  handleOpenVerifyModal(selectedPayment);
-                }}
-                className={`${styles.btnBase} ${styles.btnSave}`}
-              >
-                Verify Payment
-              </button>
-            </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsFaqModalOpen(false)}
+                  className={`${styles.btnBase} ${styles.btnCancel}`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={`${styles.btnBase} ${styles.btnSave}`}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Save"}
+                </button>
+              </>
+            )}
           </div>
-        )}
+        </form>
       </Modal>
 
-      {/* Verify Payment Modal */}
+      {/* Delete FAQ Modal */}
       <Modal
-        isOpen={isVerifyModalOpen}
-        onClose={() => !isSubmitting && setIsVerifyModalOpen(false)}
-        title="Verify Payment"
+        isOpen={isFaqDeleteModalOpen}
+        onClose={() => !isSubmitting && setIsFaqDeleteModalOpen(false)}
+        title="Confirm Delete"
       >
-        {selectedPayment && (
-          <form className={styles.singleLayout} onSubmit={handleVerifyPayment}>
-            <div
-              style={{
-                backgroundColor: "#f0fdf4",
-                padding: "1rem",
-                borderRadius: "8px",
-                border: "1px solid #bbf7d0",
-              }}
+        <div className={styles.singleLayout}>
+          <div>
+            <p style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+              Are you sure you want to delete this FAQ?
+            </p>
+            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+              This action cannot be undone.
+            </p>
+          </div>
+
+          <div
+            className={styles.modalFooter}
+            style={{ width: "100%", borderTop: "none" }}
+          >
+            <button
+              type="button"
+              onClick={() => setIsFaqDeleteModalOpen(false)}
+              className={`${styles.btnBase} ${styles.btnCancel}`}
+              disabled={isSubmitting}
             >
-              <p style={{ fontWeight: "600", marginBottom: "0.5rem" }}>
-                Payment Summary
-              </p>
-              <p style={{ fontSize: "0.9rem", color: "#666" }}>
-                <strong>Customer:</strong> {selectedPayment.first_name}{" "}
-                {selectedPayment.last_name || ""}
-              </p>
-              <p style={{ fontSize: "0.9rem", color: "#666" }}>
-                <strong>Plan:</strong> {selectedPayment.plan_name} (
-                {selectedPayment.duration_days} days)
-              </p>
-              <p style={{ fontSize: "0.9rem", color: "#666" }}>
-                <strong>Amount:</strong>{" "}
-                {new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                  minimumFractionDigits: 0,
-                }).format(selectedPayment.total_payment)}
-              </p>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Reference Number *</label>
-              <input
-                className={styles.formInput}
-                value={referenceNumber}
-                onChange={(e) => {
-                  setReferenceNumber(e.target.value.toUpperCase());
-                  if (referenceError) validateReferenceNumber(e.target.value.toUpperCase());
-                }}
-                onBlur={() => validateReferenceNumber(referenceNumber)}
-                placeholder="e.g., TRF-123456789"
-                style={{
-                  borderColor: referenceError ? "#ED1C24" : undefined,
-                }}
-              />
-              {referenceError && (
-                <small style={{ color: "#ED1C24", fontSize: "0.75rem" }}>
-                  {referenceError}
-                </small>
-              )}
-              <small style={{ color: "#666", fontSize: "0.75rem", display: "block", marginTop: "4px" }}>
-                Enter bank transfer reference (5-25 characters)
-              </small>
-            </div>
-
-            <div
-              style={{
-                backgroundColor: "#fef3c7",
-                padding: "1rem",
-                borderRadius: "8px",
-                border: "1px solid #fcd34d",
-              }}
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={confirmDeleteFaq}
+              className={`${styles.btnBase} ${styles.btnDeleteConfirm}`}
+              disabled={isSubmitting}
             >
-              <p style={{ fontSize: "0.9rem", color: "#92400e" }}>
-                ⚠️ Pastikan pembayaran sudah diterima dan valid sebelum
-                memverifikasi. Setelah diverifikasi, subscription akan langsung
-                aktif.
-              </p>
-            </div>
-
-            <div className={styles.modalFooter}>
-              <button
-                type="button"
-                onClick={() => setIsVerifyModalOpen(false)}
-                className={`${styles.btnBase} ${styles.btnCancel}`}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className={`${styles.btnBase} ${styles.btnSave}`}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Verifying..." : "Verify"}
-              </button>
-            </div>
-          </form>
-        )}
+              {isSubmitting ? "Deleting..." : "Yes, Delete"}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

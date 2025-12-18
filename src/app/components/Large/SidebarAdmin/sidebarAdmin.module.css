@@ -1,6 +1,6 @@
 /* Sidebar Admin */
 .sidebar {
-  width: 300px;
+  width: 350px;
   background-color: var(--color-primary);
   color: var(--color-white);
   display: flex;

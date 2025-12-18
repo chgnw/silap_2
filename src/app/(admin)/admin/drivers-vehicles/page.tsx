@@ -243,7 +243,11 @@ export default function DriversVehiclesPage() {
         accessorKey: "id_card_number",
         cell: ({ getValue }) => {
           const value = getValue() as string | null;
-          return value ? `${value.slice(0, 4)}...${value.slice(-4)}` : "-";
+          return value ? (
+            <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
+              {value}
+            </span>
+          ) : "-";
         },
       },
       {
@@ -251,7 +255,11 @@ export default function DriversVehiclesPage() {
         accessorKey: "license_number",
         cell: ({ getValue }) => {
           const value = getValue() as string | null;
-          return value || "-";
+          return value ? (
+            <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
+              {value}
+            </span>
+          ) : "-";
         },
       },
       {
@@ -865,18 +873,22 @@ export default function DriversVehiclesPage() {
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>ID Card Number (KTP)</label>
               <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{16}"
                 className={styles.formInput}
                 value={
                   driverMode === "view"
                     ? selectedDriver?.id_card_number || "-"
                     : driverForm.id_card_number
                 }
-                onChange={(e) =>
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 16);
                   setDriverForm({
                     ...driverForm,
-                    id_card_number: e.target.value,
-                  })
-                }
+                    id_card_number: value,
+                  });
+                }}
                 disabled={driverMode === "view"}
                 placeholder="e.g., 3201234567890001"
                 minLength={16}
@@ -887,18 +899,22 @@ export default function DriversVehiclesPage() {
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>License Number (SIM)</label>
               <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{16}"
                 className={styles.formInput}
                 value={
                   driverMode === "view"
                     ? selectedDriver?.license_number || "-"
                     : driverForm.license_number
                 }
-                onChange={(e) =>
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 16);
                   setDriverForm({
                     ...driverForm,
-                    license_number: e.target.value,
-                  })
-                }
+                    license_number: value,
+                  });
+                }}
                 disabled={driverMode === "view"}
                 placeholder="e.g., 1234567890123456"
                 minLength={16}
