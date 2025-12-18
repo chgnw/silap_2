@@ -72,7 +72,7 @@ export async function POST(
     const checkEventSql = `
       SELECT pe.id, pe.event_status, p.id as pickup_id
       FROM tr_pickup_event pe
-      LEFT JOIN tr_pickup p ON pe.id = p.pickup_event_id AND p.partner_id = ?
+      LEFT JOIN tr_pickup p ON pe.id = p.pickup_event_id AND p.driver_id = ?
       WHERE pe.id = ?
     `;
     const eventResult = (await query(checkEventSql, [

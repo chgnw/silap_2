@@ -12,8 +12,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const sql = `DELETE FROM ms_vehicle WHERE id = ?`;
+    // Check if vehicle exists and is active
+    const checkSql = `SELECT id FROM ms_vehicle WHERE id = ? AND is_active = TRUE`;
+    const existingData = await query(checkSql, [id]) as any[];
 
+    if (existingData.length === 0) {
+      return NextResponse.json(
+        { error: "Vehicle not found" },
+        { status: 404 }
+      );
+    }
+
+    // Soft delete - set is_active to FALSE
+    const sql = `UPDATE ms_vehicle SET is_active = FALSE WHERE id = ?`;
     await query(sql, [id]);
 
     return NextResponse.json(

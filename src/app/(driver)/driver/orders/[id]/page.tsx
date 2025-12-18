@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import styles from "./detail.module.css";
 import { showToast } from "@/lib/toastHelper";
-import { FaArrowLeft, FaMapMarkerAlt } from "react-icons/fa";
+import { FaArrowLeft, FaMapMarkerAlt, FaTruck, FaCheck } from "react-icons/fa";
 
 interface PickupEventDetail {
   id: number;
@@ -29,6 +29,7 @@ interface PickupEventDetail {
   category_max_weight: number;
   pickup_id: number | null;
   status: string | null;
+  transaction_status_id?: number | null;
 }
 
 export default function PickupEventDetailPage() {
@@ -40,6 +41,8 @@ export default function PickupEventDetailPage() {
   const [event, setEvent] = useState<PickupEventDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
+  const [onTheWayLoading, setOnTheWayLoading] = useState(false);
+  const [arrivedLoading, setArrivedLoading] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
@@ -84,8 +87,8 @@ export default function PickupEventDetailPage() {
 
       if (data.message === "SUCCESS") {
         showToast("success", data.detail || "Order berhasil di-accept!");
-        // Redirect to upload page
-        router.push(`/driver/orders/${eventId}/upload`);
+        // Refresh to get updated status
+        await fetchEventDetail();
       } else {
         showToast("error", data.detail || "Gagal accept order");
       }
@@ -94,6 +97,54 @@ export default function PickupEventDetailPage() {
       showToast("error", "Terjadi kesalahan");
     } finally {
       setAccepting(false);
+    }
+  };
+
+  const handleOnTheWay = async () => {
+    try {
+      setOnTheWayLoading(true);
+      const res = await fetch(`/api/driver/pickup-events/${eventId}/on-the-way`, {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (data.message === "SUCCESS") {
+        showToast("success", "Status berhasil diupdate. Menuju lokasi pickup!");
+        // Refresh to get updated status
+        await fetchEventDetail();
+      } else {
+        showToast("error", data.detail || "Gagal update status");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      showToast("error", "Terjadi kesalahan");
+    } finally {
+      setOnTheWayLoading(false);
+    }
+  };
+
+  const handleArrived = async () => {
+    try {
+      setArrivedLoading(true);
+      const res = await fetch(`/api/driver/pickup-events/${eventId}/arrived`, {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (data.message === "SUCCESS") {
+        showToast("success", "Status berhasil diupdate. Mulai pickup!");
+        // Redirect to upload page
+        router.push(`/driver/orders/${eventId}/upload`);
+      } else {
+        showToast("error", data.detail || "Gagal update status");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      showToast("error", "Terjadi kesalahan");
+    } finally {
+      setArrivedLoading(false);
     }
   };
 
@@ -135,6 +186,32 @@ export default function PickupEventDetailPage() {
     }
   };
 
+  // Helper to determine current status
+  const getStatusInfo = () => {
+    if (!event) return { label: "-", step: 0 };
+
+    if (!event.pickup_id) {
+      return { label: "Belum di-accept", step: 0 };
+    }
+
+    // Based on transaction_status_id from the API
+    // 2 = Accepted, 6 = Menuju Lokasi, 7 = Sampai di Lokasi, 4 = Completed
+    switch (event.status) {
+      case "Accepted":
+        return { label: "Menunggu Waktu Penjemputan", step: 1 };
+      case "Menuju Lokasi":
+        return { label: "Menuju Lokasi Pickup", step: 2 };
+      case "Sampai di Lokasi":
+        return { label: "Sedang Pickup", step: 3 };
+      case "Completed":
+        return { label: "Selesai", step: 4 };
+      default:
+        return { label: event.status || "Unknown", step: 0 };
+    }
+  };
+
+  const statusInfo = getStatusInfo();
+
   if (loading || status === "loading") {
     return (
       <div className={styles.loadingContainer}>
@@ -161,6 +238,14 @@ export default function PickupEventDetailPage() {
         </button>
         <h1 className={styles.title}>Order Pick Up</h1>
       </div>
+
+      {/* Status Badge */}
+      {event.pickup_id && (
+        <div className={styles.statusBadge}>
+          <span className={`${styles.statusDot} ${styles[`step${statusInfo.step}`]}`}></span>
+          <span>{statusInfo.label}</span>
+        </div>
+      )}
 
       {/* Detail Card */}
       <div className={styles.detailCard}>
@@ -195,13 +280,6 @@ export default function PickupEventDetailPage() {
           <span className={styles.detailValue}>{event.pickup_weight} Kg</span>
         </div>
 
-        {event.status && (
-          <div className={styles.detailRow}>
-            <span className={styles.detailLabel}>Status</span>
-            <span className={styles.detailValue}>{event.status}</span>
-          </div>
-        )}
-
         <div className={styles.detailRowFull}>
           <div className={styles.addressHeader}>
             <FaMapMarkerAlt />
@@ -218,7 +296,7 @@ export default function PickupEventDetailPage() {
         )}
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons - Dynamic based on status */}
       {!event.pickup_id ? (
         // Event belum di-accept, show Accept button
         <button
@@ -228,8 +306,57 @@ export default function PickupEventDetailPage() {
         >
           {accepting ? "Memproses..." : "Accept Order"}
         </button>
+      ) : event.status === "Accepted" ? (
+        // Status: Accepted - Show "Menuju Lokasi" button
+        <div className={styles.actionButtons}>
+          <button
+            className={styles.onTheWayButton}
+            onClick={handleOnTheWay}
+            disabled={onTheWayLoading}
+          >
+            <FaTruck />
+            {onTheWayLoading ? "Memproses..." : "Menuju Lokasi"}
+          </button>
+          <button
+            className={styles.cancelButton}
+            onClick={() => setShowCancelModal(true)}
+          >
+            Batalkan Order
+          </button>
+        </div>
+      ) : event.status === "Menuju Lokasi" ? (
+        // Status: Menuju Lokasi - Show "Sudah Sampai" button
+        <div className={styles.actionButtons}>
+          <button
+            className={styles.arrivedButton}
+            onClick={handleArrived}
+            disabled={arrivedLoading}
+          >
+            <FaCheck />
+            {arrivedLoading ? "Memproses..." : "Sudah Sampai"}
+          </button>
+          <button
+            className={styles.cancelButton}
+            onClick={() => setShowCancelModal(true)}
+          >
+            Batalkan Order
+          </button>
+        </div>
+      ) : event.status === "Sampai di Lokasi" ? (
+        // Status: Sampai di Lokasi - Show Upload button
+        <div className={styles.actionButtons}>
+          <button className={styles.uploadButton} onClick={handleUploadOrder}>
+            Upload Order
+          </button>
+          <button
+            className={styles.cancelButton}
+            onClick={() => setShowCancelModal(true)}
+          >
+            Batalkan Order
+          </button>
+        </div>
       ) : event.status !== "Completed" ? (
-        // Event sudah di-accept tapi belum complete, show Upload and Cancel buttons
+        // Fallback for other non-completed statuses
         <div className={styles.actionButtons}>
           <button className={styles.uploadButton} onClick={handleUploadOrder}>
             Upload Order

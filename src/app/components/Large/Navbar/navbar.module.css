@@ -26,6 +26,8 @@
 .bsNavbar {
   background: transparent !important;
   padding: 0 !important;
+}
+
 /* Navbar */
 .navbar {
   background-color: var(--color-primary) !important;
@@ -61,12 +63,12 @@
 }
 
 .navLinkLight .nav-link {
-  color: var(--color-white) !important;
+  color: #f5f5f5 !important;
 }
 
 .navLinkLight .dropdown-toggle::after,
 .navLinkLight .dropdown-toggle {
-  color: var(--color-white) !important;
+  color: #f5f5f5 !important;
 }
 
 .login {

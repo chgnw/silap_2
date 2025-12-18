@@ -48,6 +48,25 @@ export async function POST(
       );
     }
 
+    // Check if driver already has an active order (status not completed/cancelled)
+    const activeOrderSql = `
+      SELECT p.id, p.transaction_code
+      FROM tr_pickup p
+      WHERE p.driver_id = ?
+        AND p.transaction_status_id NOT IN (4, 5)
+    `;
+    const activeOrders = (await query(activeOrderSql, [driver.id])) as any[];
+
+    if (activeOrders.length > 0) {
+      return NextResponse.json(
+        {
+          message: "FAILED",
+          detail: "Anda masih memiliki order aktif. Selesaikan order tersebut sebelum mengambil order baru.",
+        },
+        { status: 400 }
+      );
+    }
+
     // Check if pickup event exists
     const eventSql = `
       SELECT id, transaction_code, user_id, pickup_address, event_date, pickup_time
@@ -88,7 +107,7 @@ export async function POST(
     // Insert to tr_pickup with status 2 (Pending/Accepted)
     const insertSql = `
       INSERT INTO tr_pickup 
-      (transaction_code, user_id, pickup_event_id, partner_id, transaction_status_id, 
+      (transaction_code, user_id, pickup_event_id, driver_id, transaction_status_id, 
        pickup_address, request_time, pickup_schedule)
       VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)
     `;

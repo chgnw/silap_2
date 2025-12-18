@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
     const sqlCheck = `
             SELECT id FROM ms_reward_category
-            WHERE id = ?
+            WHERE id = ? AND is_active = TRUE
         `;
     const resultCheck = (await query(sqlCheck, [id])) as any;
     if (resultCheck.length === 0) {
@@ -21,8 +21,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Soft delete - set is_active to FALSE
     const sql = `
-            DELETE FROM ms_reward_category
+            UPDATE ms_reward_category
+            SET is_active = FALSE
             WHERE id = ?
         `;
     const result = (await query(sql, [id])) as any;

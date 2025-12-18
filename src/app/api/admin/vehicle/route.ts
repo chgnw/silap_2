@@ -19,6 +19,7 @@ export async function GET() {
         vc.max_weight as category_max_weight
       FROM ms_vehicle v
       LEFT JOIN ms_vehicle_category vc ON v.vehicle_category_id = vc.id
+      WHERE v.is_active = TRUE
       ORDER BY v.id ASC
     `;
 
@@ -37,10 +38,10 @@ export async function GET() {
       updated_at: v.updated_at,
       category: v.category_name
         ? {
-            category_name: v.category_name,
-            min_weight: v.min_weight,
-            max_weight: v.category_max_weight,
-          }
+          category_name: v.category_name,
+          min_weight: v.min_weight,
+          max_weight: v.category_max_weight,
+        }
         : null,
     }));
 

@@ -7,7 +7,7 @@ interface WasteCategory {
   name: string;
   icon: string;
   unit: string;
-  points_per_unit: number;
+  point_per_unit: number;
 }
 
 interface WasteTypeCardProps {
@@ -37,7 +37,7 @@ const WasteTypeCard = ({ category }: WasteTypeCardProps) => {
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Poin:</span>
             <span className={styles.infoValue}>
-              {category.points_per_unit || 0} poin/{category.unit || "unit"}
+              {category.point_per_unit || 0} poin/{category.unit || "unit"}
             </span>
           </div>
         </div>

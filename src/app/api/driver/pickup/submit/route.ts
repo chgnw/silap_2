@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Check if pickup already exists (should exist from accept)
     const checkPickupSql = `
       SELECT id FROM tr_pickup 
-      WHERE pickup_event_id = ? AND partner_id = ?
+      WHERE pickup_event_id = ? AND driver_id = ?
     `;
     const existingPickup = (await query(checkPickupSql, [
       pickup_event_id,
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
       try {
         // Try new structure first (after migration 015 & 017)
         const insertItemsSql = `
-          INSERT INTO tr_pickup_items (
+          INSERT INTO tr_pickup_item (
             pickup_id,
             waste_category_id,
             weight,
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
       } catch (error: any) {
         try {
           const insertItemsFallbackSql = `
-            INSERT INTO tr_pickup_items (
+            INSERT INTO tr_pickup_item (
               pickup_id,
               waste_item_id,
               waste_category_id,
@@ -199,10 +199,10 @@ export async function POST(req: NextRequest) {
         } catch (fallbackError: any) {
           // If both fail, log error but continue (points already calculated)
           console.error(
-            "Failed to insert tr_pickup_items:",
+            "Failed to insert tr_pickup_item:",
             fallbackError.message
           );
-          console.log("Continuing without tr_pickup_items insert...");
+          console.log("Continuing without tr_pickup_item insert...");
         }
       }
     }

@@ -14,6 +14,7 @@ export async function GET() {
       ORDER BY id
     `;
     const rows = await query(sql);
+    console.log(rows);
 
     return NextResponse.json(rows);
   } catch (error) {

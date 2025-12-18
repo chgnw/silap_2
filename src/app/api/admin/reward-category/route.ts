@@ -4,8 +4,9 @@ import { query } from "@/lib/db";
 export async function GET() {
   try {
     const sql = `
-            SELECT *
+            SELECT id, category_name, icon_path, created_at, updated_at
             FROM ms_reward_category
+            WHERE is_active = TRUE
         `;
     const result = await query(sql);
 

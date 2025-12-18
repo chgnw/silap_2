@@ -21,6 +21,7 @@ interface FAQ {
 function PricingContent() {
   const searchParams = useSearchParams();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
 
 
   // Checkout & Payment State
@@ -56,12 +57,23 @@ function PricingContent() {
     },
   ];
 
-  const faqs: FAQ[] = [
-    { question: 'Apakah harga sudah termasuk PPN?', answer: 'Ya, harga yang tertera sudah termasuk PPN 11%.' },
-    { question: 'Bisa berhenti berlangganan kapan saja?', answer: 'Tentu. Anda bisa membatalkan langganan kapan saja tanpa biaya penalti melalui aplikasi.' },
-    { question: 'Metode pembayaran apa yang tersedia?', answer: 'Kami menerima transfer bank (BCA, Mandiri, BNI), E-Wallet (GoPay, OVO, Dana), dan QRIS.' },
-    { question: 'Bagaimana jika sampah melebihi kapasitas?', answer: 'Anda akan dikenakan biaya tambahan per kg sesuai tarif yang berlaku, atau Anda bisa upgrade paket.' },
-  ];
+  // Fetch FAQs from API
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      try {
+        const response = await fetch('/api/faq');
+        const result = await response.json();
+
+        if (result.message === 'SUCCESS' && result.data) {
+          setFaqs(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching FAQs:', error);
+      }
+    };
+
+    fetchFaqs();
+  }, []);
 
   const handleCheckout = (tier: Tier) => {
     setSelectedTier(tier);

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     // Check if vehicle is available
     const checkVehicleSql = `
       SELECT id, status FROM ms_vehicle 
-      WHERE id = ? AND status = 'inactive'
+      WHERE id = ? AND status = 'available'
     `;
     const vehicleCheck = (await query(checkVehicleSql, [vehicle_id])) as any[];
     if (vehicleCheck.length === 0) {
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     const driver = driverCheck[0];
     // If driver has assigned vehicle, unassign it first
     if (driver.assigned_vehicle_id) {
-      await query(`UPDATE ms_vehicle SET status = 'inactive' WHERE id = ?`, [
+      await query(`UPDATE ms_vehicle SET status = 'available' WHERE id = ?`, [
         driver.assigned_vehicle_id,
       ]);
     }
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       [vehicle_id, userId]
     );
 
-    await query(`UPDATE ms_vehicle SET status = 'active' WHERE id = ?`, [
+    await query(`UPDATE ms_vehicle SET status = 'in-use' WHERE id = ?`, [
       vehicle_id,
     ]);
 
