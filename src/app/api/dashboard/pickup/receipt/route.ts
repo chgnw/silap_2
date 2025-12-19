@@ -72,11 +72,20 @@ export async function GET(req: Request) {
         const totalWeight = items.reduce((sum: number, item: any) => sum + parseFloat(item.weight), 0);
         const totalPoints = items.reduce((sum: number, item: any) => sum + item.points_earned, 0);
 
-        // Get user's current points balance for session update
-        const userPointsSql = `SELECT points FROM ms_user WHERE id = ?`;
-        const userPointsResult = (await query(userPointsSql, [userId])) as any[];
-        const currentPoints = userPointsResult[0]?.points || 0;
+        // Get user's current points balance and tier info for session update
+        const userInfoSql = `
+            SELECT u.points, u.tier_list_id, t.tier_name
+            FROM ms_user u
+            LEFT JOIN ms_tier_list t ON u.tier_list_id = t.id
+            WHERE u.id = ?
+        `;
+        const userInfoResult = (await query(userInfoSql, [userId])) as any[];
+        const currentPoints = userInfoResult[0]?.points || 0;
+        const currentTierName = userInfoResult[0]?.tier_name || null;
 
+        // Check if tier was upgraded (compare with what was expected before this pickup)
+        // We'll store tier info in pickup_event or check from point_history
+        // For now, just return current tier - frontend can compare with session tier
         return NextResponse.json(
             {
                 message: "SUCCESS",
@@ -97,7 +106,8 @@ export async function GET(req: Request) {
                     })),
                     total_weight: totalWeight,
                     total_points: totalPoints,
-                    user_current_points: currentPoints, // For session update
+                    user_current_points: currentPoints,
+                    current_tier_name: currentTierName,
                 },
             },
             { status: 200 }

@@ -32,6 +32,7 @@ type VehicleCategory = {
   min_weight: number;
   max_weight: number | null;
   description: string | null;
+  image_path: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -339,6 +340,8 @@ export default function DriversVehiclesPage() {
     max_weight: "",
     description: "",
   });
+  const [categoryImage, setCategoryImage] = useState<File | null>(null);
+  const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null);
 
   const fetchVehicleCategories = async () => {
     setIsLoading(true);
@@ -373,6 +376,7 @@ export default function DriversVehiclesPage() {
         max_weight: category.max_weight?.toString() || "",
         description: category.description || "",
       });
+      setCategoryImagePreview(category.image_path || null);
     } else {
       setVehicleCategoryForm({
         category_name: "",
@@ -380,7 +384,9 @@ export default function DriversVehiclesPage() {
         max_weight: "",
         description: "",
       });
+      setCategoryImagePreview(null);
     }
+    setCategoryImage(null);
 
     setIsVehicleCategoryModalOpen(true);
   };
@@ -395,24 +401,23 @@ export default function DriversVehiclesPage() {
           ? "/api/admin/vehicle-category/add"
           : "/api/admin/vehicle-category/update";
 
-      const payload = {
-        category_name: vehicleCategoryForm.category_name,
-        min_weight: vehicleCategoryForm.min_weight
-          ? parseFloat(vehicleCategoryForm.min_weight)
-          : 0,
-        max_weight: vehicleCategoryForm.max_weight
-          ? parseFloat(vehicleCategoryForm.max_weight)
-          : null,
-        description: vehicleCategoryForm.description || null,
-        ...(vehicleCategoryMode === "edit" && {
-          id: selectedVehicleCategory?.id,
-        }),
-      };
+      const formData = new FormData();
+      formData.append("category_name", vehicleCategoryForm.category_name);
+      formData.append("min_weight", vehicleCategoryForm.min_weight || "0");
+      formData.append("max_weight", vehicleCategoryForm.max_weight || "");
+      formData.append("description", vehicleCategoryForm.description || "");
+
+      if (vehicleCategoryMode === "edit" && selectedVehicleCategory?.id) {
+        formData.append("id", selectedVehicleCategory.id.toString());
+      }
+
+      if (categoryImage) {
+        formData.append("image", categoryImage);
+      }
 
       const response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const result = await response.json();
@@ -424,6 +429,8 @@ export default function DriversVehiclesPage() {
           } successfully!`
         );
         setIsVehicleCategoryModalOpen(false);
+        setCategoryImage(null);
+        setCategoryImagePreview(null);
         fetchVehicleCategories();
       } else {
         showToast("error", result.detail || result.error || "Operation failed");
@@ -1130,6 +1137,39 @@ export default function DriversVehiclesPage() {
               rows={3}
               placeholder="e.g., Kendaraan roda dua untuk pickup sampah ringan"
             />
+          </div>
+
+          {/* Image Upload */}
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Category Image</label>
+            {(categoryImagePreview || categoryImage) && (
+              <div style={{ marginBottom: "0.75rem" }}>
+                <img
+                  src={categoryImage ? URL.createObjectURL(categoryImage) : categoryImagePreview || ""}
+                  alt="Preview"
+                  style={{
+                    maxWidth: "200px",
+                    maxHeight: "150px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                  }}
+                />
+              </div>
+            )}
+            {vehicleCategoryMode !== "view" && (
+              <input
+                type="file"
+                accept="image/*"
+                className={styles.formInput}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setCategoryImage(file);
+                  }
+                }}
+              />
+            )}
           </div>
 
           <div className={styles.modalFooter}>

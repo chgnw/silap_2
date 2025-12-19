@@ -135,7 +135,7 @@
 }
 
 .welcomeHeader h1 {
-  font-size: 4rem;
+  font-size: 2.5rem;
   font-weight: 500;
   margin-bottom: 1rem;
   color: #000;
@@ -143,7 +143,7 @@
 
 .welcomeHeader p {
   color: #333;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 400;
 }
 

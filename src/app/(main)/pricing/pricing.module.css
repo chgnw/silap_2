@@ -73,9 +73,10 @@
 }
 
 .pricingCard {
+  height: 100%;
   background: #fff;
   border-radius: var(--border-radius-card);
-  padding: 3rem 2.5rem;
+  padding: 3rem 2rem;
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
@@ -366,7 +367,7 @@
 }
 
 .paymentContent {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   animation: fadeIn 0.3s ease;
 }
 
@@ -422,16 +423,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #64748b;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
+  color: var(--color-placeholder);
+  gap: 0.5rem;
 }
 
-.qrisPlaceholder::before {
+.qrisPlaceholder img {
+  width: 150px;
+  height: 150px;
+}
+
+/* .qrisPlaceholder::before {
   content: '🔳';
   font-size: 4rem;
   opacity: 0.2;
-}
+} */
 
 /* Instructions List */
 .instructions {
@@ -454,7 +459,7 @@
 }
 
 .instructions li {
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -468,7 +473,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding-top: 1.5rem;
   border-top: 2px dashed #e2e8f0;
 }

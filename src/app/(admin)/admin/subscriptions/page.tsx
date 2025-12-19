@@ -17,6 +17,8 @@ type SubscriptionPlan = {
     duration_days: number;
     pickup_frequency: string | null;
     max_weight: number | null;
+    features: string | null;
+    is_popular: boolean;
     created_at?: string;
     updated_at?: string;
 };
@@ -92,6 +94,8 @@ export default function SubscriptionsPage() {
         duration_days: "",
         pickup_frequency: "",
         max_weight: "",
+        features: "",
+        is_popular: false,
     });
 
     // =========================================
@@ -186,6 +190,8 @@ export default function SubscriptionsPage() {
                 duration_days: plan.duration_days.toString(),
                 pickup_frequency: plan.pickup_frequency || "",
                 max_weight: plan.max_weight?.toString() || "",
+                features: plan.features || "",
+                is_popular: plan.is_popular || false,
             });
         } else {
             setPlanForm({
@@ -195,6 +201,8 @@ export default function SubscriptionsPage() {
                 duration_days: "30",
                 pickup_frequency: "",
                 max_weight: "",
+                features: "",
+                is_popular: false,
             });
         }
 
@@ -218,6 +226,8 @@ export default function SubscriptionsPage() {
                 duration_days: parseInt(planForm.duration_days),
                 pickup_frequency: planForm.pickup_frequency || null,
                 max_weight: planForm.max_weight ? parseFloat(planForm.max_weight) : null,
+                features: planForm.features || null,
+                is_popular: planForm.is_popular,
                 ...(planModalMode === "edit" && { id: selectedPlan?.id }),
             };
 
@@ -778,6 +788,39 @@ export default function SubscriptionsPage() {
                             rows={3}
                             placeholder="Deskripsi paket berlangganan..."
                         />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Features (pisahkan dengan koma)</label>
+                        <textarea
+                            className={styles.formTextarea}
+                            value={planForm.features}
+                            onChange={(e) =>
+                                setPlanForm({ ...planForm, features: e.target.value })
+                            }
+                            disabled={planModalMode === "view"}
+                            rows={3}
+                            placeholder="Penjemputan 1x seminggu, Kapasitas 5kg, Laporan dasar"
+                        />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <div className={styles.toggleContainer}>
+                            <label className={styles.toggleSwitch}>
+                                <input
+                                    type="checkbox"
+                                    checked={planForm.is_popular}
+                                    onChange={(e) =>
+                                        setPlanForm({ ...planForm, is_popular: e.target.checked })
+                                    }
+                                    disabled={planModalMode === "view"}
+                                />
+                                <span className={styles.toggleSlider}></span>
+                            </label>
+                            <span className={styles.toggleLabel}>
+                                Popular Plan (tampil badge "Popular")
+                            </span>
+                        </div>
                     </div>
 
                     <div className={styles.modalFooter}>
