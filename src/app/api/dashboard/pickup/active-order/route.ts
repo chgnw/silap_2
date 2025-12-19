@@ -50,7 +50,8 @@ export async function GET() {
                 v.id as vehicle_id,
                 CONCAT(COALESCE(v.brand, ''), ' ', COALESCE(v.model, '')) as vehicle_name,
                 v.license_plate,
-                vcat.category_name as assigned_vehicle_category
+                vcat.category_name as assigned_vehicle_category,
+                vcat.image_path as vehicle_category_image
             FROM tr_pickup_event pe
             JOIN ms_pickup_type pt ON pe.pickup_type_id = pt.id
             LEFT JOIN ms_vehicle_category vc ON pe.vehicle_category_id = vc.id
@@ -137,6 +138,7 @@ export async function GET() {
                     name: order.vehicle_name,
                     license_plate: order.license_plate,
                     category: order.assigned_vehicle_category,
+                    image: order.vehicle_category_image,
                 }
                 : null,
         };

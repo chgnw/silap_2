@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 
+import { showToast } from "@/lib/toastHelper";
 import {
   FaFileAlt,
   FaCheck,
@@ -54,6 +55,7 @@ interface ActiveOrder {
     name: string;
     license_plate: string;
     category: string;
+    image: string | null;
   } | null;
 }
 
@@ -75,6 +77,7 @@ interface Receipt {
   total_weight: number;
   total_points: number;
   user_current_points: number;
+  current_tier_name: string | null;
 }
 
 const STEPS = [
@@ -192,6 +195,8 @@ export default function HistoryPage() {
   const fetchReceipt = async (pickupId: number) => {
     try {
       setReceiptLoading(true);
+      const oldTierName = session?.user?.tier_list_name;
+
       const res = await fetch(`/api/dashboard/pickup/receipt?pickup_id=${pickupId}`);
       const data = await res.json();
       if (data.message === "SUCCESS") {
@@ -200,13 +205,22 @@ export default function HistoryPage() {
         // Save to localStorage so it persists across page navigations
         localStorage.setItem("silap_pending_receipt", JSON.stringify(data.data));
 
-        // Update session with new points balance
+        // Check if tier was upgraded
+        const newTierName = data.data.current_tier_name;
+        if (oldTierName && newTierName && oldTierName !== newTierName) {
+          setTimeout(() => {
+            showToast("success", `🎉 Selamat! Tier kamu naik ke ${newTierName}!`);
+          }, 500);
+        }
+
+        // Update session with new points and tier
         if (session && data.data.user_current_points !== undefined) {
           await updateSession({
             ...session,
             user: {
               ...session.user,
               points: data.data.user_current_points,
+              tier_list_name: newTierName,
             },
           });
         }
@@ -299,35 +313,167 @@ export default function HistoryPage() {
             </div>
           ) : (
             <div className={styles.onProgressContainer}>
-              {/* Left Side - Only show if driver is assigned */}
-              {activeOrder.has_driver && (
-                <div className={styles.leftSide}>
-                  {/* Informasi armada */}
-                  <div className={styles.vehicleInfoContainer}>
-                    <h1>Armada SILAP</h1>
+              {/* Main Card - Full Width */}
+              <div className={styles.cardContainer}>
+                <h1 className={styles.title}>Pesanan Sedang Diproses</h1>
 
-                    <div className={styles.vehicleDetailContainer}>
-                      <div className={styles.vehicleImage}>
-                        <Image
-                          src="/images/dummy-truck.png"
-                          alt="Vehicle"
-                          width={200}
-                          height={150}
-                          loading="lazy"
-                        />
+                <div className={styles.stepperContainer}>
+                  <div className={styles.stepperLine}></div>
+
+                  {STEPS.map((step) => {
+                    const isActive = step.id === activeOrder.current_step;
+                    const isCompleted = step.id < activeOrder.current_step;
+                    const Icon = step.icon;
+
+                    return (
+                      <div
+                        key={step.id}
+                        className={`${styles.stepItem} ${isActive ? styles.active : ""} ${isCompleted ? styles.completed : ""
+                          }`}
+                      >
+                        <div
+                          className={
+                            isActive
+                              ? styles.iconWrapperActive
+                              : isCompleted
+                                ? styles.iconWrapperCompleted
+                                : styles.iconWrapper
+                          }
+                        >
+                          <Icon
+                            size={20}
+                            color={isActive || isCompleted ? "#fff" : "#555"}
+                          />
+                        </div>
+                        <div className={styles.stepText}>
+                          <span className={styles.stepLabel}>{step.label}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className={styles.detailsGrid}>
+                  <div className={styles.column}>
+                    {/* Lokasi Armada */}
+                    <div className={styles.detailSection}>
+                      <h3 className={styles.sectionHeader}>
+                        <span
+                          className={`${styles.dot} ${styles.limeDot}`}
+                        ></span>
+                        Lokasi Armada
+                      </h3>
+                      <div className={styles.row}>
+                        <span className={styles.label}>Wilayah</span>
+                        <span className={styles.value}>
+                          {activeOrder.pickup_regency || "-"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Info Pick Up */}
+                    <div className={styles.detailSection}>
+                      <h3 className={styles.sectionHeader}>
+                        <span className={`${styles.dot} ${styles.redDot}`}></span>
+                        Info Pick Up
+                      </h3>
+
+                      <div
+                        className={styles.row}
+                        style={{ alignItems: "center" }}
+                      >
+                        <span className={styles.label}>No Resi</span>
+                        <span className={styles.valueResi}>
+                          <FaCopy
+                            size={16}
+                            className={styles.copyIcon}
+                            onClick={handleCopyResi}
+                            title="Salin nomor resi"
+                          />{" "}
+                          {activeOrder.transaction_code}
+                        </span>
                       </div>
 
-                      <div className={styles.vehicleDetail}>
-                        <span>{activeOrder.vehicle?.name || "Kendaraan SILAP"}</span>
-                        <span style={{ color: "#2F5E44" }}>
-                          {activeOrder.vehicle?.license_plate || "-"}
-                        </span>
-                        <span>{activeOrder.vehicle?.category || "-"}</span>
+                      <div className={styles.addressBlock}>
+                        <span className={styles.label}>Alamat</span>
+                        <div className={styles.addressContent}>
+                          <div className={styles.addressText}>
+                            {activeOrder.pickup_address}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Informasi driver */}
+                  <div className={styles.column}>
+                    {/* Waktu Pick Up */}
+                    <div className={styles.detailSection}>
+                      <h3 className={styles.sectionHeader}>
+                        <span
+                          className={`${styles.dot} ${styles.cyanDot}`}
+                        ></span>
+                        Waktu Pick Up
+                      </h3>
+                      <div className={styles.row}>
+                        <span className={styles.label}>Tanggal</span>
+                        <span className={styles.value}>
+                          {formatDate(activeOrder.event_date)}
+                        </span>
+                      </div>
+                      <div className={styles.row}>
+                        <span className={styles.label}>Jam</span>
+                        <span className={styles.value}>
+                          {formatTime(activeOrder.pickup_time)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Berat Sampah */}
+                    <div className={styles.detailSection}>
+                      <h3 className={styles.sectionHeader}>
+                        <span
+                          className={`${styles.dot} ${styles.orangeDot}`}
+                        ></span>
+                        Detail Pickup
+                      </h3>
+                      <div className={styles.row}>
+                        <span className={styles.label}>Berat</span>
+                        <span className={styles.value}>
+                          ~{activeOrder.pickup_weight} Kg
+                        </span>
+                      </div>
+                      <div className={styles.row}>
+                        <span className={styles.label}>Tipe</span>
+                        <span className={styles.value}>
+                          {activeOrder.pickup_type}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Completed message */}
+                {activeOrder.is_completed && (
+                  <div className={styles.completedMessage}>
+                    <FaFlagCheckered size={24} color="#2F5E44" />
+                    <p>Pesanan Anda telah selesai! Terima kasih telah menggunakan SILAP.</p>
+                    {activeOrder.pickup_id && (
+                      <button
+                        className={styles.viewReceiptButton}
+                        onClick={() => fetchReceipt(activeOrder.pickup_id!)}
+                        disabled={receiptLoading}
+                      >
+                        {receiptLoading ? "Memuat..." : "Lihat Rincian Poin"}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Driver & Vehicle Info Row - Only show if driver is assigned */}
+              {activeOrder.has_driver && (
+                <div className={styles.infoCardsRow}>
+                  {/* Driver Info Card */}
                   <div className={styles.driverInfoContainer}>
                     <h1>Informasi Driver</h1>
 
@@ -360,166 +506,33 @@ export default function HistoryPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Vehicle Info Card */}
+                  <div className={styles.vehicleInfoContainer}>
+                    <h1>Armada SILAP</h1>
+
+                    <div className={styles.vehicleDetailContainer}>
+                      <div className={styles.vehicleImage}>
+                        <Image
+                          src={activeOrder.vehicle?.image || "/images/dummy-truck.png"}
+                          alt="Vehicle"
+                          width={200}
+                          height={150}
+                          loading="lazy"
+                        />
+                      </div>
+
+                      <div className={styles.vehicleDetail}>
+                        <span>{activeOrder.vehicle?.name || "Kendaraan SILAP"}</span>
+                        <span style={{ color: "#2F5E44" }}>
+                          {activeOrder.vehicle?.license_plate || "-"}
+                        </span>
+                        <span>{activeOrder.vehicle?.category || "-"}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
-
-              <div className={activeOrder.has_driver ? styles.rightSide : styles.fullWidth}>
-                <div className={styles.cardContainer}>
-                  <h1 className={styles.title}>Pesanan Sedang Diproses</h1>
-
-                  <div className={styles.stepperContainer}>
-                    <div className={styles.stepperLine}></div>
-
-                    {STEPS.map((step) => {
-                      const isActive = step.id === activeOrder.current_step;
-                      const isCompleted = step.id < activeOrder.current_step;
-                      const Icon = step.icon;
-
-                      return (
-                        <div
-                          key={step.id}
-                          className={`${styles.stepItem} ${isActive ? styles.active : ""} ${isCompleted ? styles.completed : ""
-                            }`}
-                        >
-                          <div
-                            className={
-                              isActive
-                                ? styles.iconWrapperActive
-                                : isCompleted
-                                  ? styles.iconWrapperCompleted
-                                  : styles.iconWrapper
-                            }
-                          >
-                            <Icon
-                              size={20}
-                              color={isActive || isCompleted ? "#fff" : "#555"}
-                            />
-                          </div>
-                          <div className={styles.stepText}>
-                            <span className={styles.stepLabel}>{step.label}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className={styles.detailsGrid}>
-                    <div className={styles.column}>
-                      {/* Lokasi Armada */}
-                      <div className={styles.detailSection}>
-                        <h3 className={styles.sectionHeader}>
-                          <span
-                            className={`${styles.dot} ${styles.limeDot}`}
-                          ></span>
-                          Lokasi Armada
-                        </h3>
-                        <div className={styles.row}>
-                          <span className={styles.label}>Wilayah</span>
-                          <span className={styles.value}>
-                            {activeOrder.pickup_regency || "-"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Info Pick Up */}
-                      <div className={styles.detailSection}>
-                        <h3 className={styles.sectionHeader}>
-                          <span className={`${styles.dot} ${styles.redDot}`}></span>
-                          Info Pick Up
-                        </h3>
-
-                        <div
-                          className={styles.row}
-                          style={{ alignItems: "center" }}
-                        >
-                          <span className={styles.label}>No Resi</span>
-                          <span className={styles.valueResi}>
-                            <FaCopy
-                              size={16}
-                              className={styles.copyIcon}
-                              onClick={handleCopyResi}
-                              title="Salin nomor resi"
-                            />{" "}
-                            {activeOrder.transaction_code}
-                          </span>
-                        </div>
-
-                        <div className={styles.addressBlock}>
-                          <span className={styles.label}>Alamat</span>
-                          <div className={styles.addressContent}>
-                            <div className={styles.addressText}>
-                              {activeOrder.pickup_address}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={styles.column}>
-                      {/* Waktu Pick Up */}
-                      <div className={styles.detailSection}>
-                        <h3 className={styles.sectionHeader}>
-                          <span
-                            className={`${styles.dot} ${styles.cyanDot}`}
-                          ></span>
-                          Waktu Pick Up
-                        </h3>
-                        <div className={styles.row}>
-                          <span className={styles.label}>Tanggal</span>
-                          <span className={styles.value}>
-                            {formatDate(activeOrder.event_date)}
-                          </span>
-                        </div>
-                        <div className={styles.row}>
-                          <span className={styles.label}>Jam</span>
-                          <span className={styles.value}>
-                            {formatTime(activeOrder.pickup_time)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Berat Sampah */}
-                      <div className={styles.detailSection}>
-                        <h3 className={styles.sectionHeader}>
-                          <span
-                            className={`${styles.dot} ${styles.orangeDot}`}
-                          ></span>
-                          Detail Pickup
-                        </h3>
-                        <div className={styles.row}>
-                          <span className={styles.label}>Berat</span>
-                          <span className={styles.value}>
-                            ~{activeOrder.pickup_weight} Kg
-                          </span>
-                        </div>
-                        <div className={styles.row}>
-                          <span className={styles.label}>Tipe</span>
-                          <span className={styles.value}>
-                            {activeOrder.pickup_type}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Completed message */}
-                  {activeOrder.is_completed && (
-                    <div className={styles.completedMessage}>
-                      <FaFlagCheckered size={24} color="#2F5E44" />
-                      <p>Pesanan Anda telah selesai! Terima kasih telah menggunakan SILAP.</p>
-                      {activeOrder.pickup_id && (
-                        <button
-                          className={styles.viewReceiptButton}
-                          onClick={() => fetchReceipt(activeOrder.pickup_id!)}
-                          disabled={receiptLoading}
-                        >
-                          {receiptLoading ? "Memuat..." : "Lihat Rincian Poin"}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           )}
         </>

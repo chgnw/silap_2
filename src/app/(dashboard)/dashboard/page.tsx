@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback, memo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 
-import { FaFilter, FaStar, FaTrash, FaCoins } from "react-icons/fa";
+import { FaFilter, FaStar, FaTrash, FaCoins, FaCrown } from "react-icons/fa";
 import { FaFire } from "react-icons/fa6";
 import { PiSigma } from "react-icons/pi";
 import { TbTargetArrow } from "react-icons/tb";
@@ -33,7 +34,7 @@ const AreaChart = dynamic(() => import("recharts").then((mod) => mod.AreaChart),
 
 // Warna Chart (High Contrast untuk Debugging, ganti ke warna hijau jika sudah fix)
 const CHART_COLORS = [
-  "#2F5E44", "#4B7A59", "#A4B465", "#C3D982", 
+  "#2F5E44", "#4B7A59", "#A4B465", "#C3D982",
   "#D6E3A8", "#E8EED0", "#F4F7E7"
 ];
 
@@ -52,11 +53,20 @@ type DashboardData = {
   points_current: number;
   points_last_earned: number;
   current_streak: number;
+  streak_active_this_week: boolean;
   waste_target: number;
   total_monthly: number;
   categories: Array<{ category: string; total: string }>;
   daily: Array<{ date: string; total: string }>;
 };
+
+type SubscriptionInfo = {
+  id: number;
+  plan_name: string;
+  start_date: string;
+  end_date: string;
+  days_remaining: number;
+} | null;
 
 // --- COMPONENTS ---
 
@@ -114,17 +124,79 @@ const FilterSection = memo(
               onChange={onEndDateChange}
             />
           </div>
-          {(dateRange[0] || dateRange[1]) && (
-            <button className={styles.resetButton} type="button" onClick={onReset}>
-              Reset Filter
-            </button>
-          )}
         </div>
       </section>
     );
   }
 );
 FilterSection.displayName = "FilterSection";
+
+// Subscription Card
+const SubscriptionCard = memo(
+  ({ subscription, loading }: { subscription: SubscriptionInfo; loading: boolean }) => {
+    if (loading) {
+      return (
+        <section className={styles.subscriptionCard}>
+          <LoadingSkeleton />
+        </section>
+      );
+    }
+
+    if (!subscription) {
+      return (
+        <section className={styles.subscriptionCard}>
+          <div className={styles.subscriptionCardHeader}>
+            <div className={styles.subscriptionCardSymbol}>
+              <FaCrown />
+            </div>
+            <p>Status Langganan</p>
+          </div>
+          <div className={styles.subscriptionCardBody}>
+            <h2>Tidak Aktif</h2>
+            <span>Anda belum berlangganan</span>
+          </div>
+          <div className={styles.subscriptionCardFooter}>
+            <Link href="/pricing" className={styles.renewButton}>
+              Berlangganan
+            </Link>
+          </div>
+        </section>
+      );
+    }
+
+    const isNearExpiry = subscription.days_remaining <= 3;
+    const formatDate = (dateStr: string) => {
+      return new Date(dateStr).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    };
+
+    return (
+      <section className={styles.subscriptionCard}>
+        <div className={styles.subscriptionCardHeader}>
+          <div className={styles.subscriptionCardSymbol}>
+            <FaCrown />
+          </div>
+          <p>Status Langganan</p>
+        </div>
+        <div className={styles.subscriptionCardBody}>
+          <h2>{subscription.plan_name}</h2>
+          <span>s/d {formatDate(subscription.end_date)}</span>
+        </div>
+        <div className={styles.subscriptionCardFooter}>
+          {isNearExpiry && (
+            <Link href="/pricing" className={styles.renewButton}>
+              Perpanjang
+            </Link>
+          )}
+        </div>
+      </section>
+    );
+  }
+);
+SubscriptionCard.displayName = "SubscriptionCard";
 
 // Profile Section
 const ProfileSection = memo(({ loading, user }: { loading: boolean; user: any }) => (
@@ -162,12 +234,12 @@ ProfileSection.displayName = "ProfileSection";
 
 // Stats Card
 const StatsCard = memo(
-  ({ title, value, unit, footer, icon, className }: {
-    title: string; value: string | number; unit: string; footer: string | React.ReactElement; icon: React.ReactElement; className: string;
+  ({ title, value, unit, footer, icon, className, iconClassName }: {
+    title: string; value: string | number; unit: string | React.ReactElement; footer: string | React.ReactElement; icon: React.ReactElement; className: string; iconClassName?: string;
   }) => (
     <div className={`${styles.baseCard} ${className}`}>
       <div className={styles.cardHeader}>
-        <div className={styles.cardSymbol}>{icon}</div>
+        <div className={`${styles.cardSymbol} ${iconClassName || ''}`}>{icon}</div>
         <p>{title}</p>
       </div>
       <div className={styles.cardValue}>
@@ -303,13 +375,50 @@ export default function DashboardPage() {
   const router = useRouter();
   const hasFetchedRef = useRef(false);
 
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+  // Initialize date range with last 30 days
+  const getDefaultDateRange = (): [Date, Date] => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 30);
+    return [start, end];
+  };
+
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>(getDefaultDateRange);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!session) router.push("/login");
   }, [session, router]);
+
+  // Fetch subscription info
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!session?.user?.id) return;
+
+      try {
+        const response = await fetch("/api/dashboard/subscription", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: session.user.id }),
+        });
+
+        const result = await response.json();
+
+        if (result.status === "subscribed" && result.subscription) {
+          setSubscriptionInfo(result.subscription);
+        }
+      } catch (error) {
+        console.error("Failed to fetch subscription:", error);
+      } finally {
+        setSubscriptionLoading(false);
+      }
+    };
+
+    fetchSubscription();
+  }, [session?.user?.id]);
 
   const fetchDashboardData = useCallback(async (userId: string, start?: string, end?: string) => {
     try {
@@ -350,8 +459,8 @@ export default function DashboardPage() {
   }, [dateRange]);
 
   const handleReset = useCallback(() => {
-    setDateRange([null, null]);
-    hasFetchedRef.current = false;
+    const [defaultStart, defaultEnd] = getDefaultDateRange();
+    setDateRange([defaultStart, defaultEnd]);
   }, []);
 
   const formatShortDate = useCallback((isoString: string): string => {
@@ -397,13 +506,14 @@ export default function DashboardPage() {
           onReset={handleReset}
         />
         <ProfileSection loading={loading} user={session?.user} />
+        <SubscriptionCard subscription={subscriptionInfo} loading={subscriptionLoading} />
       </div>
       <div className={styles.secondRow}>
         <StatsCard
           title="Total sampah yang dibuang"
           value={dashboardData?.total_waste || "0"}
           unit="Kg"
-          footer={<h1>*Total sampah kamu secara lifetime</h1>}
+          footer={<h1>*Total sampah kamu secara keseluruhan</h1>}
           icon={<PiSigma />}
           className={styles.totalSampahCard}
         />
@@ -416,10 +526,10 @@ export default function DashboardPage() {
           className={styles.totalPointCard}
         />
         <StatsCard
-          title="Streak Harian"
+          title="Streak Mingguan"
           value={dashboardData?.current_streak || 0}
-          unit="🔥"
-          footer={<h1>*Pertahankan streak dengan konsisten</h1>}
+          unit={<FaFire size={28} color={dashboardData?.streak_active_this_week ? '#FF4D4D' : '#B0B0B0'} />}
+          footer={<h1>{dashboardData?.streak_active_this_week ? '*Streak aktif minggu ini!' : '*Belum ada pickup minggu ini'}</h1>}
           icon={<FaFire />}
           className={styles.totalStreakCard}
         />

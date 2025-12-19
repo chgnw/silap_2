@@ -251,7 +251,7 @@ export default function PointPage() {
           </div>
 
           <div className={styles.poinCardContent}>
-            <h1>{session?.user?.points}</h1>
+            <h1>{(session?.user?.points || 0).toLocaleString()}</h1>
             <p>Poin</p>
           </div>
         </div>
@@ -272,9 +272,8 @@ export default function PointPage() {
           filterCategories.map((category) => (
             <button
               key={category.id}
-              className={`${styles.filterContainer} ${
-                selectedCategory === category.id ? styles.active : ""
-              }`}
+              className={`${styles.filterContainer} ${selectedCategory === category.id ? styles.active : ""
+                }`}
               onClick={() => handleCategoryFilter(category.id)}
             >
               {category.category_name}
@@ -345,7 +344,7 @@ export default function PointPage() {
                     </div>
 
                     <div className={styles.contentPoint}>
-                      <h1>{item.point_required} Points</h1>
+                      <h1>{item.point_required.toLocaleString()} Points</h1>
                     </div>
 
                     <div className={styles.contentFooter}>
@@ -356,7 +355,7 @@ export default function PointPage() {
 
                       <div className={styles.buttonContainer}>
                         {quantity === 0 &&
-                        !cartItems.hasOwnProperty(item.id) ? (
+                          !cartItems.hasOwnProperty(item.id) ? (
                           <button
                             className={styles.addButton}
                             onClick={() => handleAddItem(item.id)}

@@ -390,6 +390,23 @@ export default function PickUpPage() {
   };
 
   const handleSubmit = () => {
+    // Validate required profile fields first
+    const user = session?.user;
+    const missingFields: string[] = [];
+
+    if (!user?.first_name) missingFields.push("Nama Depan");
+    if (!user?.last_name) missingFields.push("Nama Belakang");
+    if (!user?.phone_number) missingFields.push("No. Telepon");
+    if (!user?.address) missingFields.push("Alamat");
+
+    if (missingFields.length > 0) {
+      showToast(
+        "error",
+        `Lengkapi data profil terlebih dahulu: ${missingFields.join(", ")}. Silakan update di menu Profile.`
+      );
+      return;
+    }
+
     if (
       !selectedDate ||
       !selectedTime ||
@@ -570,8 +587,8 @@ export default function PickUpPage() {
                   isTotalOverload
                     ? "⚠️"
                     : selectedVehicle?.id === 1
-                    ? "🛵"
-                    : "🛻" // Sesuaikan logic icon kamu
+                      ? "🛵"
+                      : "🛻" // Sesuaikan logic icon kamu
                 }
               </div>
 
@@ -614,11 +631,10 @@ export default function PickUpPage() {
                 return (
                   <div
                     key={vehicle.id}
-                    className={`${style.vehicleOptionItem} ${
-                      selectedVehicle?.id === vehicle.id
+                    className={`${style.vehicleOptionItem} ${selectedVehicle?.id === vehicle.id
                         ? style.activeOption
                         : ""
-                    }`}
+                      }`}
                     style={{
                       opacity: isOverweight ? 0.5 : 1,
                       cursor: isOverweight ? "not-allowed" : "pointer",
@@ -762,11 +778,10 @@ export default function PickUpPage() {
               {pickupOptions.map((option) => (
                 <div
                   key={option.id}
-                  className={`${style.vehicleOptionItem} ${
-                    selectedPickupType?.id === option.id
+                  className={`${style.vehicleOptionItem} ${selectedPickupType?.id === option.id
                       ? style.activeOption
                       : ""
-                  }`}
+                    }`}
                   onClick={() => handleSelectPickupType(option)}
                 >
                   <input

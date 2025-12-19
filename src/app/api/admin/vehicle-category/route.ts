@@ -10,6 +10,7 @@ export async function GET() {
         min_weight,
         max_weight,
         description,
+        image_path,
         created_at,
         updated_at
       FROM ms_vehicle_category

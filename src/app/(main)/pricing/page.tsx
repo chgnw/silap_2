@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import styles from './pricing.module.css';
 
 interface Tier {
+  id: number;
   name: string;
-  price: string;
+  price: number;
+  priceFormatted: string;
   period: string;
   desc: string;
   features: string[];
@@ -20,42 +23,60 @@ interface FAQ {
 
 function PricingContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
-
+  const [tiers, setTiers] = useState<Tier[]>([]);
+  const [isLoadingTiers, setIsLoadingTiers] = useState(true);
 
   // Checkout & Payment State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<Tier | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'bank' | 'ewallet' | 'qris'>('bank');
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [paymentError, setPaymentError] = useState<string>('');
+  const [transactionCode, setTransactionCode] = useState<string>('');
 
-  const tiers: Tier[] = [
-    {
-      name: 'Basic',
-      price: 'Rp 49rb',
-      period: '/bln',
-      desc: 'Cocok untuk pemula yang ingin mulai peduli lingkungan.',
-      features: ['Penjemputan 1x seminggu', 'Kapasitas 5kg', 'Laporan dasar', 'Akses artikel edukasi'],
-      popular: false,
-    },
-    {
-      name: 'Pro',
-      price: 'Rp 149rb',
-      period: '/bln',
-      desc: 'Pilihan terbaik untuk keluarga dan gaya hidup zero waste.',
-      features: ['Penjemputan 2x seminggu', 'Kapasitas 15kg', 'Laporan detail', 'Wadah terpisah gratis', 'Poin reward ganda'],
-      popular: true,
-    },
-    {
-      name: 'Enterprise',
-      price: 'Hubungi',
-      period: '',
-      desc: 'Solusi manajemen limbah terpadu untuk bisnis Anda.',
-      features: ['Jadwal fleksibel (harian)', 'Kapasitas tak terbatas', 'Audit & Laporan ESG', 'Account Manager', 'Sertifikat Zero Waste'],
-      popular: false,
-    },
-  ];
+  // Format currency
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  // Fetch subscription plans from API
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await fetch('/api/public/subscription-plans');
+        const result = await response.json();
+
+        if (result.message === 'SUCCESS' && result.data) {
+          const mappedTiers: Tier[] = result.data.map((plan: any) => ({
+            id: plan.id,
+            name: plan.plan_name,
+            price: Number(plan.price),
+            priceFormatted: formatPrice(Number(plan.price)),
+            period: '/bln',
+            desc: plan.description || '',
+            features: plan.features ? plan.features.split(',').map((f: string) => f.trim()) : [],
+            popular: plan.is_popular === 1,
+          }));
+          setTiers(mappedTiers);
+        }
+      } catch (error) {
+        console.error('Error fetching subscription plans:', error);
+      } finally {
+        setIsLoadingTiers(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
 
   // Fetch FAQs from API
   useEffect(() => {
@@ -76,37 +97,69 @@ function PricingContent() {
   }, []);
 
   const handleCheckout = (tier: Tier) => {
+    // Require login first
+    if (sessionStatus !== 'authenticated') {
+      router.push('/login');
+      return;
+    }
+
     setSelectedTier(tier);
     setPaymentStatus('idle');
     setPaymentMethod('bank');
+    setPaymentError('');
+    setTransactionCode('');
     setIsModalOpen(true);
   };
 
   useEffect(() => {
     const planName = searchParams.get('plan');
-    if (planName) {
+    if (planName && tiers.length > 0) {
       const tier = tiers.find(t => t.name.toLowerCase() === planName.toLowerCase());
       if (tier) {
         handleCheckout(tier);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, tiers, sessionStatus]);
 
   const closeModal = () => {
     setIsModalOpen(false);
     setTimeout(() => {
       setPaymentStatus('idle');
       setSelectedTier(null);
+      setPaymentError('');
+      setTransactionCode('');
     }, 300);
   };
 
-  const handlePayment = () => {
-    setPaymentStatus('loading');
+  const handlePayment = async () => {
+    if (!selectedTier) return;
 
-    // Simulate payment process
-    setTimeout(() => {
+    setPaymentStatus('loading');
+    setPaymentError('');
+
+    try {
+      const response = await fetch('/api/public/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscription_plan_id: selectedTier.id,
+          payment_method: paymentMethod,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit payment');
+      }
+
+      setTransactionCode(result.data?.transaction_code || '');
       setPaymentStatus('success');
-    }, 2000);
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      setPaymentError(error.message || 'Terjadi kesalahan saat memproses pembayaran');
+      setPaymentStatus('error');
+    }
   };
 
   return (
@@ -118,29 +171,33 @@ function PricingContent() {
 
       <section className={styles.pricingSection}>
         <div className={styles.pricingGrid}>
-          {tiers.map((tier) => (
-            <div key={tier.name} className={`${styles.pricingCard} ${tier.popular ? styles.popular : ''}`}>
-              {tier.popular && <div className={styles.popularBadge}>Popular</div>}
-              <div className={styles.cardHeader}>
-                <h3>{tier.name}</h3>
-                <div className={styles.price}>
-                  {tier.price}<span>{tier.period}</span>
+          {isLoadingTiers ? (
+            <p>Memuat paket...</p>
+          ) : (
+            tiers.map((tier) => (
+              <div key={tier.id} className={`${styles.pricingCard} ${tier.popular ? styles.popular : ''}`}>
+                {tier.popular && <div className={styles.popularBadge}>Popular</div>}
+                <div className={styles.cardHeader}>
+                  <h3>{tier.name}</h3>
+                  <div className={styles.price}>
+                    {tier.priceFormatted}<span>{tier.period}</span>
+                  </div>
+                  <p className={styles.description}>{tier.desc}</p>
                 </div>
-                <p className={styles.description}>{tier.desc}</p>
+                <ul className={styles.features}>
+                  {tier.features.map((f) => (
+                    <li key={f}><span className={styles.check}>✓</span> {f}</li>
+                  ))}
+                </ul>
+                <button
+                  className={styles.ctaBtn}
+                  onClick={() => handleCheckout(tier)}
+                >
+                  Pilih Paket
+                </button>
               </div>
-              <ul className={styles.features}>
-                {tier.features.map((f) => (
-                  <li key={f}><span className={styles.check}>✓</span> {f}</li>
-                ))}
-              </ul>
-              <button
-                className={styles.ctaBtn}
-                onClick={() => handleCheckout(tier)}
-              >
-                Pilih Paket
-              </button>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
 
@@ -173,9 +230,31 @@ function PricingContent() {
             {paymentStatus === 'success' ? (
               <div className={styles.successState}>
                 <div className={styles.successIcon}>✓</div>
-                <h3>Pembayaran Berhasil!</h3>
-                <p>Terima kasih telah berlangganan paket {selectedTier.name}. Layanan Anda telah aktif.</p>
-                <button className={styles.payBtn} onClick={closeModal}>Tutup</button>
+                <h3>Pembayaran Dikirim!</h3>
+                <p>
+                  Terima kasih! Pembayaran Anda untuk paket <strong>{selectedTier.name}</strong> sedang
+                  menunggu verifikasi admin.
+                </p>
+                {transactionCode && (
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                    Kode Transaksi: <strong>{transactionCode}</strong>
+                  </p>
+                )}
+                <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: '#666' }}>
+                  Kami akan mengaktifkan langganan Anda setelah pembayaran diverifikasi.
+                </p>
+                <button className={styles.payBtn} onClick={() => router.push('/dashboard/profile')}>
+                  Lihat Status
+                </button>
+              </div>
+            ) : paymentStatus === 'error' ? (
+              <div className={styles.successState}>
+                <div className={styles.successIcon} style={{ backgroundColor: '#ED1C24' }}>✗</div>
+                <h3>Gagal Memproses</h3>
+                <p>{paymentError}</p>
+                <button className={styles.payBtn} onClick={() => setPaymentStatus('idle')}>
+                  Coba Lagi
+                </button>
               </div>
             ) : (
               <>
@@ -228,7 +307,7 @@ function PricingContent() {
 
                   {paymentMethod === 'qris' && (
                     <div className={styles.qrisPlaceholder}>
-                      <span>Scan QRIS</span>
+                      <img src="/assets/qr-payment-dummy.svg" alt="QRIS" />
                       <small>Gunakan aplikasi mobile banking / E-Wallet</small>
                     </div>
                   )}
@@ -267,7 +346,7 @@ function PricingContent() {
 
                 <div className={styles.summary}>
                   <span>Total Tagihan</span>
-                  <span className={styles.totalPrice}>{selectedTier.price}</span>
+                  <span className={styles.totalPrice}>{selectedTier.priceFormatted}</span>
                 </div>
 
                 <button
@@ -275,7 +354,7 @@ function PricingContent() {
                   onClick={handlePayment}
                   disabled={paymentStatus === 'loading'}
                 >
-                  {paymentStatus === 'loading' ? 'Memproses...' : 'Bayar Sekarang'}
+                  {paymentStatus === 'loading' ? 'Memproses...' : 'Konfirmasi Pembayaran'}
                 </button>
               </>
             )}

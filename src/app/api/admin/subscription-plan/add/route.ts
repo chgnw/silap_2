@@ -4,7 +4,7 @@ import { query } from "@/lib/db";
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { plan_name, description, price, duration_days, pickup_frequency, max_weight } = body;
+        const { plan_name, description, price, duration_days, pickup_frequency, max_weight, features, is_popular } = body;
 
         if (!plan_name) {
             return NextResponse.json(
@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
 
         const sql = `
             INSERT INTO ms_subscription_plan 
-            (plan_name, description, price, duration_days, pickup_frequency, max_weight)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (plan_name, description, price, duration_days, pickup_frequency, max_weight, features, is_popular)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await query(sql, [
@@ -49,7 +49,9 @@ export async function POST(req: NextRequest) {
             price,
             duration_days,
             pickup_frequency || null,
-            max_weight || null
+            max_weight || null,
+            features || null,
+            is_popular || false
         ]);
 
         return NextResponse.json(

@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;
-    console.log("userId: ", userId);
+    // console.log("userId: ", userId);
 
     if (!userId) {
       return NextResponse.json(

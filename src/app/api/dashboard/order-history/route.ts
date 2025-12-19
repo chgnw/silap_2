@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
           py.payment_time AS date,
           CASE 
               WHEN py.transaction_status_id = 1 THEN 'Pending'
-              WHEN py.transaction_status_id = 2 THEN 'Berhasil'
-              WHEN py.transaction_status_id = 3 THEN 'Dibatalkan'
+              WHEN py.transaction_status_id = 4 THEN 'Berhasil'
+              WHEN py.transaction_status_id = 5 THEN 'Dibatalkan'
               ELSE 'Proses'
           END AS status,
           JSON_OBJECT(

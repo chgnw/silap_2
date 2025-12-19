@@ -10,17 +10,25 @@ export default function RoleRedirect() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (status === "authenticated") {
-      const userRoleId = session.user?.role_id;
+    if (status !== "authenticated") return;
 
-      if (userRoleId === 1 && !pathname.startsWith("/admin")) {
-        router.push("/admin");
-      } else if (userRoleId === 2 && !pathname.startsWith("/dashboard")) {
-        router.push("/dashboard");
-      } else if (userRoleId === 3 && !pathname.startsWith("/driver")) {
-        router.push("/driver");
-      }
+    const userRoleId = session.user?.role_id;
+
+    // Admin redirect - only if not already on admin pages
+    if (userRoleId === 1 && !pathname.startsWith("/admin")) {
+      router.push("/admin");
+      return;
     }
+
+    // Driver redirect - only if not already on driver pages
+    if (userRoleId === 3 && !pathname.startsWith("/driver")) {
+      router.push("/driver");
+      return;
+    }
+
+    // Customer (role_id === 2) - no forced redirect here
+    // Customers can browse public pages (/home, /services, /pricing)
+    // Subscription check is handled in dashboard layout when they try to access /dashboard
   }, [status, session, router, pathname]);
 
   return null;

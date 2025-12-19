@@ -13,12 +13,10 @@ export async function GET() {
                 pickup_frequency,
                 max_weight,
                 features,
-                is_popular,
-                created_at,
-                updated_at
+                is_popular
             FROM ms_subscription_plan
-            WHERE is_active = TRUE
-            ORDER BY price ASC
+            WHERE is_active = 1
+            ORDER BY id ASC
         `;
 
         const plans = await query(sql);
