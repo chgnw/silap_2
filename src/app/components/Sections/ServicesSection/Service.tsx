@@ -11,11 +11,7 @@ const servicesForEveryone = [
         title: 'Pick Up',
         description: 'Tinggal foto sampahmu, upload ke aplikasi, dan tim kolektor kami akan datang menemput. Nggak cuma diambil, sampahmu juga akan ditimbang dan dikelola dengan benar. Jadi kamu gak perlu keluar rumah.'
     },
-    {
-        icon: <Image src="/assets/dropoff-icon.png" alt="Drop Off" width={24} height={24} />,
-        title: 'Drop Off',
-        description: 'Punya satu botol plastik atau barang kecil lainnya? Kamu bisa langsung drop ke Recycling Center / point terdekat. Cocok buat kamu yang mobile dan mau kontribusi langsung dalam gerakan daur ulang.'
-    },
+
     {
         icon: <Image src="/assets/streak-icon.png" alt="Streak" width={24} height={24} />,
         title: 'Streak',

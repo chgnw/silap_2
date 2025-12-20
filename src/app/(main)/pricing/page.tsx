@@ -61,7 +61,7 @@ function PricingContent() {
             name: plan.plan_name,
             price: Number(plan.price),
             priceFormatted: formatPrice(Number(plan.price)),
-            period: '/bln',
+            period: `/${plan.duration_days} hari`,
             desc: plan.description || '',
             features: plan.features ? plan.features.split(',').map((f: string) => f.trim()) : [],
             popular: plan.is_popular === 1,
@@ -170,6 +170,10 @@ function PricingContent() {
       </section>
 
       <section className={styles.pricingSection}>
+        <div className={styles.sectionHeader}>
+          <h2>Pilihan Paket Langganan</h2>
+          <p>Sesuaikan dengan kebutuhan rumah atau bisnis Anda.</p>
+        </div>
         <div className={styles.pricingGrid}>
           {isLoadingTiers ? (
             <p>Memuat paket...</p>
@@ -203,7 +207,10 @@ function PricingContent() {
 
       <section className={styles.faqSection}>
         <div className={styles.detailsSection}>
-          <h2>Pertanyaan Umum</h2>
+          <div className={styles.sectionHeader}>
+            <h2>Pertanyaan Umum</h2>
+            <p>Punya pertanyaan? Temukan jawabannya di sini.</p>
+          </div>
           <div className={styles.accordion}>
             {faqs.map((faq, idx) => (
               <div key={idx} className={styles.accordionItem}>

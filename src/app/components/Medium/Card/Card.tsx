@@ -6,10 +6,10 @@ type CardProps = {
   backgroundImage: string;
 };
 
-const Card = ({ icon, label, backgroundImage } : CardProps) => {
+const Card = ({ icon, label, backgroundImage }: CardProps) => {
   return (
-    <div 
-      className={styles.cardCustom} 
+    <div
+      className={styles.cardCustom}
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       {icon}

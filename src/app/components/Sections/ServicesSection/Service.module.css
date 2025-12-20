@@ -30,24 +30,25 @@
 }
 
 /* Star sizes */
+/* Star sizes - Softer opacity */
 .star.small {
-  font-size: clamp(30px, 8vw, 80px);
-  opacity: 0.5;
+  font-size: clamp(30px, 8vw, 60px);
+  opacity: 0.3;
 }
 
 .star.medium {
-  font-size: clamp(40px, 10vw, 100px);
-  opacity: 0.5;
+  font-size: clamp(40px, 10vw, 80px);
+  opacity: 0.3;
 }
 
 .star.large {
-  font-size: clamp(50px, 12vw, 120px);
-  opacity: 0.5;
+  font-size: clamp(50px, 12vw, 100px);
+  opacity: 0.3;
 }
 
 .star.xlarge {
-  font-size: clamp(80px, 18vw, 200px);
-  opacity: 0.5;
+  font-size: clamp(80px, 18vw, 160px);
+  opacity: 0.3;
 }
 
 /* Positioning classes for left side */
@@ -122,10 +123,11 @@
 }
 
 .sectionHeader h1 {
-  font-size: clamp(1.5rem, 6vw, 5rem);
-  font-weight: bold;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
   color: var(--color-primary-dark);
-  margin-bottom: clamp(0.5rem, 1vw, 1rem);
+  margin-bottom: clamp(1rem, 2vw, 1.5rem);
+  letter-spacing: -1px;
 }
 
 .sectionHeader p {
