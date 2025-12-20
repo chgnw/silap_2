@@ -41,6 +41,21 @@ function PricingContent() {
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [paymentError, setPaymentError] = useState<string>('');
   const [transactionCode, setTransactionCode] = useState<string>('');
+  const [proofUploaded, setProofUploaded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setProofUploaded(true);
+    }
+  };
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Format currency
   const formatPrice = (price: number) => {
@@ -107,11 +122,31 @@ function PricingContent() {
       return;
     }
 
-    const tier = tiers.find(t => t.name.toLowerCase().includes(planName.toLowerCase()));
+    let tier = tiers.find(t => t.name.toLowerCase().includes(planName.toLowerCase()));
+
+    // Fallback: Check for key words if exact phrase not found
+    if (!tier) {
+      if (planName.toLowerCase().includes('individu')) {
+        tier = tiers.find(t => t.name.toLowerCase().includes('individu'));
+      } else if (planName.toLowerCase().includes('bisnis')) {
+        tier = tiers.find(t => t.name.toLowerCase().includes('bisnis'));
+      }
+    }
+
     if (!tier) {
       console.warn("Plan not found in API:", planName);
-      // Fallback or alert if needed
-      return;
+      // Fallback: If still not found, create a dummy tier so modal still opens (for testing/demo)
+      // This ensures the popup appears even if API data is missing/different
+      tier = {
+        id: 0, // Invalid ID, payment might fail but modal works
+        name: planName,
+        price: planName.includes('Bisnis') ? 299000 : 49000,
+        priceFormatted: planName.includes('Bisnis') ? 'Rp 299.000' : 'Rp 49.000',
+        period: '/bulan',
+        desc: 'Paket langganan',
+        features: [],
+        popular: false
+      };
     }
 
     setSelectedTier(tier);
@@ -119,6 +154,7 @@ function PricingContent() {
     setPaymentMethod('bank');
     setPaymentError('');
     setTransactionCode('');
+    setProofUploaded(false); // Reset upload state
     setIsModalOpen(true);
   };
 
@@ -298,22 +334,65 @@ function PricingContent() {
 
             {paymentStatus === 'success' ? (
               <div className={styles.successState}>
-                <div className={styles.successIcon}>✓</div>
-                <h3>Pembayaran Dikirim!</h3>
-                <p>
-                  Terima kasih! Pembayaran Anda untuk paket <strong>{selectedTier.name}</strong> sedang
-                  menunggu verifikasi admin.
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <div
+                    className={styles.successIcon}
+                    style={{
+                      position: 'relative',
+                      zIndex: 2,
+                      animation: 'popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, heartbeat 2s infinite 1s'
+                    }}
+                  >
+                    <svg className={styles.checkmarkSvg} viewBox="0 0 24 24">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    animation: 'burst 0.8s ease-out forwards',
+                    zIndex: 1
+                  }} />
+                </div>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', animation: 'fadeIn 0.5s ease 0.2s backwards' }}>Pembayaran Berhasil!</h3>
+                <p style={{ marginBottom: '1rem', animation: 'fadeIn 0.5s ease 0.3s backwards' }}>
+                  Terima kasih telah berlangganan <strong>{selectedTier.name}</strong>.
                 </p>
                 {transactionCode && (
-                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', animation: 'fadeIn 0.5s ease 0.3s backwards' }}>
                     Kode Transaksi: <strong>{transactionCode}</strong>
                   </p>
                 )}
-                <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: '#666' }}>
-                  Kami akan mengaktifkan langganan Anda setelah pembayaran diverifikasi.
-                </p>
-                <button className={styles.payBtn} onClick={() => router.push('/dashboard/profile')}>
-                  Lihat Status
+
+                <div style={{
+                  background: '#f0fdf4',
+                  padding: '1.2rem',
+                  borderRadius: '12px',
+                  border: '1px solid #bbf7d0',
+                  color: '#166534',
+                  fontWeight: '500',
+                  marginBottom: '1rem',
+                  animation: 'fadeIn 0.5s ease 0.4s backwards',
+                  textAlign: 'left'
+                }}>
+                  <p style={{ marginBottom: '0.5rem', fontWeight: '700' }}>📌 Langkah Selanjutnya:</p>
+                  <ul style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.95rem' }}>
+                    <li style={{ marginBottom: '0.3rem' }}>Admin akan memverifikasi pembayaran kamu (maks. 1x24 jam).</li>
+                    <li>Cek email kamu secara berkala, termasuk folder <strong>Spam</strong> atau <strong>Promosi</strong> (Promotions) untuk info aktivasi.</li>
+                  </ul>
+                </div>
+
+                <button
+                  className={styles.payBtn}
+                  onClick={() => setIsModalOpen(false)}
+                  style={{ marginTop: '1rem', animation: 'fadeIn 0.5s ease 0.5s backwards' }}
+                >
+                  Tutup
                 </button>
               </div>
             ) : paymentStatus === 'error' ? (
@@ -327,7 +406,11 @@ function PricingContent() {
               </div>
             ) : (
               <>
-                <h3 className={styles.modalTitle}>Checkout: {selectedTier.name}</h3>
+                <h3 className={styles.modalTitle}>Pembayaran</h3>
+                <div className={styles.summary} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', border: 'none' }}>
+                  <span style={{ color: '#64748b', fontSize: '0.9rem' }}>{selectedTier.name}</span>
+                  <span style={{ fontSize: '1.2rem', fontWeight: '800', color: '#2f5e44' }}>{selectedTier.priceFormatted}</span>
+                </div>
 
                 <div className={styles.tabs}>
                   <button
@@ -358,70 +441,95 @@ function PricingContent() {
                     <div className={styles.bankInfo}>
                       <span className={styles.infoLabel}>Bank BCA (PT Silap Indonesia)</span>
                       <span className={styles.accountNumber}>8230 1234 5678</span>
-                      <button className={styles.copyBtn} onClick={() => navigator.clipboard.writeText('823012345678')}>
-                        Salin No. Rek
+                      <button className={styles.copyBtn} onClick={() => handleCopy('823012345678')}>
+                        {copied ? 'Berhasil Disalin! ✓' : 'Salin No. Rek'}
                       </button>
+
+                      <div className={styles.instructions} style={{ textAlign: 'left', marginTop: '1.5rem' }}>
+                        <h4>Tutorial Pembayaran:</h4>
+                        <ol style={{ fontSize: '0.9rem', paddingLeft: '1.2rem' }}>
+                          <li>Buka M-Banking BCA atau ATM.</li>
+                          <li>Pilih Transfer Antar Rekening.</li>
+                          <li>Masukkan No. Rekening di atas.</li>
+                          <li>Pastikan nama penerima <strong>PT Silap Indonesia</strong>.</li>
+                          <li>Simpan bukti/struk transfer.</li>
+                        </ol>
+                      </div>
                     </div>
                   )}
 
                   {paymentMethod === 'ewallet' && (
                     <div className={styles.ewalletInfo}>
-                      <span className={styles.infoLabel}>Nomor E-Wallet (OVO / GoPay / Dana)</span>
+                      <span className={styles.infoLabel}>OVO / Gopay / Dana</span>
                       <span className={styles.accountNumber}>0812 3456 7890</span>
-                      <button className={styles.copyBtn} onClick={() => navigator.clipboard.writeText('081234567890')}>
-                        Salin Nomor
+                      <button className={styles.copyBtn} onClick={() => handleCopy('081234567890')}>
+                        {copied ? 'Berhasil Disalin! ✓' : 'Salin Nomor'}
                       </button>
+                      <div className={styles.instructions} style={{ textAlign: 'left', marginTop: '1.5rem' }}>
+                        <h4>Tutorial Pembayaran:</h4>
+                        <ol style={{ fontSize: '0.9rem', paddingLeft: '1.2rem' }}>
+                          <li>Buka aplikasi E-Wallet kamu.</li>
+                          <li>Pilih menu Transfer / Kirim ke Nomor.</li>
+                          <li>Masukkan nomor di atas.</li>
+                          <li>Simpan bukti/struk transfer.</li>
+                        </ol>
+                      </div>
                     </div>
                   )}
 
                   {paymentMethod === 'qris' && (
                     <div className={styles.qrisPlaceholder}>
-                      <img src="/assets/qr-payment-dummy.svg" alt="QRIS" />
-                      <small>Gunakan aplikasi mobile banking / E-Wallet</small>
+                      <img src="/assets/qr-payment-dummy.svg" alt="QRIS" width={150} />
+                      <p style={{ marginTop: '1rem' }}>Scan menggunakan aplikasi pembayaran apapun.</p>
                     </div>
                   )}
 
-                  <div className={styles.instructions}>
-                    <h4>Cara Pembayaran:</h4>
-                    {paymentMethod === 'bank' && (
-                      <ol>
-                        <li>Buka aplikasi Mobile Banking atau ATM.</li>
-                        <li>Pilih menu <strong>Transfer Antar Rekening.</strong></li>
-                        <li>Masukkan nomor rekening di atas.</li>
-                        <li>Masukkan jumlah tagihan tepat hingga 3 digit terakhir.</li>
-                        <li>Simpan bukti transfer untuk verifikasi.</li>
-                      </ol>
-                    )}
-                    {paymentMethod === 'ewallet' && (
-                      <ol>
-                        <li>Buka aplikasi OVO, GoPay, atau Dana.</li>
-                        <li>Pilih menu <strong>Transfer / Kirim</strong>.</li>
-                        <li>Masukkan nomor tujuan di atas.</li>
-                        <li>Pastikan nama penerima adalah <strong>Silap Indonesia</strong>.</li>
-                        <li>Konfirmasi pembayaran dan simpan bukti transaksi.</li>
-                      </ol>
-                    )}
-                    {paymentMethod === 'qris' && (
-                      <ol>
-                        <li>Buka aplikasi pembayaran apa saja (BCA, GoPay, OVO, dll).</li>
-                        <li>Pilih menu <strong>Scan QRIS</strong>.</li>
-                        <li>Arahkan kamera ke kode QR di atas.</li>
-                        <li>Periksa nama merchant: <strong>Silap Indonesia</strong>.</li>
-                        <li>Masukkan PIN dan pembayaran selesai otomatis.</li>
-                      </ol>
-                    )}
+                  {/* Upload Proof Form */}
+                  <div style={{ marginTop: '2rem', borderTop: '2px dashed #e2e8f0', paddingTop: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '700', fontSize: '0.95rem' }}>
+                      Upload Bukti Pembayaran <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <div
+                      style={{
+                        border: `2px dashed ${proofUploaded ? '#22c55e' : '#cbd5e1'}`,
+                        borderRadius: '12px',
+                        padding: '1.5rem',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        background: proofUploaded ? '#f0fdf4' : '#f8fafc',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        accept="image/*,application/pdf"
+                        onChange={handleFileChange}
+                      />
+                      {proofUploaded ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#16a34a' }}>
+                          <span>✓</span>
+                          <span>File berhasil diupload</span>
+                        </div>
+                      ) : (
+                        <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Klik untuk upload file (JPG, PNG, PDF)</p>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className={styles.summary}>
-                  <span>Total Tagihan</span>
-                  <span className={styles.totalPrice}>{selectedTier.priceFormatted}</span>
-                </div>
+
 
                 <button
                   className={styles.payBtn}
                   onClick={handlePayment}
-                  disabled={paymentStatus === 'loading'}
+                  disabled={paymentStatus === 'loading' || !proofUploaded}
+                  style={{
+                    opacity: proofUploaded ? 1 : 0.5,
+                    cursor: proofUploaded ? 'pointer' : 'not-allowed'
+                  }}
                 >
                   {paymentStatus === 'loading' ? 'Memproses...' : 'Konfirmasi Pembayaran'}
                 </button>

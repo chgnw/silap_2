@@ -6,7 +6,7 @@
   --primary-color: #2f5e44;
   --primary-hover: #1e3f2d;
   --accent-color: #A4B465;
-  --bg-modal-overlay: rgba(26, 45, 34, 0.85); /* Dark Green #1A2D22 with opacity */
+  --bg-modal-overlay: rgba(0, 0, 0, 0.5); /* Neutral black overlay */
   --border-radius-card: 24px;
   --border-radius-modal: 28px;
   --card-shadow: 0 10px 30px -10px rgba(0,0,0,0.06);

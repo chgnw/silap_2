@@ -25,7 +25,7 @@ const services = [
 
 export default function ServicesSection() {
     return (
-        <section className={styles.sectionWrapper}>
+        <section id="layanan-kami" className={styles.sectionWrapper}>
             {/* Star container */}
             <div className={styles.starContainer}>
                 <div className={`${styles.star} ${styles.medium} ${styles.left1}`} />

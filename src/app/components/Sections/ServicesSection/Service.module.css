@@ -2,34 +2,13 @@
   padding: clamp(60px, 8vw, 100px) 0;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%); /* Subtle gradient base */
+  background: #ffffff;
 }
 
-/* Background Blob Decorations */
-.sectionWrapper::before {
-  content: '';
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(164, 180, 101, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-  top: -100px;
-  left: -200px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-}
-
+/* Background decorations removed as requested */
+.sectionWrapper::before,
 .sectionWrapper::after {
-  content: '';
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(47, 94, 68, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
-  bottom: -100px;
-  right: -100px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
 /* Star container */

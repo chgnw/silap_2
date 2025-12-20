@@ -205,10 +205,17 @@ export default function ServicesPage() {
         fleetTrackRef.current.scrollBy({ left: direction === 'left' ? -scrollBy : scrollBy, behavior: 'smooth' });
     };
 
-    const getFleetImage = (category: string) => {
+    const getFleetImage = (category: string, maxWeight: number | null) => {
         const lowerCat = category.toLowerCase();
+
+
+        if (Number(maxWeight) >= 2000 || lowerCat.includes('2 ton') || lowerCat.includes('cdol')) {
+            return '/assets/MobilTruk2Ton.png';
+        }
+
         if (lowerCat.includes('motor')) return '/assets/MotorBak200KG.png';
         if (lowerCat.includes('mobil') || lowerCat.includes('pickup') || lowerCat.includes('truk')) return '/assets/MobilBak1Ton.png';
+
         return '/assets/MobilBox.png';
     };
 
@@ -289,7 +296,7 @@ export default function ServicesPage() {
                 </div>
             </section>
 
-            <section ref={alurRef} className={`${styles.section} ${styles.sectionAlt}`}>
+            <section ref={alurRef} id="alur-layanan" className={`${styles.section} ${styles.sectionAlt}`}>
                 <div className={styles.sectionHeader}>
                     <h2>Alur Layanan</h2>
                     <p>Proses transparan dari rumah kamu hingga pusat pengolahan.</p>
@@ -419,7 +426,7 @@ export default function ServicesPage() {
                             .map((fleet, idx) => (
                                 <div key={`${fleet.category_name}-${idx}`} className={styles.fleetCard}>
                                     <div className={styles.fleetImage}>
-                                        <img src={getFleetImage(fleet.category_name)} alt={fleet.category_name} />
+                                        <img src={getFleetImage(fleet.category_name, fleet.max_weight)} alt={fleet.category_name} />
                                     </div>
                                     <div className={styles.fleetInfo}>
                                         <div className={styles.fleetName}>{fleet.category_name}</div>
