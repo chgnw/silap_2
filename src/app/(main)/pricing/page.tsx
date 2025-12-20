@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useRef, useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import styles from './pricing.module.css';
+import EventCalculator from '@/app/components/Sections/EventCalculator/EventCalculator';
 
 interface Tier {
   id: number;
@@ -29,6 +30,9 @@ function PricingContent() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [tiers, setTiers] = useState<Tier[]>([]);
   const [isLoadingTiers, setIsLoadingTiers] = useState(true);
+
+  // Refs
+  const calculatorRef = useRef<HTMLElement | null>(null);
 
   // Checkout & Payment State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -96,10 +100,17 @@ function PricingContent() {
     fetchFaqs();
   }, []);
 
-  const handleCheckout = (tier: Tier) => {
+  const handleCheckout = (planName: string) => {
     // Require login first
     if (sessionStatus !== 'authenticated') {
-      router.push('/login');
+      router.push('/login?callbackUrl=/pricing');
+      return;
+    }
+
+    const tier = tiers.find(t => t.name.toLowerCase().includes(planName.toLowerCase()));
+    if (!tier) {
+      console.warn("Plan not found in API:", planName);
+      // Fallback or alert if needed
       return;
     }
 
@@ -114,10 +125,7 @@ function PricingContent() {
   useEffect(() => {
     const planName = searchParams.get('plan');
     if (planName && tiers.length > 0) {
-      const tier = tiers.find(t => t.name.toLowerCase() === planName.toLowerCase());
-      if (tier) {
-        handleCheckout(tier);
-      }
+      handleCheckout(planName);
     }
   }, [searchParams, tiers, sessionStatus]);
 
@@ -175,34 +183,88 @@ function PricingContent() {
           <p>Sesuaikan dengan kebutuhan rumah atau bisnis Anda.</p>
         </div>
         <div className={styles.pricingGrid}>
-          {isLoadingTiers ? (
-            <p>Memuat paket...</p>
-          ) : (
-            tiers.map((tier) => (
-              <div key={tier.id} className={`${styles.pricingCard} ${tier.popular ? styles.popular : ''}`}>
-                {tier.popular && <div className={styles.popularBadge}>Popular</div>}
-                <div className={styles.cardHeader}>
-                  <h3>{tier.name}</h3>
-                  <div className={styles.price}>
-                    {tier.priceFormatted}<span>{tier.period}</span>
-                  </div>
-                  <p className={styles.description}>{tier.desc}</p>
-                </div>
-                <ul className={styles.features}>
-                  {tier.features.map((f) => (
-                    <li key={f}><span className={styles.check}>✓</span> {f}</li>
-                  ))}
-                </ul>
-                <button
-                  className={styles.ctaBtn}
-                  onClick={() => handleCheckout(tier)}
-                >
-                  Pilih Paket
-                </button>
+          {/* 1. Paket Individu */}
+          <div className={styles.pricingCard}>
+            <div className={styles.cardHeader}>
+              <h3>Paket Individu</h3>
+              <div className={styles.price}>
+                Rp 49.000<span>/bulan</span>
               </div>
-            ))
-          )}
+              <p className={styles.description}>Rumah tangga & pengguna personal</p>
+            </div>
+            <ul className={styles.features}>
+              <li><span className={styles.check}>✓</span> Kuota sampah: 30 kg / bulan</li>
+              <li><span className={styles.check}>✓</span> Pickup: 2x per minggu</li>
+              <li><span className={styles.check}>✓</span> Jadwal pick up flexibel</li>
+              <li><span className={styles.check}>✓</span> Multi lokasi</li>
+              <li><span className={styles.check}>✓</span> Dashboard monitoring</li>
+            </ul>
+            <button
+              onClick={() => handleCheckout('Paket Individu')}
+              className={styles.ctaBtn}
+            >
+              Pilih Paket
+            </button>
+          </div>
+
+          {/* 2. Paket Bisnis */}
+          <div className={`${styles.pricingCard} ${styles.popular}`}>
+            <div className={styles.popularBadge}>Best Value</div>
+            <div className={styles.cardHeader}>
+              <h3>Paket Bisnis</h3>
+              <div className={styles.price}>
+                Rp 299.000<span>/bulan</span>
+              </div>
+              <p className={styles.description}>UMKM, kantor, restoran, bisnis skala menengah</p>
+            </div>
+            <ul className={styles.features}>
+              <li><span className={styles.check}>✓</span> Kuota sampah: 300 kg / bulan</li>
+              <li><span className={styles.check}>✓</span> Pickup: 7x per minggu</li>
+              <li><span className={styles.check}>✓</span> Jadwal pick up flexibel</li>
+              <li><span className={styles.check}>✓</span> Multi lokasi outlet</li>
+              <li><span className={styles.check}>✓</span> Dashboard monitoring</li>
+            </ul>
+            <button
+              onClick={() => handleCheckout('Paket Bisnis')}
+              className={styles.ctaBtn}
+            >
+              Pilih Paket
+            </button>
+          </div>
+
+          {/* 3. Paket Event */}
+          <div className={styles.pricingCard}>
+            <div className={styles.popularBadge} style={{ background: '#2f5e44' }}>Custom</div>
+            <div className={styles.cardHeader}>
+              <h3>Paket Event</h3>
+              <div className={styles.price} style={{ fontSize: '2rem' }}>
+                Estimasi<span>/event</span>
+              </div>
+              <p className={styles.description}>Tidak menggunakan harga & kuota statis.</p>
+            </div>
+            <ul className={styles.features}>
+              <li><span className={styles.check}>✓</span> Form Demo Estimasi Biaya</li>
+              <li><span className={styles.check}>✓</span> Cocok untuk event apapun</li>
+              <li><span className={styles.check}>✓</span> Tanpa kuota statis</li>
+              <li><span className={styles.check}>✓</span> Opsi Branding & Support</li>
+              <li><span className={styles.check}>✓</span> Jadwal pick up flexibel</li>
+              <li><span className={styles.check}>✓</span> Multi lokasi</li>
+              <li><span className={styles.check}>✓</span> Dashboard monitoring</li>
+            </ul>
+            <button
+              onClick={() => calculatorRef.current?.scrollIntoView({ behavior: 'smooth' })}
+              className={styles.ctaBtn}
+              style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
+            >
+              Hitung Estimasi
+            </button>
+          </div>
         </div>
+      </section>
+
+      {/* Event Calculator Section */}
+      <section ref={calculatorRef} id="event-calculator">
+        <EventCalculator />
       </section>
 
       <section className={styles.faqSection}>
@@ -324,7 +386,7 @@ function PricingContent() {
                     {paymentMethod === 'bank' && (
                       <ol>
                         <li>Buka aplikasi Mobile Banking atau ATM.</li>
-                        <li>Pilih menu <strong>Transfer Antar Rekening</strong>.</li>
+                        <li>Pilih menu <strong>Transfer Antar Rekening.</strong></li>
                         <li>Masukkan nomor rekening di atas.</li>
                         <li>Masukkan jumlah tagihan tepat hingga 3 digit terakhir.</li>
                         <li>Simpan bukti transfer untuk verifikasi.</li>

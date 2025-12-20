@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useRef, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import styles from './services.module.css';
 import EventCalculator from '@/app/components/Sections/EventCalculator/EventCalculator';
 import pricingStyles from '../pricing/pricing.module.css';
@@ -33,6 +35,8 @@ interface SubscriptionPlan {
 }
 
 export default function ServicesPage() {
+    const router = useRouter();
+    const { status } = useSession();
     const statsRef = useRef<HTMLElement | null>(null);
     const fleetTrackRef = useRef<HTMLDivElement | null>(null);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -54,6 +58,10 @@ export default function ServicesPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const openPaymentModal = (planName: string, price: string) => {
+        if (status === 'unauthenticated') {
+            router.push('/login?callbackUrl=/services');
+            return;
+        }
         setSelectedPlan({ name: planName, price });
         setPaymentStep('details');
         setPaymentMethod('bank');
