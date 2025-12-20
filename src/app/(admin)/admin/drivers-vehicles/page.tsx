@@ -32,6 +32,7 @@ type VehicleCategory = {
   min_weight: number;
   max_weight: number | null;
   description: string | null;
+  image_path: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -243,7 +244,11 @@ export default function DriversVehiclesPage() {
         accessorKey: "id_card_number",
         cell: ({ getValue }) => {
           const value = getValue() as string | null;
-          return value ? `${value.slice(0, 4)}...${value.slice(-4)}` : "-";
+          return value ? (
+            <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
+              {value}
+            </span>
+          ) : "-";
         },
       },
       {
@@ -251,7 +256,11 @@ export default function DriversVehiclesPage() {
         accessorKey: "license_number",
         cell: ({ getValue }) => {
           const value = getValue() as string | null;
-          return value || "-";
+          return value ? (
+            <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
+              {value}
+            </span>
+          ) : "-";
         },
       },
       {
@@ -331,6 +340,8 @@ export default function DriversVehiclesPage() {
     max_weight: "",
     description: "",
   });
+  const [categoryImage, setCategoryImage] = useState<File | null>(null);
+  const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null);
 
   const fetchVehicleCategories = async () => {
     setIsLoading(true);
@@ -365,6 +376,7 @@ export default function DriversVehiclesPage() {
         max_weight: category.max_weight?.toString() || "",
         description: category.description || "",
       });
+      setCategoryImagePreview(category.image_path || null);
     } else {
       setVehicleCategoryForm({
         category_name: "",
@@ -372,7 +384,9 @@ export default function DriversVehiclesPage() {
         max_weight: "",
         description: "",
       });
+      setCategoryImagePreview(null);
     }
+    setCategoryImage(null);
 
     setIsVehicleCategoryModalOpen(true);
   };
@@ -387,24 +401,23 @@ export default function DriversVehiclesPage() {
           ? "/api/admin/vehicle-category/add"
           : "/api/admin/vehicle-category/update";
 
-      const payload = {
-        category_name: vehicleCategoryForm.category_name,
-        min_weight: vehicleCategoryForm.min_weight
-          ? parseFloat(vehicleCategoryForm.min_weight)
-          : 0,
-        max_weight: vehicleCategoryForm.max_weight
-          ? parseFloat(vehicleCategoryForm.max_weight)
-          : null,
-        description: vehicleCategoryForm.description || null,
-        ...(vehicleCategoryMode === "edit" && {
-          id: selectedVehicleCategory?.id,
-        }),
-      };
+      const formData = new FormData();
+      formData.append("category_name", vehicleCategoryForm.category_name);
+      formData.append("min_weight", vehicleCategoryForm.min_weight || "0");
+      formData.append("max_weight", vehicleCategoryForm.max_weight || "");
+      formData.append("description", vehicleCategoryForm.description || "");
+
+      if (vehicleCategoryMode === "edit" && selectedVehicleCategory?.id) {
+        formData.append("id", selectedVehicleCategory.id.toString());
+      }
+
+      if (categoryImage) {
+        formData.append("image", categoryImage);
+      }
 
       const response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const result = await response.json();
@@ -412,11 +425,12 @@ export default function DriversVehiclesPage() {
       if (result.message === "SUCCESS") {
         showToast(
           "success",
-          `Vehicle category ${
-            vehicleCategoryMode === "add" ? "added" : "updated"
+          `Vehicle category ${vehicleCategoryMode === "add" ? "added" : "updated"
           } successfully!`
         );
         setIsVehicleCategoryModalOpen(false);
+        setCategoryImage(null);
+        setCategoryImagePreview(null);
         fetchVehicleCategories();
       } else {
         showToast("error", result.detail || result.error || "Operation failed");
@@ -507,7 +521,7 @@ export default function DriversVehiclesPage() {
     model: "",
     license_plate: "",
     vin: "",
-    status: "active",
+    status: "available",
   });
 
   const fetchVehicles = async () => {
@@ -540,7 +554,7 @@ export default function DriversVehiclesPage() {
         model: vehicle.model || "",
         license_plate: vehicle.license_plate || "",
         vin: vehicle.vin || "",
-        status: vehicle.status || "active",
+        status: vehicle.status || "available",
       });
     } else {
       setVehicleForm({
@@ -549,7 +563,7 @@ export default function DriversVehiclesPage() {
         model: "",
         license_plate: "",
         vin: "",
-        status: "active",
+        status: "available",
       });
     }
 
@@ -574,10 +588,10 @@ export default function DriversVehiclesPage() {
         model: vehicleForm.model || null,
         license_plate: vehicleForm.license_plate || null,
         vin: vehicleForm.vin || null,
-        status: vehicleForm.status || "active",
+        status: vehicleForm.status || "available",
         ...(vehicleMode === "edit" && { id: selectedVehicle?.id }),
       };
-      console.log(payload);
+
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -714,8 +728,8 @@ export default function DriversVehiclesPage() {
         deleteTarget.type === "driver"
           ? "/api/admin/driver/delete"
           : deleteTarget.type === "vehicleCategory"
-          ? "/api/admin/vehicle-category/delete"
-          : "/api/admin/vehicle/delete";
+            ? "/api/admin/vehicle-category/delete"
+            : "/api/admin/vehicle/delete";
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -765,25 +779,22 @@ export default function DriversVehiclesPage() {
 
       <div className={styles.tabsContainer}>
         <button
-          className={`${styles.tabButton} ${
-            activeTab === "drivers" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tabButton} ${activeTab === "drivers" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("drivers")}
         >
           Drivers
         </button>
         <button
-          className={`${styles.tabButton} ${
-            activeTab === "vehicleCategories" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tabButton} ${activeTab === "vehicleCategories" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("vehicleCategories")}
         >
           Vehicle Categories
         </button>
         <button
-          className={`${styles.tabButton} ${
-            activeTab === "vehicles" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tabButton} ${activeTab === "vehicles" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("vehicles")}
         >
           Vehicles
@@ -825,9 +836,8 @@ export default function DriversVehiclesPage() {
                 <label className={styles.formLabel}>Name</label>
                 <input
                   className={styles.formInput}
-                  value={`${selectedDriver.user.first_name} ${
-                    selectedDriver.user.last_name || ""
-                  }`.trim()}
+                  value={`${selectedDriver.user.first_name} ${selectedDriver.user.last_name || ""
+                    }`.trim()}
                   disabled
                 />
               </div>
@@ -870,18 +880,22 @@ export default function DriversVehiclesPage() {
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>ID Card Number (KTP)</label>
               <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{16}"
                 className={styles.formInput}
                 value={
                   driverMode === "view"
                     ? selectedDriver?.id_card_number || "-"
                     : driverForm.id_card_number
                 }
-                onChange={(e) =>
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 16);
                   setDriverForm({
                     ...driverForm,
-                    id_card_number: e.target.value,
-                  })
-                }
+                    id_card_number: value,
+                  });
+                }}
                 disabled={driverMode === "view"}
                 placeholder="e.g., 3201234567890001"
                 minLength={16}
@@ -892,18 +906,22 @@ export default function DriversVehiclesPage() {
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>License Number (SIM)</label>
               <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{16}"
                 className={styles.formInput}
                 value={
                   driverMode === "view"
                     ? selectedDriver?.license_number || "-"
                     : driverForm.license_number
                 }
-                onChange={(e) =>
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 16);
                   setDriverForm({
                     ...driverForm,
-                    license_number: e.target.value,
-                  })
-                }
+                    license_number: value,
+                  });
+                }}
                 disabled={driverMode === "view"}
                 placeholder="e.g., 1234567890123456"
                 minLength={16}
@@ -967,11 +985,10 @@ export default function DriversVehiclesPage() {
                     <>
                       <div className={styles.toggleContainer}>
                         <label
-                          className={`${styles.toggleSwitch} ${
-                            !canVerify && !driverForm.is_verified
-                              ? styles.toggleDisabled
-                              : ""
-                          }`}
+                          className={`${styles.toggleSwitch} ${!canVerify && !driverForm.is_verified
+                            ? styles.toggleDisabled
+                            : ""
+                            }`}
                         >
                           <input
                             type="checkbox"
@@ -1038,13 +1055,12 @@ export default function DriversVehiclesPage() {
       <Modal
         isOpen={isVehicleCategoryModalOpen}
         onClose={() => setIsVehicleCategoryModalOpen(false)}
-        title={`${
-          vehicleCategoryMode === "add"
-            ? "Add"
-            : vehicleCategoryMode === "edit"
+        title={`${vehicleCategoryMode === "add"
+          ? "Add"
+          : vehicleCategoryMode === "edit"
             ? "Edit"
             : "Detail"
-        } Vehicle Category`}
+          } Vehicle Category`}
       >
         <form
           className={styles.singleLayout}
@@ -1123,6 +1139,39 @@ export default function DriversVehiclesPage() {
             />
           </div>
 
+          {/* Image Upload */}
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Category Image</label>
+            {(categoryImagePreview || categoryImage) && (
+              <div style={{ marginBottom: "0.75rem" }}>
+                <img
+                  src={categoryImage ? URL.createObjectURL(categoryImage) : categoryImagePreview || ""}
+                  alt="Preview"
+                  style={{
+                    maxWidth: "200px",
+                    maxHeight: "150px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                  }}
+                />
+              </div>
+            )}
+            {vehicleCategoryMode !== "view" && (
+              <input
+                type="file"
+                accept="image/*"
+                className={styles.formInput}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setCategoryImage(file);
+                  }
+                }}
+              />
+            )}
+          </div>
+
           <div className={styles.modalFooter}>
             {vehicleCategoryMode === "view" ? (
               <button
@@ -1158,13 +1207,12 @@ export default function DriversVehiclesPage() {
       <Modal
         isOpen={isVehicleModalOpen}
         onClose={() => setIsVehicleModalOpen(false)}
-        title={`${
-          vehicleMode === "add"
-            ? "Add"
-            : vehicleMode === "edit"
+        title={`${vehicleMode === "add"
+          ? "Add"
+          : vehicleMode === "edit"
             ? "Edit"
             : "Detail"
-        } Vehicle`}
+          } Vehicle`}
       >
         <form className={styles.singleLayout} onSubmit={handleSaveVehicle}>
           <div className={styles.formGroup}>
@@ -1207,7 +1255,7 @@ export default function DriversVehiclesPage() {
                   setVehicleForm({ ...vehicleForm, brand: e.target.value })
                 }
                 disabled={vehicleMode === "view"}
-                placeholder="e.g., Toyota, Honda"
+                placeholder="e.g., Toyota, Hino"
               />
             </div>
 
@@ -1220,7 +1268,7 @@ export default function DriversVehiclesPage() {
                   setVehicleForm({ ...vehicleForm, model: e.target.value })
                 }
                 disabled={vehicleMode === "view"}
-                placeholder="e.g., Avanza, Beat"
+                placeholder="e.g., Hilux, Dutro"
               />
             </div>
           </div>
@@ -1233,11 +1281,11 @@ export default function DriversVehiclesPage() {
               onChange={(e) =>
                 setVehicleForm({
                   ...vehicleForm,
-                  license_plate: e.target.value,
+                  license_plate: e.target.value.replace(/\s/g, "").toUpperCase(),
                 })
               }
               disabled={vehicleMode === "view"}
-              placeholder="e.g., B 1234 XYZ"
+              placeholder="e.g., B1234XYZ"
             />
           </div>
 
@@ -1249,7 +1297,10 @@ export default function DriversVehiclesPage() {
               className={styles.formInput}
               value={vehicleForm.vin}
               onChange={(e) =>
-                setVehicleForm({ ...vehicleForm, vin: e.target.value })
+                setVehicleForm({
+                  ...vehicleForm,
+                  vin: e.target.value.replace(/\s/g, "").toUpperCase(),
+                })
               }
               disabled={vehicleMode === "view"}
               placeholder="e.g., 1HGBH41JXMN109186"
@@ -1267,9 +1318,10 @@ export default function DriversVehiclesPage() {
               }
               disabled={vehicleMode === "view"}
             >
-              <option value="active">Active</option>
+              <option value="available">Available</option>
+              <option value="in-use">In Use</option>
               <option value="maintenance">Maintenance</option>
-              <option value="inactive">Inactive</option>
+              <option value="unavailable">Unavailable</option>
             </select>
           </div>
 

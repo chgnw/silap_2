@@ -12,25 +12,19 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if any vehicles are using this category
-    const checkSql = `
-      SELECT COUNT(*) as count FROM ms_vehicle 
-      WHERE vehicle_category_id = ?
-    `;
-    const result = (await query(checkSql, [id])) as any[];
+    // Check if category exists and is active
+    const checkSql = `SELECT id FROM ms_vehicle_category WHERE id = ? AND is_active = TRUE`;
+    const existingData = await query(checkSql, [id]) as any[];
 
-    if (result[0].count > 0) {
+    if (existingData.length === 0) {
       return NextResponse.json(
-        {
-          error: "Cannot delete category that is being used by vehicles",
-          detail: `${result[0].count} vehicle(s) are using this category`,
-        },
-        { status: 409 }
+        { error: "Vehicle category not found" },
+        { status: 404 }
       );
     }
 
-    const sql = `DELETE FROM ms_vehicle_category WHERE id = ?`;
-
+    // Soft delete - set is_active to FALSE
+    const sql = `UPDATE ms_vehicle_category SET is_active = FALSE WHERE id = ?`;
     await query(sql, [id]);
 
     return NextResponse.json(

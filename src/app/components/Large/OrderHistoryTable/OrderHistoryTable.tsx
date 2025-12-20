@@ -174,16 +174,28 @@ export default function OrderHistoryTable() {
         header: "Status",
         cell: ({ row }) => {
           const status = row.original.status;
-          const isSuccess = /berhasil|paid|selesai/i.test(status);
-          const isPending = /pending|proses/i.test(status);
 
-          // GABUNG CLASS PAKE TEMPLATE LITERALS
-          let badgeClass = styles.badgeFailed;
-          let Icon = FaTimesCircle;
+          // Success statuses: Berhasil
+          const isSuccess = /berhasil/i.test(status);
+          // In-progress statuses: Diterima, Proses, Menuju Lokasi, Pickup
+          const isInProgress = /diterima|proses|menuju lokasi|pickup/i.test(status);
+          // Pending statuses: Pending
+          const isPending = /pending/i.test(status);
+          // Failed/Cancelled statuses: Dibatalkan
+          const isFailed = /dibatalkan|gagal|failed/i.test(status);
+
+          let badgeClass = styles.badgePending;
+          let Icon = FaCalendar;
 
           if (isSuccess) {
             badgeClass = styles.badgeSuccess;
             Icon = FaCheckCircle;
+          } else if (isInProgress) {
+            badgeClass = styles.badgePending;
+            Icon = FaTruck;
+          } else if (isFailed) {
+            badgeClass = styles.badgeFailed;
+            Icon = FaTimesCircle;
           } else if (isPending) {
             badgeClass = styles.badgePending;
             Icon = FaCalendar;
@@ -224,10 +236,10 @@ export default function OrderHistoryTable() {
     if (statusFilter !== "all") {
       filtered = filtered.filter((item) => {
         if (statusFilter === "berhasil")
-          return /berhasil|paid/i.test(item.status);
+          return /berhasil/i.test(item.status);
         if (statusFilter === "pending")
-          return /pending|proses/i.test(item.status);
-        if (statusFilter === "gagal") return /gagal|failed/i.test(item.status);
+          return /pending|diterima|proses|menuju lokasi|pickup/i.test(item.status);
+        if (statusFilter === "gagal") return /dibatalkan|gagal|failed/i.test(item.status);
         return true;
       });
     }
@@ -419,20 +431,21 @@ export default function OrderHistoryTable() {
               {/* Status Badge */}
               <div style={{ textAlign: "center", marginBottom: "24px" }}>
                 <span
-                  className={`${styles.statusBadge} ${
-                    /berhasil|paid|selesai/i.test(selectedOrder.status)
-                      ? styles.badgeSuccess
-                      : /pending|proses/i.test(selectedOrder.status)
-                      ? styles.badgePending
-                      : styles.badgeFailed
-                  }`}
+                  className={`${styles.statusBadge} ${/berhasil/i.test(selectedOrder.status)
+                    ? styles.badgeSuccess
+                    : /dibatalkan|gagal|failed/i.test(selectedOrder.status)
+                      ? styles.badgeFailed
+                      : styles.badgePending
+                    }`}
                 >
-                  {/berhasil|paid|selesai/i.test(selectedOrder.status) ? (
+                  {/berhasil/i.test(selectedOrder.status) ? (
                     <FaCheckCircle />
-                  ) : /pending|proses/i.test(selectedOrder.status) ? (
-                    <FaCalendar />
-                  ) : (
+                  ) : /dibatalkan|gagal|failed/i.test(selectedOrder.status) ? (
                     <FaTimesCircle />
+                  ) : /diterima|proses|menuju lokasi|pickup/i.test(selectedOrder.status) ? (
+                    <FaTruck />
+                  ) : (
+                    <FaCalendar />
                   )}
                   {selectedOrder.status}
                 </span>
@@ -515,8 +528,8 @@ export default function OrderHistoryTable() {
                     {selectedOrder.category === "PICKUP"
                       ? "Poin Didapat"
                       : selectedOrder.category === "REDEEM"
-                      ? "Poin Ditukar"
-                      : "Total Bayar"}
+                        ? "Poin Ditukar"
+                        : "Total Bayar"}
                   </div>
                 </div>
                 <div className={styles.textRight}>

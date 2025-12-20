@@ -6,9 +6,11 @@ export async function GET() {
     const sql = `
             SELECT
                 re.*,
-                rc.category_name
+                rc.category_name,
+                rc.icon_path AS category_icon_path
             FROM ms_reward re
             JOIN ms_reward_category rc ON rc.id = re.category_id
+            WHERE re.is_active = TRUE AND rc.is_active = TRUE
         `;
     const result = await query(sql);
 

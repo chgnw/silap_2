@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FaPencilAlt, FaSave, FaTimes } from "react-icons/fa";
+import { FaPencilAlt, FaSave, FaTimes, FaInfoCircle } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 
 import { showToast } from "@/lib/toastHelper";
@@ -28,6 +28,7 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [hasPendingPayment, setHasPendingPayment] = useState(false);
 
   const locationData = useLocationData();
 
@@ -201,6 +202,28 @@ export default function ProfilePage() {
 
     fetchCountries();
   }, []);
+
+  // Check if user has pending payment
+  useEffect(() => {
+    const checkPendingPayment = async () => {
+      if (!session?.user?.id) return;
+
+      try {
+        const response = await fetch("/api/dashboard/subscription", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: session.user.id }),
+        });
+
+        const result = await response.json();
+        setHasPendingPayment(result.status === "pending_payment");
+      } catch (error) {
+        console.error("Error checking payment status:", error);
+      }
+    };
+
+    checkPendingPayment();
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (
@@ -422,7 +445,7 @@ export default function ProfilePage() {
                                           item.provinsi === userData.province &&
                                           item.kabkota === userData.regency &&
                                           item.kecamatan ===
-                                            userData.subdistrict &&
+                                          userData.subdistrict &&
                                           item.desakel === userData.village
                                       );
 
@@ -616,6 +639,15 @@ export default function ProfilePage() {
 
   return (
     <div className={styles.profileContainer}>
+      {hasPendingPayment && (
+        <div className={styles.alertBanner}>
+          <FaInfoCircle size={20} />
+          <p>
+            <strong>Pembayaran sedang diverifikasi.</strong> Silakan lengkapi data profil Anda
+            sambil menunggu proses verifikasi selesai.
+          </p>
+        </div>
+      )}
       <div className={styles.profileHeader}>
         <h1 className={styles.profileTitle}>My Profile</h1>
         <div className={styles.actionButtons}>
@@ -694,7 +726,8 @@ export default function ProfilePage() {
             {/* First Name */}
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>
-                Nama Depan (First Name)
+                Nama Depan <span className={styles.important}>*</span>
+                {!formData.firstName && <span className={styles.errorText}>(Data perlu di isi)</span>}
               </label>
               <input
                 type="text"
@@ -709,7 +742,8 @@ export default function ProfilePage() {
             {/* Last Name */}
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>
-                Nama Belakang (Last Name)
+                Nama Belakang <span className={styles.important}>*</span>
+                {!formData.lastName && <span className={styles.errorText}>(Data perlu di isi)</span>}
               </label>
               <input
                 type="text"
@@ -736,7 +770,8 @@ export default function ProfilePage() {
             {/* Phone Number */}
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>
-                No. Telp (Phone Number)
+                No. Telp <span className={styles.important}>*</span>
+                {!formData.phoneNumber && <span className={styles.errorText}>(Data perlu di isi)</span>}
               </label>
 
               <div className={styles.formInputPhoneNumberContainer}>
@@ -792,9 +827,8 @@ export default function ProfilePage() {
               <label className={styles.formLabel}>Provinsi (Province)</label>
               <select
                 name="province"
-                className={`${styles.formInput} ${styles.dropdownInput} ${
-                  !isEditing ? styles.readonly : ""
-                }`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ""
+                  }`}
                 value={selectedProvince}
                 onChange={handleProvinceChange}
                 disabled={!isEditing}
@@ -813,9 +847,8 @@ export default function ProfilePage() {
               <label className={styles.formLabel}>Kabupaten (Regency)</label>
               <select
                 name="regency"
-                className={`${styles.formInput} ${styles.dropdownInput} ${
-                  !isEditing ? styles.readonly : ""
-                }`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ""
+                  }`}
                 value={selectedRegency}
                 onChange={handleRegencyChange}
                 disabled={!isEditing || !selectedProvince}
@@ -838,9 +871,8 @@ export default function ProfilePage() {
               <label className={styles.formLabel}>Kecamatan (District)</label>
               <select
                 name="district"
-                className={`${styles.formInput} ${styles.dropdownInput} ${
-                  !isEditing ? styles.readonly : ""
-                }`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ""
+                  }`}
                 value={selectedDistrict}
                 onChange={handleDistrictChange}
                 disabled={!isEditing || !selectedRegency}
@@ -863,9 +895,8 @@ export default function ProfilePage() {
               </label>
               <select
                 name="village"
-                className={`${styles.formInput} ${styles.dropdownInput} ${
-                  !isEditing ? styles.readonly : ""
-                }`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ""
+                  }`}
                 value={selectedVillage}
                 onChange={handleVillageChange}
                 disabled={!isEditing || !selectedDistrict}
@@ -888,9 +919,8 @@ export default function ProfilePage() {
               <label className={styles.formLabel}>Kode Pos (Postal Code)</label>
               <select
                 name="postalCode"
-                className={`${styles.formInput} ${styles.dropdownInput} ${
-                  !isEditing ? styles.readonly : ""
-                }`}
+                className={`${styles.formInput} ${styles.dropdownInput} ${!isEditing ? styles.readonly : ""
+                  }`}
                 value={formData.postalCode}
                 onChange={handleInputChange}
                 disabled={!isEditing || postalCodes.length === 0}
@@ -899,8 +929,8 @@ export default function ProfilePage() {
                   {postalCodes.length > 0
                     ? "Select Postal Code"
                     : formData.postalCode
-                    ? formData.postalCode
-                    : "Select village first"}
+                      ? formData.postalCode
+                      : "Select village first"}
                 </option>
                 {postalCodes.map((code) => (
                   <option key={code} value={code}>
@@ -912,7 +942,10 @@ export default function ProfilePage() {
 
             {/* Address */}
             <div className={`${styles.formGroup} ${styles.addressGroup}`}>
-              <label className={styles.formLabel}>Alamat (Address)</label>
+              <label className={styles.formLabel}>
+                Alamat <span className={styles.important}>*</span>
+                {!formData.address && <span className={styles.errorText}>(Data perlu di isi)</span>}
+              </label>
               <textarea
                 name="address"
                 className={`${styles.formInput}`}

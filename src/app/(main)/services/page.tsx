@@ -1,15 +1,55 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import styles from './services.module.css';
 import pricingStyles from '../pricing/pricing.module.css';
+
+interface FAQ {
+    question: string;
+    answer: string;
+}
+
+interface VehicleCategory {
+    id: number;
+    category_name: string;
+    min_weight: number;
+    max_weight: number | null;
+    description: string | null;
+    image_path: string | null;
+}
+
+interface SubscriptionPlan {
+    id: number;
+    plan_name: string;
+    description: string | null;
+    price: number;
+    duration_days: number;
+    pickup_frequency: string | null;
+    max_weight: number | null;
+    features: string | null;
+    is_popular: boolean;
+}
 
 export default function ServicesPage() {
     const statsRef = useRef<HTMLElement | null>(null);
     const fleetTrackRef = useRef<HTMLDivElement | null>(null);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
+    const [faqItems, setFaqItems] = useState<FAQ[]>([]);
     const alurRef = useRef<HTMLDivElement | null>(null);
+
+    // Dynamic data from API
+    const [fleets, setFleets] = useState<VehicleCategory[]>([]);
+    const [pricingPlans, setPricingPlans] = useState<SubscriptionPlan[]>([]);
+
+    // Fleet carousel pagination
+    const [fleetPage, setFleetPage] = useState(0);
+    const getItemsPerPage = () => {
+        if (typeof window === 'undefined') return 3;
+        if (window.innerWidth <= 640) return 1;
+        if (window.innerWidth <= 900) return 2;
+        return 3;
+    };
 
 
     const achievements = [
@@ -47,50 +87,63 @@ export default function ServicesPage() {
         { title: 'Residu seminimal mungkin', icon: '/assets/process-7.png' },
     ];
 
-    const fleets = [
-        { name: 'Motor Box', capacity: 'Kapasitas 100 Kg', image: '/assets/MotorBox.png' },
-        { name: 'Pickup Box', capacity: 'Kapasitas 1 Ton', image: '/assets/MobilBox.png' },
-        { name: 'Pickup Besar', capacity: 'Kapasitas 2 Ton', image: '/assets/MobilBox.png' },
-        { name: 'Truk Engkel', capacity: 'Kapasitas 4 Ton', image: '/assets/MobilBox.png' },
-        { name: 'Armphibious', capacity: 'Khusus Banjir', image: '/assets/MobilBox.png' },
-    ];
-
     const coverageCities = ['Jakarta', 'Depok', 'Bekasi', 'Tangerang', 'Bandung', 'Surabaya', 'Yogyakarta', 'Semarang', 'Bali', 'Medan'];
 
-    const faqItems = [
-        { question: 'Bagaimana cara menjadwalkan penjemputan?', answer: 'Mudah! Buka aplikasi SILAP, pilih menu "Jemput Sampah", tentukan lokasi, tanggal, dan jam, lalu konfirmasi pesanan Anda.' },
-        { question: 'Apakah ada biaya minimum untuk penjemputan?', answer: 'Biaya dihitung berdasarkan jarak dan estimasi volume sampah. Anda akan melihat total biaya (transparan) sebelum konfirmasi pesanan.' },
-        { question: 'Sampah apa saja yang bisa dijemput?', answer: 'Kami menerima sampah organik, anorganik (plastik, kertas, logam), dan sampah elektronik (e-waste). Pastikan untuk memilahnya terlebih dahulu.' },
-        { question: 'Bagaimana cara menukar poin reward?', answer: 'Poin yang Anda kumpulkan bisa ditukarkan di menu "Rewards" dengan voucher belanja, donasi lingkungan, atau potongan biaya layanan.' },
-    ];
+    // Fetch data from API
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch FAQs
+                const faqRes = await fetch('/api/faq');
+                const faqData = await faqRes.json();
+                if (faqData.message === 'SUCCESS' && faqData.data) {
+                    setFaqItems(faqData.data);
+                }
 
-    // MATCHING PRICING DATA EXACTLY
-    const pricingPlans = [
-        {
-            name: 'Basic',
-            price: 'Rp 49rb',
-            period: '/bln',
-            desc: 'Cocok untuk pemula yang ingin mulai peduli lingkungan.',
-            features: ['Penjemputan 1x seminggu', 'Kapasitas 5kg', 'Laporan dasar', 'Akses artikel edukasi'],
-            popular: false,
-        },
-        {
-            name: 'Pro',
-            price: 'Rp 149rb',
-            period: '/bln',
-            desc: 'Pilihan terbaik untuk keluarga dan gaya hidup zero waste.',
-            features: ['Penjemputan 2x seminggu', 'Kapasitas 15kg', 'Laporan detail', 'Wadah terpisah gratis', 'Poin reward ganda'],
-            popular: true,
-        },
-        {
-            name: 'Enterprise',
-            price: 'Hubungi',
-            period: '',
-            desc: 'Solusi manajemen limbah terpadu untuk bisnis Anda.',
-            features: ['Jadwal fleksibel (harian)', 'Kapasitas tak terbatas', 'Audit & Laporan ESG', 'Account Manager', 'Sertifikat Zero Waste'],
-            popular: false,
-        },
-    ];
+                // Fetch vehicle categories (fleets)
+                const fleetRes = await fetch('/api/public/vehicle-categories');
+                const fleetData = await fleetRes.json();
+                if (fleetData.message === 'SUCCESS' && fleetData.data) {
+                    setFleets(fleetData.data);
+                }
+
+                // Fetch subscription plans (pricing)
+                const planRes = await fetch('/api/public/subscription-plans');
+                const planData = await planRes.json();
+                if (planData.message === 'SUCCESS' && planData.data) {
+                    setPricingPlans(planData.data);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Helper to format price
+    const formatPrice = (price: number) => {
+        if (price >= 1000000) {
+            return `Rp ${(price / 1000000).toFixed(0)} jt`;
+        } else if (price >= 1000) {
+            return `Rp ${(price / 1000).toFixed(0)}rb`;
+        }
+        return `Rp ${price}`;
+    };
+
+    // Helper to parse features
+    const parseFeatures = (features: string | null): string[] => {
+        if (!features) return [];
+        return features.split(',').map(f => f.trim()).filter(f => f.length > 0);
+    };
+
+    // Helper to format capacity
+    const formatCapacity = (minWeight: number, maxWeight: number | null) => {
+        if (maxWeight === null) {
+            return `Kapasitas ${minWeight}+ Kg`;
+        }
+        return `Kapasitas ${maxWeight} Kg`;
+    };
 
     const testimonials = [
         { name: 'Siti Rahma', role: 'Ibu Rumah Tangga', text: 'Semenjak pakai SILAP, rumah jadi lebih bersih dan nggak bingung lagi mau buang sampah elektronik kemana. Drivernya sopan banget!', image: 'https://ui-avatars.com/api/?name=Siti+Rahma&background=random' },
@@ -208,22 +261,22 @@ export default function ServicesPage() {
                 {/* USING PRICING.MODULE.CSS FOR EXACT MATCH */}
                 <div className={pricingStyles.pricingGrid}>
                     {pricingPlans.map((tier) => (
-                        <div key={tier.name} className={`${pricingStyles.pricingCard} ${tier.popular ? pricingStyles.popular : ''}`}>
-                            {tier.popular && <div className={pricingStyles.popularBadge}>Popular</div>}
+                        <div key={tier.plan_name} className={`${pricingStyles.pricingCard} ${tier.is_popular ? pricingStyles.popular : ''}`}>
+                            {!!tier.is_popular && <div className={pricingStyles.popularBadge}>Popular</div>}
                             <div className={pricingStyles.cardHeader}>
-                                <h3>{tier.name}</h3>
+                                <h3>{tier.plan_name}</h3>
                                 <div className={pricingStyles.price}>
-                                    {tier.price}<span>{tier.period}</span>
+                                    {formatPrice(tier.price)}<span>/{tier.duration_days} hari</span>
                                 </div>
-                                <p className={pricingStyles.description}>{tier.desc}</p>
+                                <p className={pricingStyles.description}>{tier.description || ''}</p>
                             </div>
                             <ul className={pricingStyles.features}>
-                                {tier.features.map((f) => (
+                                {parseFeatures(tier.features).map((f) => (
                                     <li key={f}><span className={pricingStyles.check}>✓</span> {f}</li>
                                 ))}
                             </ul>
                             <Link
-                                href={`/pricing?plan=${tier.name}`}
+                                href={`/pricing?plan=${tier.plan_name}`}
                                 className={pricingStyles.ctaBtn}
                                 style={{ textAlign: 'center' }}
                             >
@@ -240,25 +293,45 @@ export default function ServicesPage() {
                     <p>Siap menjemput di segala kondisi medan.</p>
                 </div>
                 <div className={styles.fleetCarousel}>
-                    <button className={styles.fleetNav} aria-label="Sebelumnya" onClick={() => scrollFleet('left')}>
-                        ‹
-                    </button>
+                    {fleets.length > getItemsPerPage() && (
+                        <button
+                            className={styles.fleetNav}
+                            aria-label="Sebelumnya"
+                            onClick={() => {
+                                const totalPages = Math.ceil(fleets.length / getItemsPerPage());
+                                setFleetPage(p => p === 0 ? totalPages - 1 : p - 1);
+                            }}
+                        >
+                            ‹
+                        </button>
+                    )}
                     <div ref={fleetTrackRef} className={styles.fleetTrack}>
-                        {fleets.map((fleet, idx) => (
-                            <div key={`${fleet.name}-${idx}`} className={styles.fleetCard}>
-                                <div className={styles.fleetImage}>
-                                    <img src={fleet.image} alt={fleet.name} />
+                        {fleets
+                            .slice(fleetPage * getItemsPerPage(), (fleetPage + 1) * getItemsPerPage())
+                            .map((fleet, idx) => (
+                                <div key={`${fleet.category_name}-${idx}`} className={styles.fleetCard}>
+                                    <div className={styles.fleetImage}>
+                                        <img src={fleet.image_path || '/assets/MobilBox.png'} alt={fleet.category_name} />
+                                    </div>
+                                    <div className={styles.fleetInfo}>
+                                        <div className={styles.fleetName}>{fleet.category_name}</div>
+                                        <div className={styles.fleetCapacity}>{formatCapacity(fleet.min_weight, fleet.max_weight)}</div>
+                                    </div>
                                 </div>
-                                <div className={styles.fleetInfo}>
-                                    <div className={styles.fleetName}>{fleet.name}</div>
-                                    <div className={styles.fleetCapacity}>{fleet.capacity}</div>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
-                    <button className={styles.fleetNav} aria-label="Berikutnya" onClick={() => scrollFleet('right')}>
-                        ›
-                    </button>
+                    {fleets.length > getItemsPerPage() && (
+                        <button
+                            className={styles.fleetNav}
+                            aria-label="Berikutnya"
+                            onClick={() => {
+                                const totalPages = Math.ceil(fleets.length / getItemsPerPage());
+                                setFleetPage(p => p >= totalPages - 1 ? 0 : p + 1);
+                            }}
+                        >
+                            ›
+                        </button>
+                    )}
                 </div>
             </section>
 

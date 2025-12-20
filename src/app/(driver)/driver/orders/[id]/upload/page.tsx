@@ -306,7 +306,7 @@ export default function UploadOrderPage() {
                       {category.name}
                     </span>
                     <span className={styles.selectedCategoryWeight}>
-                      {category.weight > 0 ? `${category.weight}Kg` : "10Kg"}
+                      {category.weight > 0 ? `${category.weight}Kg` : "0Kg"}
                     </span>
                   </div>
                   <button className={styles.expandButton}>›</button>

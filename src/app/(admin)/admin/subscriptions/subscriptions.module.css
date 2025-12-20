@@ -1,0 +1,327 @@
+.pageContainer {
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 1rem;
+}
+
+.pageHeader {
+  margin-bottom: 1.5rem;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  font-size: 1rem;
+  color: #666;
+  font-style: italic;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tabButton {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tabButton:hover {
+  color: #2f5e44;
+  background-color: #f0fdf4;
+  border-radius: 6px 6px 0 0;
+}
+
+.activeTab {
+  color: #2f5e44;
+  font-weight: 600;
+}
+
+.activeTab::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2f5e44;
+}
+
+.singleLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  padding: 0.6rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  border-color: #2f5e44;
+  box-shadow: 0 0 0 3px rgba(47, 94, 68, 0.1);
+}
+
+.formInput:disabled,
+.formSelect:disabled,
+.formTextarea:disabled {
+  background-color: #f3f4f6;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.formTextarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btnBase {
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnCancel {
+  background: #fff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+.btnCancel:hover {
+  background-color: #f9fafb;
+}
+
+.btnSave {
+  background-color: #2f5e44;
+  color: #fff;
+  border: 1px solid transparent;
+}
+.btnSave:hover {
+  background-color: #1b5e20;
+}
+.btnSave:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.btnDeleteConfirm {
+  background-color: #dc2626;
+  color: #fff;
+  border: 1px solid transparent;
+}
+.btnDeleteConfirm:hover {
+  background-color: #b91c1c;
+}
+.btnDeleteConfirm:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.actionRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btnAction {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  transition: transform 0.1s;
+  border-radius: 4px;
+}
+.btnAction:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btnView {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  background-color: #f8f9fa;
+}
+.btnView:hover {
+  color: #2563eb;
+}
+
+.btnEdit {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  background-color: #fff3cd;
+}
+.btnEdit:hover {
+  color: #2f5e44;
+}
+
+.btnDelete {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  background-color: #f8d7da;
+}
+.btnDelete:hover {
+  color: #ed1c24;
+}
+
+/* Toggle Switch Styles */
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #d1d5db;
+  transition: all 0.3s ease;
+  border-radius: 26px;
+}
+
+.toggleSlider::before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggleSwitch input:checked + .toggleSlider {
+  background-color: #2f5e44;
+}
+
+.toggleSwitch input:checked + .toggleSlider::before {
+  transform: translateX(22px);
+}
+
+.toggleSwitch input:focus + .toggleSlider {
+  box-shadow: 0 0 0 3px rgba(47, 94, 68, 0.2);
+}
+
+.toggleSwitch input:disabled + .toggleSlider {
+  background-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.toggleSwitch input:disabled + .toggleSlider::before {
+  background-color: #f3f4f6;
+}
+
+.toggleLabel {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+  user-select: none;
+  cursor: pointer;
+}
+
+.toggleLabel.disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Verification Warning */
+.verificationWarning {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #dc2626;
+  font-style: italic;
+}
+
+.toggleDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggleDisabled .toggleSlider {
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}

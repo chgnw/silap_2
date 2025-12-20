@@ -2,28 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
 
-type TotalWasteResult = { 
-  total: number 
+type TotalWasteResult = {
+  total: number
 };
 
 type UserDataResult = {
   points_current: number;
   points_last_earned: number;
   current_streak: number;
+  last_streak_week: number | null;
   waste_target: number;
   total_monthly: number;
   tier_list_id: number | null;
   tier_name: string | null;
 };
 
-type CategoryDataResult = { 
-  category: string; 
-  total: number 
+type CategoryDataResult = {
+  category: string;
+  total: number
 };
 
-type DailyDataResult = { 
-  date: string; 
-  total: number 
+type DailyDataResult = {
+  date: string;
+  total: number
 };
 
 /**
@@ -78,6 +79,7 @@ async function getUserMetrics(user_id: number) {
       SELECT 
         u.points AS points_current,
         u.current_streak,
+        u.last_streak_week,
         u.tier_list_id,
         t.tier_name,
         COALESCE(t.target_weight, 0) AS waste_target,
@@ -193,33 +195,43 @@ export async function POST(req: NextRequest) {
 
     // Extract hasil query dengan fallback values
     const totalWaste = extractQueryResult(totalWasteResult, [{ total: 0 }]);
-    
+
     const userData = extractQueryResult(userDataResult, [
       {
         points_current: 0,
         points_last_earned: 0,
         current_streak: 0,
+        last_streak_week: null,
         waste_target: 0,
         total_monthly: 0,
         tier_list_id: null,
         tier_name: null,
       },
     ]);
-    
+
     const categoryData = extractQueryResult(categoryDataResult, []);
     const dailyData = extractQueryResult(dailyDataResult, []);
 
     // Debug logging (bisa dihapus di production)
-    console.log("=== DEBUG START ===");
-    console.log("User ID:", user_id);
-    console.log("Date Range:", rangeStart, "to", rangeEnd);
-    console.log("Total Waste:", totalWaste);
-    console.log("Category Data:", categoryData);
-    console.log("Daily Data:", dailyData);
-    console.log("User Data RAW:", userData);
-    console.log("User Data Length:", userData.length);
-    console.log("User Data [0]:", userData[0]);
-    console.log("=== DEBUG END ===");
+    // console.log("=== DEBUG START ===");
+    // console.log("User ID:", user_id);
+    // console.log("Date Range:", rangeStart, "to", rangeEnd);
+    // console.log("Total Waste:", totalWaste);
+    // console.log("Category Data:", categoryData);
+    // console.log("Daily Data:", dailyData);
+    // console.log("User Data RAW:", userData);
+    // console.log("User Data Length:", userData.length);
+    // console.log("User Data [0]:", userData[0]);
+    // console.log("=== DEBUG END ===");
+
+    // Calculate streak_active_this_week
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
+    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+    const currentWeek = now.getFullYear() * 100 + weekNumber;
+    const lastStreakWeek = userData[0]?.last_streak_week || null;
+    const streakActiveThisWeek = lastStreakWeek === currentWeek;
 
     // Return response
     return NextResponse.json({
@@ -230,6 +242,7 @@ export async function POST(req: NextRequest) {
         points_current: userData[0]?.points_current || 0,
         points_last_earned: userData[0]?.points_last_earned || 0,
         current_streak: userData[0]?.current_streak || 0,
+        streak_active_this_week: streakActiveThisWeek,
         waste_target: userData[0]?.waste_target || 0,
         total_monthly: userData[0]?.total_monthly || 0,
         categories: categoryData,

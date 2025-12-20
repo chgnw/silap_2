@@ -105,13 +105,14 @@ export default function Header({ theme = "dark" }: HeaderProps) {
                   {status === "authenticated" ? (
                     <NavDropdown
                       title={
-                        `${session?.user?.first_name} ${session?.user?.last_name}` ||
-                        "User"
+                        <span className={styles.userNameText}>
+                          {`${session?.user?.first_name} ${session?.user?.last_name}` || "User"}
+                        </span>
                       }
                       id="basic-nav-dropdown"
                       className={`${styles.login} fw-bold`}
                     >
-                      <NavDropdown.Item href="#profile">
+                      <NavDropdown.Item href="/dashboard/profile">
                         Profile
                       </NavDropdown.Item>
                       <NavDropdown.Divider />

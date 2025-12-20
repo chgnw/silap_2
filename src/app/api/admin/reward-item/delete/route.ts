@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
     const sqlCheck = `
             SELECT id FROM ms_reward
-            WHERE id = ?
+            WHERE id = ? AND is_active = TRUE
         `;
     const resultCheck = (await query(sqlCheck, [id])) as any;
     if (resultCheck.length === 0) {
@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
     }
 
     const sql = `
-            DELETE FROM ms_reward
+            UPDATE ms_reward
+            SET is_active = FALSE
             WHERE id = ?
         `;
     const result = (await query(sql, [id])) as any;

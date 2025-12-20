@@ -9,7 +9,7 @@ interface WasteCategory {
   name: string;
   icon: string;
   unit: string;
-  points_per_unit: number;
+  point_per_unit: number;
 }
 
 export default function WasteTypeSection() {

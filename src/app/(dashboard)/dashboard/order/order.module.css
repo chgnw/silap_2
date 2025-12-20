@@ -18,23 +18,34 @@
   padding-bottom: 1rem;
   font-size: 1.25rem;
   font-weight: 500;
-  color: #b6b6b6;
+  color: var(--color-gray);
 }
 
 .active {
-  border-bottom: 1.5px solid #a4b465;
-  color: #a4b465;
+  border-bottom: 1.5px solid var(--color-primary-dark);
+  color: var(--color-primary-dark);
+  font-weight: 600;
 }
 
 .onProgressContainer {
   width: 100%;
-  height: calc(100% - 150px);
-  padding-top: 2rem;
+  height: auto;
+  padding-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.5rem;
+}
+
+/* Info Cards Row - Driver & Vehicle in horizontal layout */
+.infoCardsRow {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 2rem;
+  gap: 1rem;
+}
+
+.infoCardsRow>* {
+  flex: 1;
 }
 
 .leftSide {
@@ -143,11 +154,13 @@
 /* Garis Hijau di Belakang */
 .stepperLine {
   position: absolute;
-  top: 20px; /* Posisi tengah icon */
+  top: 20px;
+  /* Posisi tengah icon */
   left: 30px;
   right: 30px;
   height: 4px;
-  background-color: #a0b075; /* Warna hijau olive */
+  background-color: #a0b075;
+  /* Warna hijau olive */
   z-index: 0;
 }
 
@@ -157,7 +170,8 @@
   align-items: center;
   position: relative;
   z-index: 1;
-  width: 120px; /* Lebar area teks supaya center */
+  width: 120px;
+  /* Lebar area teks supaya center */
   text-align: center;
 }
 
@@ -166,8 +180,10 @@
   width: 40px;
   height: 40px;
   background-color: white;
-  border: 4px solid #fff; /* Border putih supaya nutup garis */
-  border-radius: 8px; /* Sedikit rounded box seperti di gambar */
+  border: 4px solid #fff;
+  /* Border putih supaya nutup garis */
+  border-radius: 8px;
+  /* Sedikit rounded box seperti di gambar */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,9 +193,11 @@
 
 /* Icon Truck (Aktif) */
 .iconWrapperActive {
-  width: 50px; /* Sedikit lebih besar */
+  width: 50px;
+  /* Sedikit lebih besar */
   height: 40px;
-  background-color: #5c7143; /* Warna hijau gelap icon */
+  background-color: #5c7143;
+  /* Warna hijau gelap icon */
   border: 4px solid #fff;
   border-radius: 8px;
   display: flex;
@@ -209,7 +227,8 @@
 /* --- DETAIL INFO GRID --- */
 .detailsGrid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr; /* Kolom kiri sedikit lebih lebar */
+  grid-template-columns: 1.2fr 1fr;
+  /* Kolom kiri sedikit lebih lebar */
   gap: 2rem;
 }
 
@@ -243,9 +262,11 @@
 .limeDot {
   background-color: #d5f35f;
 }
+
 .redDot {
   background-color: #ed1c24;
 }
+
 .cyanDot {
   background-color: #13ffd8;
 }
@@ -321,4 +342,341 @@
   .detailsGrid {
     grid-template-columns: 1fr;
   }
+
+  .onProgressContainer {
+    flex-direction: column;
+  }
+
+  .infoCardsRow {
+    flex-direction: column;
+  }
+
+  .leftSide,
+  .rightSide,
+  .fullWidth {
+    width: 100%;
+  }
+}
+
+/* Full width when no driver assigned */
+.fullWidth {
+  width: 100%;
+}
+
+/* Loading State */
+.loadingContainer {
+  width: 100%;
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #a4b465;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+.errorContainer {
+  width: 100%;
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.errorContainer button {
+  padding: 0.75rem 1.5rem;
+  background-color: #a4b465;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.errorContainer button:hover {
+  background-color: #8a9a56;
+}
+
+/* Empty State */
+.emptyContainer {
+  width: 100%;
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.emptyContainer h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.emptyContainer p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+  max-width: 400px;
+}
+
+.createOrderButton {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.875rem 2rem;
+  background-color: #a4b465;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.createOrderButton:hover {
+  background-color: #8a9a56;
+}
+
+/* Completed Icon Wrapper */
+.iconWrapperCompleted {
+  width: 40px;
+  height: 40px;
+  background-color: #6b8e23;
+  border: 4px solid #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Step completed styling */
+.stepItem.completed .stepLabel {
+  color: #6b8e23;
+}
+
+/* Orange dot for detail section */
+.orangeDot {
+  background-color: #ff9800;
+}
+
+/* Completed Message */
+.completedMessage {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #c8e6c9;
+}
+
+.completedMessage p {
+  margin: 0;
+  font-size: 1rem;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+/* Copy icon hover effect */
+.copyIcon:hover {
+  color: #a4b465;
+}
+
+/* View Receipt Button */
+.viewReceiptButton {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #2F5E44;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.viewReceiptButton:hover {
+  background-color: #264a37;
+}
+
+.viewReceiptButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Receipt Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #2F5E44;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+.receiptInfo {
+  padding: 1rem 1.5rem;
+  text-align: center;
+  background-color: #f8f9fa;
+}
+
+.transactionCode {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666;
+  letter-spacing: 1px;
+}
+
+.receiptItems {
+  padding: 1.5rem;
+}
+
+.receiptItems h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  color: #333;
+}
+
+.receiptTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.receiptTable th,
+.receiptTable td {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.receiptTable th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.receiptTable td {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.pointsCell {
+  text-align: right;
+  color: #2F5E44;
+  font-weight: 600;
+}
+
+.totalRow {
+  background-color: #f8f9fa;
+}
+
+.totalRow td {
+  padding: 1rem 0.5rem;
+  border-top: 2px solid #ddd;
+  border-bottom: none;
+}
+
+.noItemsMessage {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.closeReceiptButton {
+  display: block;
+  width: calc(100% - 3rem);
+  margin: 0 1.5rem 1.5rem;
+  padding: 1rem;
+  background-color: #a4b465;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.closeReceiptButton:hover {
+  background-color: #8a9a56;
 }

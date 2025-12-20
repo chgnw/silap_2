@@ -7,7 +7,7 @@ import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { showToast } from "@/lib/toastHelper";
 import AdminTable from "../../../components/Large/DataTable/DataTable";
 import Modal from "../../../components/Large/Modal/Modal";
-import styles from "../drivers-vehicles/driversVehicles.module.css";
+import styles from "./others.module.css";
 
 type Tier = {
   id: number;
@@ -21,23 +21,34 @@ type Tier = {
   updated_at?: string;
 };
 
+type FAQ = {
+  id: number;
+  question: string;
+  answer: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
 type ModalMode = "view" | "edit" | "add";
+type ActiveTab = "tiers" | "faqs";
 
 export default function OthersPage() {
-  const [tiers, setTiers] = useState<Tier[]>([]);
+  const [activeTab, setActiveTab] = useState<ActiveTab>("tiers");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Modal states
+  // =========================================
+  // TIERS SECTION
+  // =========================================
+  const [tiers, setTiers] = useState<Tier[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>("add");
   const [selectedTier, setSelectedTier] = useState<Tier | null>(null);
-
-  // Delete modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
-  // Form state
   const [tierForm, setTierForm] = useState({
     tier_name: "",
     tier_icon: "",
@@ -47,10 +58,29 @@ export default function OthersPage() {
     description: "",
   });
 
-  // File upload state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
 
+  // =========================================
+  // FAQ SECTION
+  // =========================================
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [isFaqModalOpen, setIsFaqModalOpen] = useState(false);
+  const [faqModalMode, setFaqModalMode] = useState<ModalMode>("add");
+  const [selectedFaq, setSelectedFaq] = useState<FAQ | null>(null);
+  const [isFaqDeleteModalOpen, setIsFaqDeleteModalOpen] = useState(false);
+  const [faqDeleteTarget, setFaqDeleteTarget] = useState<number | null>(null);
+
+  const [faqForm, setFaqForm] = useState({
+    question: "",
+    answer: "",
+    is_active: true,
+    sort_order: "0",
+  });
+
+  // =========================================
+  // FETCH FUNCTIONS
+  // =========================================
   const fetchTiers = async () => {
     setIsLoading(true);
     try {
@@ -70,6 +100,28 @@ export default function OthersPage() {
     }
   };
 
+  const fetchFaqs = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/admin/faq");
+      const result = await response.json();
+
+      if (result.message === "SUCCESS") {
+        setFaqs(result.data || []);
+      } else {
+        showToast("error", "Failed to fetch FAQs");
+      }
+    } catch (error) {
+      console.error("Error fetching FAQs:", error);
+      showToast("error", "Error fetching FAQs");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // =========================================
+  // TIER ACTIONS
+  // =========================================
   const handleAction = (mode: ModalMode, tier?: Tier) => {
     setModalMode(mode);
     setSelectedTier(tier || null);
@@ -103,7 +155,6 @@ export default function OthersPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
       const allowedTypes = [
         "image/jpeg",
         "image/jpg",
@@ -119,7 +170,6 @@ export default function OthersPage() {
         return;
       }
 
-      // Validate file size (max 3MB)
       const maxSize = 3 * 1024 * 1024;
       if (file.size > maxSize) {
         showToast("error", "File size too large. Maximum size is 3MB");
@@ -127,7 +177,6 @@ export default function OthersPage() {
       }
 
       setSelectedFile(file);
-      // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result as string);
@@ -219,7 +268,114 @@ export default function OthersPage() {
     }
   };
 
-  const columns = useMemo<ColumnDef<Tier>[]>(
+  // =========================================
+  // FAQ ACTIONS
+  // =========================================
+  const handleFaqAction = (mode: ModalMode, faq?: FAQ) => {
+    setFaqModalMode(mode);
+    setSelectedFaq(faq || null);
+
+    if (faq) {
+      setFaqForm({
+        question: faq.question,
+        answer: faq.answer,
+        is_active: faq.is_active,
+        sort_order: faq.sort_order.toString(),
+      });
+    } else {
+      setFaqForm({
+        question: "",
+        answer: "",
+        is_active: true,
+        sort_order: "0",
+      });
+    }
+
+    setIsFaqModalOpen(true);
+  };
+
+  const handleSaveFaq = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const url =
+        faqModalMode === "add"
+          ? "/api/admin/faq/add"
+          : "/api/admin/faq/update";
+
+      const payload = {
+        question: faqForm.question,
+        answer: faqForm.answer,
+        is_active: faqForm.is_active,
+        sort_order: parseInt(faqForm.sort_order),
+        ...(faqModalMode === "edit" && { id: selectedFaq?.id }),
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (result.message === "SUCCESS") {
+        showToast(
+          "success",
+          `FAQ ${faqModalMode === "add" ? "added" : "updated"} successfully!`
+        );
+        setIsFaqModalOpen(false);
+        fetchFaqs();
+      } else {
+        showToast("error", result.error || result.detail || "Operation failed");
+      }
+    } catch (error) {
+      console.error("Error saving FAQ:", error);
+      showToast("error", "Error saving FAQ");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const triggerDeleteFaq = (id: number) => {
+    setFaqDeleteTarget(id);
+    setIsFaqDeleteModalOpen(true);
+  };
+
+  const confirmDeleteFaq = async () => {
+    if (!faqDeleteTarget) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/admin/faq/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: faqDeleteTarget }),
+      });
+
+      const result = await response.json();
+
+      if (result.message === "SUCCESS") {
+        showToast("success", "FAQ deleted successfully!");
+        setIsFaqDeleteModalOpen(false);
+        fetchFaqs();
+      } else {
+        showToast("error", result.error || result.detail || "Delete failed");
+      }
+    } catch (error) {
+      console.error("Error deleting FAQ:", error);
+      showToast("error", "Error deleting FAQ");
+    } finally {
+      setIsSubmitting(false);
+      setFaqDeleteTarget(null);
+    }
+  };
+
+  // =========================================
+  // COLUMNS
+  // =========================================
+  const columnsTiers = useMemo<ColumnDef<Tier>[]>(
     () => [
       {
         header: "No",
@@ -240,6 +396,11 @@ export default function OthersPage() {
                 height: "40px",
                 objectFit: "contain",
                 borderRadius: "4px",
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+                target.insertAdjacentHTML("afterend", '<span style="color:#999;font-size:0.8rem">File not found</span>');
               }}
             />
           ) : (
@@ -283,14 +444,6 @@ export default function OthersPage() {
         },
       },
       {
-        header: "Description",
-        accessorKey: "description",
-        cell: ({ getValue }) => {
-          const value = getValue() as string | null;
-          return value || "-";
-        },
-      },
-      {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => (
@@ -322,32 +475,116 @@ export default function OthersPage() {
 
   useEffect(() => {
     fetchTiers();
+    fetchFaqs();
   }, []);
 
   return (
     <div className={styles.pageContainer}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Customer Tier Management</h1>
+        <h1 className={styles.pageTitle}>Others Management</h1>
         <i className={styles.pageSubtitle}>
-          Manage customer tier list with gamification targets for loyalty
-          system.
+          Manage customer tiers and frequently asked questions.
         </i>
       </div>
 
-      <AdminTable
-        columns={columns}
-        data={tiers}
-        isLoading={isLoading}
-        onAdd={() => handleAction("add")}
-      />
+      <div className={styles.tabsContainer}>
+        <button
+          className={`${styles.tabButton} ${activeTab === "tiers" ? styles.activeTab : ""
+            }`}
+          onClick={() => setActiveTab("tiers")}
+        >
+          Customer Tiers
+        </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === "faqs" ? styles.activeTab : ""
+            }`}
+          onClick={() => setActiveTab("faqs")}
+        >
+          FAQ
+        </button>
+      </div>
+
+      {activeTab === "tiers" ? (
+        <AdminTable
+          columns={columnsTiers}
+          data={tiers}
+          isLoading={isLoading}
+          onAdd={() => handleAction("add")}
+        />
+      ) : (
+        <div>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
+            <button
+              onClick={() => handleFaqAction("add")}
+              className={`${styles.btnBase} ${styles.btnSave}`}
+              style={{ padding: "0.6rem 1.5rem" }}
+            >
+              + Add FAQ
+            </button>
+          </div>
+
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "#666" }}>
+              Loading FAQs...
+            </div>
+          ) : faqs.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "#666" }}>
+              No FAQs found. Click "Add FAQ" to create one.
+            </div>
+          ) : (
+            <div className={styles.faqGrid}>
+              {faqs.map((faq) => (
+                <div
+                  key={faq.id}
+                  className={styles.faqCard}
+                  onClick={() => handleFaqAction("view", faq)}
+                >
+                  <div className={styles.faqContent}>
+                    <h3 className={styles.faqQuestion}>{faq.question}</h3>
+                    <p className={styles.faqAnswerPreview}>
+                      {faq.answer.length > 120
+                        ? `${faq.answer.substring(0, 120)}...`
+                        : faq.answer}
+                    </p>
+                    {!faq.is_active && (
+                      <span className={styles.faqInactiveBadge}>Inactive</span>
+                    )}
+                  </div>
+                  <div className={styles.faqActions}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFaqAction("edit", faq);
+                      }}
+                      className={`${styles.btnAction} ${styles.btnEdit}`}
+                      title="Edit"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerDeleteFaq(faq.id);
+                      }}
+                      className={`${styles.btnAction} ${styles.btnDelete}`}
+                      title="Delete"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tier Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={`${
-          modalMode === "add" ? "Add" : modalMode === "edit" ? "Edit" : "Detail"
-        } Tier`}
+        title={`${modalMode === "add" ? "Add" : modalMode === "edit" ? "Edit" : "Detail"
+          } Tier`}
       >
         <form className={styles.singleLayout} onSubmit={handleSave}>
           <div className={styles.formGroup}>
@@ -388,10 +625,12 @@ export default function OthersPage() {
                         padding: "8px",
                         backgroundColor: "#f9f9f9",
                       }}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        target.insertAdjacentHTML("afterend", '<p style="color:#dc2626;font-size:0.9rem;font-style:italic">File not found</p>');
+                      }}
                     />
-                    <small style={{ color: "#666", fontSize: "0.85rem" }}>
-                      File: {tierForm.tier_icon.split("/").pop()}
-                    </small>
                   </div>
                 ) : (
                   <p style={{ color: "#999", fontSize: "0.9rem" }}>
@@ -408,14 +647,7 @@ export default function OthersPage() {
                   className={styles.formInput}
                   style={{ padding: "8px" }}
                 />
-                <small
-                  style={{
-                    color: "#666",
-                    fontSize: "0.85rem",
-                    display: "block",
-                    marginTop: "4px",
-                  }}
-                >
+                <small style={{ color: "#666", fontSize: "0.85rem" }}>
                   Accepted formats: JPEG, PNG, WebP, SVG. Max size: 3MB
                 </small>
                 {previewUrl && (
@@ -431,6 +663,11 @@ export default function OthersPage() {
                         borderRadius: "8px",
                         padding: "8px",
                         backgroundColor: "#f9f9f9",
+                      }}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        target.insertAdjacentHTML("afterend", '<p style="color:#dc2626;font-size:0.9rem;font-style:italic">File not found</p>');
                       }}
                     />
                   </div>
@@ -485,9 +722,6 @@ export default function OthersPage() {
               disabled={modalMode === "view"}
               placeholder="Target sampah per bulan"
             />
-            <small style={{ color: "#666", fontSize: "0.85rem" }}>
-              Target berat sampah yang harus dikumpulkan per bulan
-            </small>
           </div>
 
           <div className={styles.formGroup}>
@@ -535,7 +769,7 @@ export default function OthersPage() {
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Tier Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => !isSubmitting && setIsDeleteModalOpen(false)}
@@ -566,6 +800,156 @@ export default function OthersPage() {
             <button
               type="button"
               onClick={confirmDelete}
+              className={`${styles.btnBase} ${styles.btnDeleteConfirm}`}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Deleting..." : "Yes, Delete"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* FAQ Form Modal */}
+      <Modal
+        isOpen={isFaqModalOpen}
+        onClose={() => setIsFaqModalOpen(false)}
+        title={`${faqModalMode === "add" ? "Add" : faqModalMode === "edit" ? "Edit" : "View"
+          } FAQ`}
+      >
+        <form className={styles.singleLayout} onSubmit={handleSaveFaq}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Question *</label>
+            <textarea
+              className={styles.formTextarea}
+              value={faqForm.question}
+              onChange={(e) =>
+                setFaqForm({ ...faqForm, question: e.target.value })
+              }
+              disabled={faqModalMode === "view"}
+              required
+              rows={2}
+              placeholder="Enter the question..."
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Answer *</label>
+            <textarea
+              className={styles.formTextarea}
+              value={faqForm.answer}
+              onChange={(e) =>
+                setFaqForm({ ...faqForm, answer: e.target.value })
+              }
+              disabled={faqModalMode === "view"}
+              required
+              rows={5}
+              placeholder="Enter the answer..."
+            />
+          </div>
+
+          {faqModalMode !== "view" && (
+            <>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Sort Order</label>
+                  <input
+                    type="number"
+                    className={styles.formInput}
+                    value={faqForm.sort_order}
+                    onChange={(e) =>
+                      setFaqForm({ ...faqForm, sort_order: e.target.value })
+                    }
+                    placeholder="0"
+                  />
+                  <small style={{ color: "#666", fontSize: "0.85rem" }}>
+                    Lower numbers appear first
+                  </small>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Status</label>
+                  <div className={styles.toggleContainer}>
+                    <label className={styles.toggleSwitch}>
+                      <input
+                        type="checkbox"
+                        checked={faqForm.is_active}
+                        onChange={(e) =>
+                          setFaqForm({ ...faqForm, is_active: e.target.checked })
+                        }
+                      />
+                      <span className={styles.toggleSlider}></span>
+                    </label>
+                    <span className={styles.toggleLabel}>
+                      {faqForm.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className={styles.modalFooter}>
+            {faqModalMode === "view" ? (
+              <button
+                type="button"
+                onClick={() => setIsFaqModalOpen(false)}
+                className={`${styles.btnBase} ${styles.btnCancel}`}
+              >
+                Close
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsFaqModalOpen(false)}
+                  className={`${styles.btnBase} ${styles.btnCancel}`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={`${styles.btnBase} ${styles.btnSave}`}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Save"}
+                </button>
+              </>
+            )}
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete FAQ Modal */}
+      <Modal
+        isOpen={isFaqDeleteModalOpen}
+        onClose={() => !isSubmitting && setIsFaqDeleteModalOpen(false)}
+        title="Confirm Delete"
+      >
+        <div className={styles.singleLayout}>
+          <div>
+            <p style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+              Are you sure you want to delete this FAQ?
+            </p>
+            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+              This action cannot be undone.
+            </p>
+          </div>
+
+          <div
+            className={styles.modalFooter}
+            style={{ width: "100%", borderTop: "none" }}
+          >
+            <button
+              type="button"
+              onClick={() => setIsFaqDeleteModalOpen(false)}
+              className={`${styles.btnBase} ${styles.btnCancel}`}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={confirmDeleteFaq}
               className={`${styles.btnBase} ${styles.btnDeleteConfirm}`}
               disabled={isSubmitting}
             >

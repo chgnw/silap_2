@@ -6,12 +6,14 @@
   width: 100%;
   z-index: 1000;
   transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), background-color 0.3s ease, backdrop-filter 0.3s ease;
-  background-color: transparent; /* Default transparent */
+  background-color: transparent;
+  /* Default transparent */
 }
 
 /* Scrolled State - Glassmorphism with Brand Color */
 .scrolled {
-  background-color: rgba(47, 94, 68, 0.95); /* Brand Green #2f5e44 with opacity */
+  background-color: rgba(47, 94, 68, 0.95);
+  /* Brand Green #2f5e44 with opacity */
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -38,7 +40,8 @@
 }
 
 .scrolled .container {
-  padding: 1rem 4rem; /* Smaller padding when scrolled */
+  padding: 1rem 4rem;
+  /* Smaller padding when scrolled */
 }
 
 .menu {
@@ -87,9 +90,30 @@
   transform: translateY(-1px);
 }
 
+/* Username truncation in dropdown */
+.login :global(.dropdown-toggle) {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+}
+
+.login :global(.dropdown-toggle::after) {
+  flex-shrink: 0;
+}
+
+.userNameText {
+  display: inline-block;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 @media (max-width: 991px) {
   .navbarWrapper {
-    background-color: #0c3420 !important; /* Force solid color on mobile */
+    background-color: #0c3420 !important;
+    /* Force solid color on mobile */
   }
 
   .container {

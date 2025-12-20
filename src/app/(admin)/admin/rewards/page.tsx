@@ -12,6 +12,7 @@ import styles from "./rewards.module.css";
 interface RewardCategory {
   id: number;
   category_name: string;
+  icon_path?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -26,6 +27,7 @@ interface Reward {
   total_redeemed: number;
   stock: number;
   category_name?: string;
+  category_icon_path?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -44,6 +46,9 @@ export default function RewardsManagementPage() {
   const [catMode, setCatMode] = useState<ModalMode>("add");
   const [selectedCat, setSelectedCat] = useState<RewardCategory | null>(null);
   const [catFormName, setCatFormName] = useState("");
+  const [catIconPreview, setCatIconPreview] = useState<string>("");
+  const [catIconFile, setCatIconFile] = useState<File | null>(null);
+  const catFileInputRef = useRef<HTMLInputElement>(null);
 
   // Reward Items State
   const [rewards, setRewards] = useState<Reward[]>([]);
@@ -121,6 +126,18 @@ export default function RewardsManagementPage() {
     }
   };
 
+  const handleCatIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCatIconFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCatIconPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // ============================
   // REWARD CATEGORIES LOGIC
   // ============================
@@ -128,6 +145,12 @@ export default function RewardsManagementPage() {
     setCatMode(mode);
     setSelectedCat(cat || null);
     setCatFormName(cat?.category_name || "");
+    setCatIconPreview(
+      cat?.icon_path && cat.icon_path.trim() !== ""
+        ? `/upload/${cat.icon_path}`
+        : ""
+    );
+    setCatIconFile(null);
     setIsCatModalOpen(true);
   };
 
@@ -138,22 +161,26 @@ export default function RewardsManagementPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const formData = new FormData();
+    formData.append("category_name", catFormName);
+
+    if (catMode === "edit" && selectedCat) {
+      formData.append("category_id", selectedCat.id.toString());
+    }
+
+    if (catIconFile) {
+      formData.append("icon", catIconFile);
+    }
+
     try {
       const url =
         catMode === "add"
           ? "/api/admin/reward-category/add"
           : "/api/admin/reward-category/update";
-      const method = "POST";
-
-      const payload = {
-        category_name: catFormName,
-        ...(catMode === "edit" && { category_id: selectedCat?.id }),
-      };
 
       const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        method: "POST",
+        body: formData,
       });
       const result = await response.json();
 
@@ -181,6 +208,8 @@ export default function RewardsManagementPage() {
   */
   const resetCategoryForm = () => {
     setCatFormName("");
+    setCatIconPreview("");
+    setCatIconFile(null);
     setSelectedCat(null);
   };
 
@@ -310,8 +339,7 @@ export default function RewardsManagementPage() {
       if (result.message === "SUCCESS") {
         showToast(
           "success",
-          `${
-            deleteTarget.type === "category" ? "Category" : "Reward"
+          `${deleteTarget.type === "category" ? "Category" : "Reward"
           } berhasil di hapus!`
         );
         setIsDeleteModalOpen(false);
@@ -319,8 +347,7 @@ export default function RewardsManagementPage() {
       } else {
         showToast(
           "failed",
-          `Gagal menghapus ${
-            deleteTarget.type === "category" ? "Category" : "Reward"
+          `Gagal menghapus ${deleteTarget.type === "category" ? "Category" : "Reward"
           }!`
         );
       }
@@ -338,6 +365,29 @@ export default function RewardsManagementPage() {
       header: "No",
       accessorFn: (_, i) => i + 1,
       size: 50,
+    },
+    {
+      accessorKey: "icon_path",
+      header: "Icon",
+      cell: ({ row }) => (
+        <img
+          src={
+            row.original.icon_path
+              ? `/upload/${row.original.icon_path}`
+              : "/images/dummy.png"
+          }
+          alt={row.original.category_name}
+          style={{
+            width: "40px",
+            height: "40px",
+            objectFit: "cover",
+            borderRadius: "4px",
+          }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/images/dummy.png";
+          }}
+        />
+      ),
     },
     {
       accessorKey: "category_name",
@@ -383,22 +433,28 @@ export default function RewardsManagementPage() {
     {
       accessorKey: "image_path",
       header: "Image",
-      cell: ({ row }) => (
-        <img
-          src={
-            row.original.image_path
-              ? `/upload/${row.original.image_path}`
-              : "/images/dummy.png"
-          }
-          alt={row.original.reward_name}
-          style={{
-            width: "50px",
-            height: "50px",
-            objectFit: "cover",
-            borderRadius: "4px",
-          }}
-        />
-      ),
+      cell: ({ row }) => {
+        const imageSrc = row.original.image_path
+          ? `/upload/${row.original.image_path}`
+          : row.original.category_icon_path
+            ? `/upload/${row.original.category_icon_path}`
+            : "/images/dummy.png";
+        return (
+          <img
+            src={imageSrc}
+            alt={row.original.reward_name}
+            style={{
+              width: "50px",
+              height: "50px",
+              objectFit: "cover",
+              borderRadius: "4px",
+            }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/images/dummy.png";
+            }}
+          />
+        );
+      },
     },
     {
       accessorKey: "reward_name",
@@ -467,17 +523,15 @@ export default function RewardsManagementPage() {
 
       <div className={styles.tabsContainer}>
         <button
-          className={`${styles.tabButton} ${
-            activeTab === "category" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tabButton} ${activeTab === "category" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("category")}
         >
           Reward Categories
         </button>
         <button
-          className={`${styles.tabButton} ${
-            activeTab === "reward" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tabButton} ${activeTab === "reward" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("reward")}
         >
           Rewards
@@ -504,50 +558,87 @@ export default function RewardsManagementPage() {
       <Modal
         isOpen={isCatModalOpen}
         onClose={() => setIsCatModalOpen(false)}
-        title={`${
-          catMode === "add" ? "Add" : catMode === "edit" ? "Edit" : "Detail"
-        } Reward Category`}
+        title={`${catMode === "add" ? "Add" : catMode === "edit" ? "Edit" : "Detail"
+          } Reward Category`}
       >
-        <form className={styles.singleLayout} onSubmit={handleSaveCategory}>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Category Name</label>
-            <input
-              className={styles.formInput}
-              value={catFormName}
-              onChange={(e) => setCatFormName(e.target.value)}
-              disabled={catMode === "view"}
-              required
-              placeholder="Enter category name (e.g., Electronics, Vouchers)"
-            />
+        <form className={styles.splitLayout} onSubmit={handleSaveCategory}>
+          <div className={styles.imageSection}>
+            <label className={styles.formLabel}>Category Icon</label>
+            <div className={styles.imagePreview}>
+              {catIconPreview ? (
+                <img
+                  src={catIconPreview}
+                  alt="Preview"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/images/dummy.png";
+                  }}
+                />
+              ) : (
+                <span className={styles.placeholderText}>No Icon</span>
+              )}
+            </div>
+
+            {catMode !== "view" && (
+              <>
+                <input
+                  type="file"
+                  ref={catFileInputRef}
+                  onChange={handleCatIconChange}
+                  accept="image/*"
+                  style={{ display: "none" }}
+                />
+                <button
+                  type="button"
+                  className={`${styles.btnBase} ${styles.uploadBtn}`}
+                  onClick={() => catFileInputRef.current?.click()}
+                >
+                  Upload Icon
+                </button>
+              </>
+            )}
           </div>
 
-          <div className={styles.modalFooter}>
-            {catMode === "view" ? (
-              <button
-                type="button"
-                onClick={() => setIsCatModalOpen(false)}
-                className={`${styles.btnBase} ${styles.btnCancel}`}
-              >
-                Close
-              </button>
-            ) : (
-              <>
+          <div className={styles.formSection}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Category Name</label>
+              <input
+                className={styles.formInput}
+                value={catFormName}
+                onChange={(e) => setCatFormName(e.target.value)}
+                disabled={catMode === "view"}
+                required
+                placeholder="Enter category name (e.g., Electronics, Vouchers)"
+              />
+            </div>
+
+            <div className={styles.modalFooter}>
+              {catMode === "view" ? (
                 <button
                   type="button"
                   onClick={() => setIsCatModalOpen(false)}
                   className={`${styles.btnBase} ${styles.btnCancel}`}
                 >
-                  Cancel
+                  Close
                 </button>
-                <button
-                  type="submit"
-                  className={`${styles.btnBase} ${styles.btnSave}`}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Saving..." : "Save"}
-                </button>
-              </>
-            )}
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsCatModalOpen(false)}
+                    className={`${styles.btnBase} ${styles.btnCancel}`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className={`${styles.btnBase} ${styles.btnSave}`}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Saving..." : "Save"}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </form>
       </Modal>
@@ -556,13 +647,12 @@ export default function RewardsManagementPage() {
       <Modal
         isOpen={isRewardModalOpen}
         onClose={() => setIsRewardModalOpen(false)}
-        title={`${
-          rewardMode === "add"
-            ? "Add"
-            : rewardMode === "edit"
+        title={`${rewardMode === "add"
+          ? "Add"
+          : rewardMode === "edit"
             ? "Edit"
             : "Detail"
-        } Reward`}
+          } Reward`}
       >
         <form className={styles.splitLayout} onSubmit={handleSaveReward}>
           <div className={styles.imageSection}>
