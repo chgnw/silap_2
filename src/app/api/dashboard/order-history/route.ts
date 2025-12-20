@@ -27,10 +27,10 @@ export async function POST(req: NextRequest) {
                     JSON_OBJECT(
                         'address', p.pickup_address,
                         'notes', p.notes,
-                        'weight', (SELECT SUM(weight) FROM tr_pickup_items WHERE pickup_id = p.id)
+                        'weight', (SELECT SUM(weight) FROM tr_pickup_item WHERE pickup_id = p.id)
                     ) AS details,
-                    CONCAT('+', COALESCE((SELECT SUM(points_earned) FROM tr_pickup_items WHERE pickup_id = p.id), 0), ' Pts') AS amount_display
-                FROM tr_pickups p
+                    CONCAT('+', COALESCE((SELECT SUM(points_earned) FROM tr_pickup_item WHERE pickup_id = p.id), 0), ' Pts') AS amount_display
+                FROM tr_pickup p
                 WHERE user_id = ?
 
                 UNION ALL
@@ -47,8 +47,8 @@ export async function POST(req: NextRequest) {
                         'image', m.image_path
                     ) AS details,
                     CONCAT('-', r.total_points_spent, ' points') AS amount_display
-                FROM tr_redemptions r
-                JOIN ms_rewards m ON r.reward_id = m.id
+                FROM tr_redemption r
+                JOIN ms_reward m ON r.reward_id = m.id
                 WHERE user_id = ?
 
                 UNION ALL
@@ -110,7 +110,8 @@ export async function POST(req: NextRequest) {
       {
         message: "FAILED",
         error: error,
-      }, { status: 500 }
+      },
+      { status: 500 }
     );
   }
 }

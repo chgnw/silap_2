@@ -35,7 +35,7 @@ export async function POST(
 
     // Get driver info
     const userSql = `
-      SELECT id FROM ms_users 
+      SELECT id FROM ms_user
       WHERE email = ?
     `;
     const userResult = (await query(userSql, [session.user.email])) as any[];
@@ -72,7 +72,7 @@ export async function POST(
     const checkEventSql = `
       SELECT pe.id, pe.event_status, p.id as pickup_id
       FROM tr_pickup_event pe
-      LEFT JOIN tr_pickups p ON pe.id = p.pickup_event_id AND p.partner_id = ?
+      LEFT JOIN tr_pickup p ON pe.id = p.pickup_event_id AND p.partner_id = ?
       WHERE pe.id = ?
     `;
     const eventResult = (await query(checkEventSql, [
@@ -137,9 +137,9 @@ export async function POST(
 
     await query(updateEventSql, [reason, driverId, eventId]);
 
-    // Update tr_pickups to cancelled status (status 5)
+    // Update tr_pickup to cancelled status (status 5)
     const updatePickupSql = `
-      UPDATE tr_pickups
+      UPDATE tr_pickup
       SET 
         transaction_status_id = 5,
         notes = ?,

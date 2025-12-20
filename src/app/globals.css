@@ -1,6 +1,23 @@
 :root {
-  --background: #ffffff;
+  --background: #F5F5F5;
   --foreground: #000000;
+
+  /* Primary Colors */
+  --color-primary: #a4b465;
+  --color-primary-dark: #2f5e44;
+  --color-primary-light: #e7f0d2;
+
+  /* Neutral Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-dark-gray: #363636;
+  --color-gray: #666666;
+  --color-light-gray: #7f7f7f;
+  --color-placeholder: #b6b6b6;
+
+  /* Semantic Colors */
+  --color-error: #ed1c24;
+  --color-error-bg: #fff1f2;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -35,7 +52,11 @@ a {
   text-decoration: none;
 }
 
-h1, h2, h3, h4, p {
+h1,
+h2,
+h3,
+h4,
+p {
   margin: 0;
 }
 

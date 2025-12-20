@@ -84,31 +84,31 @@ const authOptions: NextAuthOptions = {
 
         var sql = `
           SELECT 
-            ms_users.id AS id,
-            ms_users.role_id,
+            ms_user.id AS id,
+            ms_user.role_id,
             ms_role.role_name,
-            ms_users.provider,
-            ms_users.first_name,
-            ms_users.last_name,
-            ms_users.email,
-            ms_users.password,
-            ms_users.phone_number,
-            ms_users.province,
-            ms_users.regency,
-            ms_users.subdistrict,
-            ms_users.village,
-            ms_users.address,
-            ms_users.postal_code,
-            ms_users.profile_picture,
-            ms_users.points,
-            ms_users.tier_list_id,
+            ms_user.provider,
+            ms_user.first_name,
+            ms_user.last_name,
+            ms_user.email,
+            ms_user.password,
+            ms_user.phone_number,
+            ms_user.province,
+            ms_user.regency,
+            ms_user.subdistrict,
+            ms_user.village,
+            ms_user.address,
+            ms_user.postal_code,
+            ms_user.profile_picture,
+            ms_user.points,
+            ms_user.tier_list_id,
             ms_tier_list.tier_name,
-            ms_users.waste_target,
-            ms_users.current_streak
-          FROM ms_users
-          JOIN ms_role ON ms_users.role_id = ms_role.id
-          LEFT JOIN ms_tier_list ON ms_users.tier_list_id = ms_tier_list.id
-          WHERE ms_users.email = ?
+            ms_user.waste_target,
+            ms_user.current_streak
+          FROM ms_user
+          JOIN ms_role ON ms_user.role_id = ms_role.id
+          LEFT JOIN ms_tier_list ON ms_user.tier_list_id = ms_tier_list.id
+          WHERE ms_user.email = ?
           LIMIT 1;
         `;
         const rows = (await query(sql, [email])) as DBUser[];
@@ -170,15 +170,16 @@ const authOptions: NextAuthOptions = {
       if (account?.provider === "google" && user.email) {
         try {
           const existingUser = (await query(
-            "SELECT * FROM ms_users WHERE email = ?",
+            "SELECT * FROM ms_user WHERE email = ?",
             [user.email]
           )) as DBUser[];
 
           if (existingUser.length === 0) {
             console.log("🆕 Creating Google user:", user.email);
+            // Set default tier to 1 (Sprout - lowest tier) for new users
             await query(
-              `INSERT INTO ms_users (role_id, provider, first_name, last_name, email)
-               VALUES ((SELECT id FROM ms_role WHERE role_name = 'customer'), 'google', ?, ?, ?)`,
+              `INSERT INTO ms_user (role_id, provider, first_name, last_name, email, tier_list_id)
+               VALUES ((SELECT id FROM ms_role WHERE role_name = 'customer'), 'google', ?, ?, ?, 1)`,
               [user.given_name, user.family_name, user.email]
             );
           } else {
@@ -200,30 +201,30 @@ const authOptions: NextAuthOptions = {
 
           const sql = `
             SELECT 
-              ms_users.id AS id,
-              ms_users.role_id,
+              ms_user.id AS id,
+              ms_user.role_id,
               ms_role.role_name,
-              ms_users.provider,
-              ms_users.first_name,
-              ms_users.last_name,
-              ms_users.email,
-              ms_users.phone_number,
-              ms_users.province,
-              ms_users.regency,
-              ms_users.subdistrict,
-              ms_users.village,
-              ms_users.address,
-              ms_users.postal_code,
-              ms_users.profile_picture,
-              ms_users.points,
-              ms_users.tier_list_id,
+              ms_user.provider,
+              ms_user.first_name,
+              ms_user.last_name,
+              ms_user.email,
+              ms_user.phone_number,
+              ms_user.province,
+              ms_user.regency,
+              ms_user.subdistrict,
+              ms_user.village,
+              ms_user.address,
+              ms_user.postal_code,
+              ms_user.profile_picture,
+              ms_user.points,
+              ms_user.tier_list_id,
               ms_tier_list.tier_name AS tier_list_name,
-              ms_users.waste_target,
-              ms_users.current_streak
-            FROM ms_users
-            JOIN ms_role ON ms_users.role_id = ms_role.id
-            LEFT JOIN ms_tier_list ON ms_users.tier_list_id = ms_tier_list.id
-            WHERE ms_users.email = ?
+              ms_user.waste_target,
+              ms_user.current_streak
+            FROM ms_user
+            JOIN ms_role ON ms_user.role_id = ms_role.id
+            LEFT JOIN ms_tier_list ON ms_user.tier_list_id = ms_tier_list.id
+            WHERE ms_user.email = ?
             LIMIT 1;
           `;
 
@@ -277,30 +278,30 @@ const authOptions: NextAuthOptions = {
 
         const sql = `
           SELECT 
-              ms_users.id AS id,
-              ms_users.role_id,
+              ms_user.id AS id,
+              ms_user.role_id,
               ms_role.role_name,
-              ms_users.provider,
-              ms_users.first_name,
-              ms_users.last_name,
-              ms_users.email,
-              ms_users.phone_number,
-              ms_users.province,
-              ms_users.regency,
-              ms_users.subdistrict,
-              ms_users.village,
-              ms_users.address,
-              ms_users.postal_code,
-              ms_users.profile_picture,
-              ms_users.points,
-              ms_users.tier_list_id,
+              ms_user.provider,
+              ms_user.first_name,
+              ms_user.last_name,
+              ms_user.email,
+              ms_user.phone_number,
+              ms_user.province,
+              ms_user.regency,
+              ms_user.subdistrict,
+              ms_user.village,
+              ms_user.address,
+              ms_user.postal_code,
+              ms_user.profile_picture,
+              ms_user.points,
+              ms_user.tier_list_id,
               ms_tier_list.tier_name AS tier_list_name,
-              ms_users.waste_target,
-              ms_users.current_streak
-          FROM ms_users
-          JOIN ms_role ON ms_users.role_id = ms_role.id
-          LEFT JOIN ms_tier_list ON ms_users.tier_list_id = ms_tier_list.id
-          WHERE ms_users.email = ?
+              ms_user.waste_target,
+              ms_user.current_streak
+          FROM ms_user
+          JOIN ms_role ON ms_user.role_id = ms_role.id
+          LEFT JOIN ms_tier_list ON ms_user.tier_list_id = ms_tier_list.id
+          WHERE ms_user.email = ?
           LIMIT 1;
         `;
 

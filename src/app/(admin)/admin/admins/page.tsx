@@ -391,7 +391,7 @@ export default function AdminsPage() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Updated At</label>
+                  <label className={styles.formLabel}>Last Updated At</label>
                   <input
                     className={styles.formInput}
                     value={

@@ -17,9 +17,11 @@ export async function POST(req: NextRequest) {
     const weight = formData.get("weight") as string;
     const notes = (formData.get("notes") as string) || null;
     const imageFile = formData.get("image") as File | null;
+    const pickupRegency = (formData.get("pickupRegency") as string) || null;
 
     const user_id = userData.user_id;
     const pickup_address = userData.address;
+    const pickup_regency = pickupRegency;
     const pickup_type_id = pickupType.id;
     const eventDateTime = new Date(`${date}T${time}:00+07:00`);
     const event_date = eventDateTime.toISOString().split("T")[0];
@@ -120,14 +122,15 @@ export async function POST(req: NextRequest) {
     const transaction_code = generateTransactionCode("PCK");
 
     const sql = `
-        INSERT INTO tr_pickup_event (transaction_code, user_id, pickup_address, pickup_weight, pickup_type_id, event_date, pickup_time, vehicle_category_id, image_url, user_notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        INSERT INTO tr_pickup_event (transaction_code, user_id, pickup_address, pickup_regency, pickup_weight, pickup_type_id, event_date, pickup_time, vehicle_category_id, image_url, user_notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
     const result = await query(sql, [
       transaction_code,
       user_id,
       pickup_address,
+      pickup_regency,
       pickup_weight,
       pickup_type_id,
       event_date,

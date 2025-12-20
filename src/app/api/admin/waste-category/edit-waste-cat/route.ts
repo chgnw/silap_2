@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const id = formData.get("id");
     const wasteCategoryName = formData.get("waste_category_name");
     const unit = formData.get("unit");
-    const pointsPerUnit = formData.get("points_per_unit");
+    const pointsPerUnit = formData.get("point_per_unit");
     const imageFile = formData.get("image") as File | null;
 
     if (!id || !wasteCategoryName || !unit || !pointsPerUnit) {
@@ -25,11 +25,11 @@ export async function POST(req: NextRequest) {
     let dataToUpdate: any = {
       waste_category_name: wasteCategoryName.toString(),
       unit: unit.toString(),
-      points_per_unit: parseFloat(pointsPerUnit.toString()),
+      point_per_unit: parseFloat(pointsPerUnit.toString()),
     };
 
     if (imageFile && imageFile.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "wasteCatIcon");
+      const uploadDir = path.join(process.cwd(), "public", "upload" ,"wasteCatIcon");
       await fs.mkdir(uploadDir, { recursive: true });
 
       const timestamp = Date.now();

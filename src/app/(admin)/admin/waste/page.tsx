@@ -14,7 +14,7 @@ type WasteCategory = {
   waste_category_name: string;
   icon_name: string | null;
   unit: string | null;
-  points_per_unit: number;
+  point_per_unit: number;
 };
 
 export default function WastePage() {
@@ -66,7 +66,7 @@ export default function WastePage() {
       } else if (selectedCat) {
         setCatFormName(selectedCat.waste_category_name);
         setCatUnit(selectedCat.unit || "");
-        setCatPoints(selectedCat.points_per_unit?.toString() || "");
+        setCatPoints(selectedCat.point_per_unit?.toString() || "");
         setCatIconFile(null);
         setCatIconPreview(selectedCat.icon_name);
       }
@@ -97,7 +97,7 @@ export default function WastePage() {
     const formData = new FormData();
     formData.append("waste_category_name", catFormName);
     formData.append("unit", catUnit);
-    formData.append("points_per_unit", catPoints);
+    formData.append("point_per_unit", catPoints);
     if (catIconFile) formData.append("image", catIconFile);
 
     try {
@@ -185,7 +185,7 @@ export default function WastePage() {
       },
       {
         header: "Points per Unit",
-        accessorKey: "points_per_unit",
+        accessorKey: "point_per_unit",
         cell: ({ getValue }) => getValue() || "0",
       },
       {
@@ -258,7 +258,7 @@ export default function WastePage() {
 
             <div className={styles.imagePreview}>
               {catIconPreview ? (
-                <img src={`/upload/${catIconPreview}`} alt="Preview" />
+                <img src={`/upload${catIconPreview}`} alt="Preview" />
               ) : selectedCat?.icon_name ? (
                 <span style={{ fontSize: 30 }}>📦</span>
               ) : (
