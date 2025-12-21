@@ -15,7 +15,7 @@
 
 /* Polaroid kiri */
 .decorationLeft {
-  top: 10%;
+  top: 15%;
   left: 2%;
   transform: translate(-25%, -10%);
   width: clamp(100px, 20vw, 400px);
@@ -38,8 +38,8 @@
   }
 
   .decorationRight {
-    top: 10%;
-    opacity: 0.6;
+    top: 15%;
+    opacity: 0.5;
   }
 }
 

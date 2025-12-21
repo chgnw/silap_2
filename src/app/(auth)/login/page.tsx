@@ -2,7 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -28,6 +28,8 @@ export default function LoginPage() {
   const otpRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const fadeSlide = {
     initial: { opacity: 0, y: 15 },
@@ -68,6 +70,12 @@ export default function LoginPage() {
       if (result?.error) {
         setError(result.error);
       } else {
+        if (callbackUrl) {
+          router.push(callbackUrl);
+          router.refresh();
+          return;
+        }
+
         const sessionRes = await fetch("/api/auth/session");
         const session = await sessionRes.json();
 
@@ -326,7 +334,7 @@ export default function LoginPage() {
                 <button
                   className={styles.googleBtn}
                   onClick={() =>
-                    signIn("google", { callbackUrl: "/dashboard" })
+                    signIn("google", { callbackUrl: callbackUrl || "/dashboard" })
                   }
                 >
                   <img src="/icons/google-icon.svg" alt="Google" />
