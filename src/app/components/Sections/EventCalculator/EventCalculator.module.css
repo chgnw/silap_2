@@ -202,7 +202,9 @@
     font-weight: 800;
     color: white;
     line-height: 1.2;
-    white-space: nowrap;
+    line-height: 1.2;
+    white-space: normal;
+    word-break: break-word;
     margin-bottom: 0.5rem;
   }
   
@@ -263,16 +265,31 @@
     transform: translateY(-3px);
   }
   
-  @media (max-width: 991px) {
-    .calculatorContainer {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-  
-    .resultSide {
-      position: static;
-    }
+@media (max-width: 900px) {
+  .calculatorContainer {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
+
+  .resultSide {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .checkboxGroup {
+    grid-template-columns: 1fr;
+  }
+
+  .statGrid {
+    grid-template-columns: 1fr;
+  }
+}
 
   @media (max-width: 640px) {
     .section {

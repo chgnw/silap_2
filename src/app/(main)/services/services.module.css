@@ -238,7 +238,7 @@
 /* Benefits Grid */
 .benefitWrapper {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
   width: min(1100px, 92vw);
   margin: 0 auto;
@@ -495,7 +495,7 @@
 /* Testimonials */
 .testimonialGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
   width: min(1100px, 92vw);
   margin: 0 auto;
@@ -849,9 +849,15 @@
   .statsCard {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1.5rem;
   }
 
   .statItem {
+    min-width: 0;
+    word-wrap: break-word;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
