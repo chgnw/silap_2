@@ -16,14 +16,25 @@ export async function POST(req: Request) {
       );
     }
 
-    if (vin && vin.length !== 17) {
-      return NextResponse.json(
-        {
-          message: "FAILED",
-          detail: "VIN harus 17 karakter!",
-        },
-        { status: 400 }
-      );
+    if (vin) {
+      if (vin.length !== 17) {
+        return NextResponse.json(
+          {
+            message: "FAILED",
+            detail: "VIN harus 17 karakter!",
+          },
+          { status: 400 }
+        );
+      }
+      if (/[IOQioq]/.test(vin)) {
+        return NextResponse.json(
+          {
+            message: "FAILED",
+            detail: "VIN tidak boleh mengandung huruf I, O, atau Q!",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     if (license_plate || vin) {

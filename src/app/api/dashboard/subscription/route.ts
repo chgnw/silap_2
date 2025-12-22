@@ -57,6 +57,17 @@ export async function POST(request: NextRequest) {
             const timeDiff = endDate.getTime() - today.getTime();
             const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
+            // Check if user has pending renewal payment
+            const pendingRenewalSql = `
+                SELECT id FROM tr_payment_history
+                WHERE user_id = ?
+                    AND transaction_status_id = 1
+                    AND subscription_plan_id IS NOT NULL
+                LIMIT 1
+            `;
+            const pendingRenewalRows = await query(pendingRenewalSql, [user_id]);
+            const hasPendingRenewal = pendingRenewalRows && (pendingRenewalRows as any[]).length > 0;
+
             return NextResponse.json({
                 message: "SUCCESS",
                 status: "subscribed",
@@ -67,6 +78,7 @@ export async function POST(request: NextRequest) {
                     end_date: subscription.end_date,
                     days_remaining: daysRemaining,
                 },
+                has_pending_renewal: hasPendingRenewal,
             });
         }
 

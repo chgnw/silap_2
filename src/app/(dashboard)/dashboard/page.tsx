@@ -133,7 +133,7 @@ FilterSection.displayName = "FilterSection";
 
 // Subscription Card
 const SubscriptionCard = memo(
-  ({ subscription, loading }: { subscription: SubscriptionInfo; loading: boolean }) => {
+  ({ subscription, loading, hasPendingRenewal }: { subscription: SubscriptionInfo; loading: boolean; hasPendingRenewal: boolean }) => {
     if (loading) {
       return (
         <section className={styles.subscriptionCard}>
@@ -165,6 +165,7 @@ const SubscriptionCard = memo(
     }
 
     const isNearExpiry = subscription.days_remaining <= 3;
+    const showRenewButton = isNearExpiry && !hasPendingRenewal;
     const formatDate = (dateStr: string) => {
       return new Date(dateStr).toLocaleDateString("id-ID", {
         day: "numeric",
@@ -186,10 +187,13 @@ const SubscriptionCard = memo(
           <span>s/d {formatDate(subscription.end_date)}</span>
         </div>
         <div className={styles.subscriptionCardFooter}>
-          {isNearExpiry && (
+          {showRenewButton && (
             <Link href="/pricing" className={styles.renewButton}>
               Perpanjang
             </Link>
+          )}
+          {hasPendingRenewal && (
+            <span className={styles.pendingBadge}>Menunggu Verifikasi</span>
           )}
         </div>
       </section>
@@ -388,6 +392,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState<boolean>(true);
+  const [hasPendingRenewal, setHasPendingRenewal] = useState<boolean>(false);
 
   useEffect(() => {
     if (!session) router.push("/login");
@@ -409,6 +414,7 @@ export default function DashboardPage() {
 
         if (result.status === "subscribed" && result.subscription) {
           setSubscriptionInfo(result.subscription);
+          setHasPendingRenewal(result.has_pending_renewal || false);
         }
       } catch (error) {
         console.error("Failed to fetch subscription:", error);
@@ -506,7 +512,7 @@ export default function DashboardPage() {
           onReset={handleReset}
         />
         <ProfileSection loading={loading} user={session?.user} />
-        <SubscriptionCard subscription={subscriptionInfo} loading={subscriptionLoading} />
+        <SubscriptionCard subscription={subscriptionInfo} loading={subscriptionLoading} hasPendingRenewal={hasPendingRenewal} />
       </div>
       <div className={styles.secondRow}>
         <StatsCard

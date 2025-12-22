@@ -85,6 +85,9 @@ Untuk menjalankan proyek ini di lingkungan lokal, ikuti langkah-langkah berikut:
     SMTP_USER=
     SMTP_PASSWORD=
     
+    # Cron Job Secret (for cron-job.org authentication)
+    CRON_SECRET=
+    
     # Environment
     NODE_ENV=
     APP_VERSION=

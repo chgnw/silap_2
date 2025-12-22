@@ -161,13 +161,16 @@ export default function Header({ theme = "dark" }: HeaderProps) {
                         </span>
                       }
                       id="basic-nav-dropdown"
-                      className={`${styles.login} fw-bold`}
+                      className={`${styles.login} ${styles.customDropdown} fw-bold`}
                     >
+                      <NavDropdown.Item href="/dashboard">
+                        Dashboard
+                      </NavDropdown.Item>
                       <NavDropdown.Item href="/dashboard/profile">
                         Profile
                       </NavDropdown.Item>
-                      <NavDropdown.Divider />
-                      <NavDropdown.Item onClick={handleLogout}>
+                      <NavDropdown.Divider className={styles.dropdownDivider} />
+                      <NavDropdown.Item onClick={handleLogout} className={styles.logoutItem}>
                         Logout
                       </NavDropdown.Item>
                     </NavDropdown>
