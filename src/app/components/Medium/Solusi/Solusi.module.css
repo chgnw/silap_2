@@ -5,17 +5,32 @@
   justify-content: flex-start;
   gap: clamp(0.5rem, 2vw, 1.5rem);
   margin-bottom: clamp(12px, 3vw, 20px);
+  /* Fun & Fresh Glass Card Style */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  padding: clamp(12px, 2vw, 16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: default;
+}
+
+.listWrapper:hover {
+  transform: translateX(10px);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #ffffff;
 }
 
 .listIcon {
-  background-color: var(--color-primary-dark);
-  border-radius: 100%;
+  background: linear-gradient(135deg, #A4B465 0%, #2f5e44 100%);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(45px, 12vw, 100px);
-  height: clamp(45px, 12vw, 100px);
+  width: clamp(45px, 12vw, 80px);
+  height: clamp(45px, 12vw, 80px);
   flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  border: 2px solid rgba(255,255,255,0.2);
 }
 
 .listIcon svg {
@@ -45,4 +60,45 @@
   text-align: left;
   line-height: 1.2;
   margin-bottom: 0;
+}
+@media (max-width: 576px) {
+  .listWrapper {
+    flex-direction: row; /* Keep row on mobile for list look */
+    align-items: center; /* Center vertically */
+    gap: 1rem;
+    padding: 1rem; 
+  }
+
+  .listWrapper:hover {
+    transform: translateX(5px); /* Horizontal hover on mobile too */
+  }
+
+  .listIcon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 0px; 
+    flex-shrink: 0;
+  }
+
+  .listIcon svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .listTextWrapper {
+    text-align: left;
+    width: 100%;
+  }
+
+  .listTitle {
+    font-size: 1rem;
+    margin-bottom: 2px;
+    text-align: left;
+  }
+
+  .listDescription {
+    font-size: 0.85rem;
+    line-height: 1.35;
+    text-align: left;
+  }
 }

@@ -41,9 +41,8 @@ export default function Footer() {
                     <div className={styles.linksColumn}>
                         <h4>Layanan</h4>
                         <ul>
-                            <li><Link href="/services">Jemput Sampah</Link></li>
-                            <li><Link href="/services">Daur Ulang</Link></li>
-                            <li><Link href="/services#corporate">Corporate</Link></li>
+                            <li><Link href="/services#alur-layanan">Daur Ulang</Link></li>
+                            <li><Link href="/#layanan-kami">Layanan Silap</Link></li>
                             <li><Link href="/pricing">Langganan</Link></li>
                         </ul>
                     </div>
@@ -52,7 +51,7 @@ export default function Footer() {
                         <h4>Kontak</h4>
                         <p>123 Green Street, Eco District</p>
                         <p>Jakarta Selatan, 12000</p>
-                        <p className={styles.email}>hello@silap.id</p>
+                        <p className={styles.email}>silap4everyone@gmail.com</p>
                         <p>+62 812 3456 7890</p>
                     </div>
                 </div>

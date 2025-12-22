@@ -18,23 +18,17 @@ function createRedisClient() {
         username,
         password,
         connectTimeout: 10000,
-        retryStrategy(times) {
-            retryCount++;
-            if (retryCount > 10) {
-                console.error("[Redis] Retry limit reached (10x). Stopping reconnects.");
-                return null;
-            }
-            const delay = Math.min(times * 200, 2000);
-            console.warn(`[Redis] Reconnecting in ${delay}ms (attempt ${retryCount})`);
-            return delay;
-        },
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+    },
+        maxRetriesPerRequest: null,
     });
 
-    client.on("ready", () => console.log("[Redis] Ready ✅"));
-    client.on("error", (err) => console.error("[Redis] Error ❌", err.message));
-    client.on("end", () => console.warn("[Redis] Connection ended"));
+client.on("ready", () => console.log("[Redis] Ready ✅"));
+client.on("error", (err) => console.error("[Redis] Error ❌", err.message));
+client.on("end", () => console.warn("[Redis] Connection ended"));
 
-    return client;
+return client;
 }
 
 if (!global.redis) {

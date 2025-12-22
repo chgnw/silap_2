@@ -1,8 +1,8 @@
 .cardCustom {
-  width: calc(100% / 4 - 0.75rem);
-  max-width: 260px;
+  width: calc(100% / 4 - 1.5rem); /* More gap allowance */
+  max-width: 380px; /* significantly larger for desktop */
   aspect-ratio: 1 / 1;
-  border-radius: clamp(12px, 3vw, 20px);
+  border-radius: 28px;
   overflow: hidden;
   position: relative;
   color: var(--color-white);
@@ -11,53 +11,77 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: clamp(12px, 3vw, 20px);
+  padding: 2.5rem;
+  
+  /* Glassmorphic Background */
+  background: rgba(255, 255, 255, 0.1); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
   background-size: cover;
   background-position: center;
-  filter: grayscale(100%);
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .cardCustom:hover {
-  filter: grayscale(0%);
-  transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-color: #A4B465; /* Highlight border on hover */
 }
 
-/* Overlay hitam transparan */
+/* Dark gradient overlay for text readability */
 .cardCustom::before {
   content: "";
   position: absolute;
-  top: 0;
+  top: 0; 
   left: 0;
-  right: 0;
+  right: 0; 
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 60%);
   z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.cardCustom:hover::before {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 70%);
 }
 
 /* Pastikan konten di atas overlay */
 .cardCustom > * {
   position: relative;
   z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.cardCustom:hover > * {
+  transform: translateY(-5px);
 }
 
 .cardLabel {
   position: absolute;
-  bottom: clamp(16px, 4vw, 40px);
-  font-size: clamp(0.875rem, 2vw, 1.5rem);
-  font-weight: bold;
+  bottom: 28px;
+  font-size: clamp(0.75rem, 1.5vw, 1.15rem); /* Smaller for clarity */
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  z-index: 3;
 }
 
 .cardCustom svg {
-  width: clamp(40px, 8vw, 80px);
-  height: clamp(40px, 8vw, 80px);
+  width: clamp(60px, 12vw, 120px);
+  height: clamp(60px, 12vw, 120px);
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+  margin-bottom: 1rem;
 }
 
 .cardCustom img {
-  width: clamp(50px, 10vw, 120px);
-  height: clamp(50px, 10vw, 120px);
+  width: clamp(70px, 15vw, 150px);
+  height: clamp(70px, 15vw, 150px);
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+  margin-bottom: 1rem;
 }
 
 @media (max-width: 992px) {
@@ -74,24 +98,29 @@
 
 @media (max-width: 576px) {
   .cardCustom {
-    width: 80%;
+    width: calc(50% - 0.75rem); /* 2 columns for neat grid */
     max-width: none;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1; /* Back to square */
+    padding: 1rem; /* Reduce padding for mobile */
+    border-radius: 16px;
   }
 
   .cardCustom svg {
-    width: 80px;
-    height: 80px;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 0.25rem;
   }
 
   .cardCustom img {
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.25rem;
   }
 
   .cardLabel {
-    font-size: 1rem;
-    bottom: 20px;
+    font-size: 0.8rem;
+    bottom: 16px;
+    letter-spacing: 1px;
   }
 }
 

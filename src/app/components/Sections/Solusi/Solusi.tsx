@@ -11,7 +11,7 @@ import styles from './solusi.module.css';
 const features = [
   {
     icon: <FaSmile size={72} color="#FFFFFF" />,
-    title: 'User-friendly banget',
+    title: 'User friendly banget',
     description: 'Buat semua umur, dari anak muda sampai orang tua. Nggak ribet, tinggal klik langsung jalan.'
   },
   {
@@ -21,12 +21,12 @@ const features = [
   },
   {
     icon: <FaClock size={72} color="#FFFFFF" />,
-    title: 'Transparan & Real-time',
+    title: 'Transparan & Real time',
     description: 'Lihat proses pengangkutan & progress daur ulang langsung dari HP kamu.'
   },
   {
     icon: <FaGift size={72} color="#FFFFFF" />,
-    title: 'Ada reward-nya juga!',
+    title: 'Ada rewardnya juga!',
     description: 'Kelola sampah, dapat poin. Poin bisa ditukar jadi voucher, produk, atau hal menarik lainnya.'
   }
 ];

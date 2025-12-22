@@ -4,7 +4,11 @@
   align-items: center;
   justify-content: center;
   gap: clamp(0.5rem, 2vw, 1rem);
-  padding: clamp(1rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
+  /* Transparent background to blend with Hero */
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
+  padding: 0;
   flex-wrap: wrap;
 }
 

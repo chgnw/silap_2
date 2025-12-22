@@ -1,5 +1,5 @@
 import Hero from '../components/Sections/Hero/Hero'
-import TargetUser from '../components/Sections/TargetUser/TargetUser'
+
 import Solusi from '../components/Sections/Solusi/Solusi'
 import Service from '../components/Sections/ServicesSection/Service'
 import WasteType from '../components/Sections/WasteType/WasteType'
@@ -11,10 +11,10 @@ import styles from './home.module.css'
 import Image from 'next/image';
 
 export default function Homepage() {
-    return(
+    return (
         <>
             <Hero />
-            <TargetUser />
+            {/* TargetUser moved inside Hero */}
             <Solusi />
             <Service />
             <div className={styles.decoratedSectionWrapper}>

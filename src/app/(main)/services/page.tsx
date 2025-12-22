@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import { useRef, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import styles from './services.module.css';
+import EventCalculator from '@/app/components/Sections/EventCalculator/EventCalculator';
 import pricingStyles from '../pricing/pricing.module.css';
 
 interface FAQ {
@@ -32,15 +35,59 @@ interface SubscriptionPlan {
 }
 
 export default function ServicesPage() {
+    const router = useRouter();
+    const { status } = useSession();
     const statsRef = useRef<HTMLElement | null>(null);
     const fleetTrackRef = useRef<HTMLDivElement | null>(null);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
     const [faqItems, setFaqItems] = useState<FAQ[]>([]);
     const alurRef = useRef<HTMLDivElement | null>(null);
+    const calculatorRef = useRef<HTMLElement | null>(null);
 
     // Dynamic data from API
     const [fleets, setFleets] = useState<VehicleCategory[]>([]);
     const [pricingPlans, setPricingPlans] = useState<SubscriptionPlan[]>([]);
+
+    // Payment Modal State
+    const [showModal, setShowModal] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string } | null>(null);
+    const [paymentMethod, setPaymentMethod] = useState<'bank' | 'ewallet' | 'qris'>('bank');
+    const [paymentStep, setPaymentStep] = useState<'details' | 'success'>('details');
+    const [proofUploaded, setProofUploaded] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const openPaymentModal = (planName: string, price: string) => {
+        if (status === 'unauthenticated') {
+            router.push('/login?callbackUrl=/services');
+            return;
+        }
+        setSelectedPlan({ name: planName, price });
+        setPaymentStep('details');
+        setPaymentMethod('bank');
+        setProofUploaded(false); // Reset upload state
+        setCopied(false);
+        setShowModal(true);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setProofUploaded(true);
+        }
+    };
+
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handlePaymentSubmit = () => {
+        // Simulate API call
+        setTimeout(() => {
+            setPaymentStep('success');
+        }, 1000);
+    };
 
     // Fleet carousel pagination
     const [fleetPage, setFleetPage] = useState(0);
@@ -158,6 +205,20 @@ export default function ServicesPage() {
         fleetTrackRef.current.scrollBy({ left: direction === 'left' ? -scrollBy : scrollBy, behavior: 'smooth' });
     };
 
+    const getFleetImage = (category: string, maxWeight: number | null) => {
+        const lowerCat = category.toLowerCase();
+
+
+        if (Number(maxWeight) >= 2000 || lowerCat.includes('2 ton') || lowerCat.includes('cdol')) {
+            return '/assets/MobilTruk2Ton.png';
+        }
+
+        if (lowerCat.includes('motor')) return '/assets/MotorBak200KG.png';
+        if (lowerCat.includes('mobil') || lowerCat.includes('pickup') || lowerCat.includes('truk')) return '/assets/MobilBak1Ton.png';
+
+        return '/assets/MobilBox.png';
+    };
+
     return (
         <main className={styles.page}>
             <section className={styles.hero}>
@@ -235,10 +296,10 @@ export default function ServicesPage() {
                 </div>
             </section>
 
-            <section ref={alurRef} className={`${styles.section} ${styles.sectionAlt}`}>
+            <section ref={alurRef} id="alur-layanan" className={`${styles.section} ${styles.sectionAlt}`}>
                 <div className={styles.sectionHeader}>
                     <h2>Alur Layanan</h2>
-                    <p>Proses transparan dari rumah Anda hingga pusat pengolahan.</p>
+                    <p>Proses transparan dari rumah kamu hingga pusat pengolahan.</p>
                 </div>
                 <div className={styles.processGrid}>
                     {processSteps.map((step, i) => (
@@ -256,34 +317,88 @@ export default function ServicesPage() {
             <section className={styles.section}>
                 <div className={styles.sectionHeader}>
                     <h2>Pilihan Paket Langganan</h2>
-                    <p>Sesuaikan dengan kebutuhan rumah atau bisnis Anda.</p>
+                    <p>Sesuaikan dengan kebutuhan rumah atau bisnis kamu.</p>
                 </div>
                 {/* USING PRICING.MODULE.CSS FOR EXACT MATCH */}
                 <div className={pricingStyles.pricingGrid}>
-                    {pricingPlans.map((tier) => (
-                        <div key={tier.plan_name} className={`${pricingStyles.pricingCard} ${tier.is_popular ? pricingStyles.popular : ''}`}>
-                            {!!tier.is_popular && <div className={pricingStyles.popularBadge}>Popular</div>}
-                            <div className={pricingStyles.cardHeader}>
-                                <h3>{tier.plan_name}</h3>
-                                <div className={pricingStyles.price}>
-                                    {formatPrice(tier.price)}<span>/{tier.duration_days} hari</span>
-                                </div>
-                                <p className={pricingStyles.description}>{tier.description || ''}</p>
+                    {/* 1. Paket Individu */}
+                    <div className={pricingStyles.pricingCard}>
+                        <div className={pricingStyles.cardHeader}>
+                            <h3>Paket Individu</h3>
+                            <div className={pricingStyles.price}>
+                                Rp 49.000<span>/bulan</span>
                             </div>
-                            <ul className={pricingStyles.features}>
-                                {parseFeatures(tier.features).map((f) => (
-                                    <li key={f}><span className={pricingStyles.check}>✓</span> {f}</li>
-                                ))}
-                            </ul>
-                            <Link
-                                href={`/pricing?plan=${tier.plan_name}`}
-                                className={pricingStyles.ctaBtn}
-                                style={{ textAlign: 'center' }}
-                            >
-                                Pilih Paket
-                            </Link>
+                            <p className={pricingStyles.description}>Rumah tangga & pengguna personal</p>
                         </div>
-                    ))}
+                        <ul className={pricingStyles.features}>
+                            <li><span className={pricingStyles.check}>✓</span> Kuota sampah: 30 kg / bulan</li>
+                            <li><span className={pricingStyles.check}>✓</span> Pickup: 2x per minggu</li>
+                            <li><span className={pricingStyles.check}>✓</span> Jadwal pick up flexibel</li>
+                            <li><span className={pricingStyles.check}>✓</span> Multi lokasi</li>
+                            <li><span className={pricingStyles.check}>✓</span> Dashboard monitoring</li>
+                        </ul>
+                        <button
+                            onClick={() => openPaymentModal('Paket Individu', 'Rp 49.000')}
+                            className={pricingStyles.ctaBtn}
+                            style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
+                        >
+                            Pilih Paket
+                        </button>
+                    </div>
+
+                    {/* 2. Paket Bisnis */}
+                    <div className={`${pricingStyles.pricingCard} ${pricingStyles.popular}`}>
+                        <div className={pricingStyles.popularBadge}>Best Value</div>
+                        <div className={pricingStyles.cardHeader}>
+                            <h3>Paket Bisnis</h3>
+                            <div className={pricingStyles.price}>
+                                Rp 299.000<span>/bulan</span>
+                            </div>
+                            <p className={pricingStyles.description}>UMKM, kantor, restoran, bisnis skala menengah</p>
+                        </div>
+                        <ul className={pricingStyles.features}>
+                            <li><span className={pricingStyles.check}>✓</span> Kuota sampah: 300 kg / bulan</li>
+                            <li><span className={pricingStyles.check}>✓</span> Pickup: 7x per minggu</li>
+                            <li><span className={pricingStyles.check}>✓</span> Jadwal pick up flexibel</li>
+                            <li><span className={pricingStyles.check}>✓</span> Multi lokasi outlet</li>
+                            <li><span className={pricingStyles.check}>✓</span> Dashboard monitoring</li>
+                        </ul>
+                        <button
+                            onClick={() => openPaymentModal('Paket Bisnis', 'Rp 299.000')}
+                            className={pricingStyles.ctaBtn}
+                            style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
+                        >
+                            Pilih Paket
+                        </button>
+                    </div>
+
+                    {/* 3. Paket Event */}
+                    <div className={pricingStyles.pricingCard}>
+                        <div className={pricingStyles.popularBadge} style={{ background: '#2f5e44' }}>Custom</div>
+                        <div className={pricingStyles.cardHeader}>
+                            <h3>Paket Event</h3>
+                            <div className={pricingStyles.price} style={{ fontSize: '2rem' }}>
+                                Estimasi<span>/event</span>
+                            </div>
+                            <p className={pricingStyles.description}>Tidak menggunakan harga & kuota statis.</p>
+                        </div>
+                        <ul className={pricingStyles.features}>
+                            <li><span className={pricingStyles.check}>✓</span> Form Demo Estimasi Biaya</li>
+                            <li><span className={pricingStyles.check}>✓</span> Cocok untuk event apapun</li>
+                            <li><span className={pricingStyles.check}>✓</span> Tanpa kuota statis</li>
+                            <li><span className={pricingStyles.check}>✓</span> Opsi Branding & Support</li>
+                            <li><span className={pricingStyles.check}>✓</span> Jadwal pick up flexibel</li>
+                            <li><span className={pricingStyles.check}>✓</span> Multi lokasi</li>
+                            <li><span className={pricingStyles.check}>✓</span> Dashboard monitoring</li>
+                        </ul>
+                        <button
+                            onClick={() => calculatorRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                            className={pricingStyles.ctaBtn}
+                            style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
+                        >
+                            Hitung Estimasi
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -311,7 +426,7 @@ export default function ServicesPage() {
                             .map((fleet, idx) => (
                                 <div key={`${fleet.category_name}-${idx}`} className={styles.fleetCard}>
                                     <div className={styles.fleetImage}>
-                                        <img src={fleet.image_path || '/assets/MobilBox.png'} alt={fleet.category_name} />
+                                        <img src={getFleetImage(fleet.category_name, fleet.max_weight)} alt={fleet.category_name} />
                                     </div>
                                     <div className={styles.fleetInfo}>
                                         <div className={styles.fleetName}>{fleet.category_name}</div>
@@ -359,29 +474,15 @@ export default function ServicesPage() {
                 </div>
             </section>
 
-            <section className={`${styles.section} ${styles.sectionAlt}`}>
-                <div className={styles.sectionHeader}>
-                    <h2>Jangkauan Layanan</h2>
-                    <p>Kami hadir di kota-kota besar Indonesia.</p>
-                </div>
-                <div className={styles.coverageWrap}>
-                    <div className={styles.coverageMap}>
-                        <img src="/assets/coverage-map.png" alt="Peta Layanan SILAP" className={styles.coverageMapImg} />
-                        <div className={styles.mapHint}>Peta Interaktif Layanan</div>
-                    </div>
-                    <div className={styles.coverageList}>
-                        {coverageCities.map((city) => (
-                            <span key={city} className={styles.coverageChip}>
-                                {city}
-                            </span>
-                        ))}
-                    </div>
-                </div>
+
+
+            <section ref={calculatorRef} id="event-calculator">
+                <EventCalculator />
             </section>
 
             <section className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <h2>FAQ</h2>
+                    <h2>Pertanyaan Umum</h2>
                     <p>Punya pertanyaan? Temukan jawabannya di sini.</p>
                 </div>
                 <div className={styles.faqList}>
@@ -408,6 +509,198 @@ export default function ServicesPage() {
                     <a href="/login" className={styles.ctaBtn}>Daftar Sekarang</a>
                 </div>
             </section>
+
+            {/* Payment Modal */}
+            {showModal && selectedPlan && (
+                <div className={pricingStyles.modalOverlay} onClick={() => setShowModal(false)}>
+                    <div className={pricingStyles.modalBox} onClick={(e) => e.stopPropagation()}>
+                        <button className={pricingStyles.closeBtn} onClick={() => setShowModal(false)}>&times;</button>
+
+                        {paymentStep === 'success' ? (
+                            <div className={pricingStyles.successState}>
+                                <div style={{ position: 'relative', display: 'inline-block' }}>
+                                    <div
+                                        className={pricingStyles.successIcon}
+                                        style={{
+                                            position: 'relative',
+                                            zIndex: 2,
+                                            animation: 'popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, heartbeat 2s infinite 1s'
+                                        }}
+                                    >
+                                        <svg className={pricingStyles.checkmarkSvg} viewBox="0 0 24 24">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                    </div>
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        width: '100%',
+                                        height: '100%',
+                                        borderRadius: '50%',
+                                        animation: 'burst 0.8s ease-out forwards',
+                                        zIndex: 1
+                                    }} />
+                                </div>
+                                <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', animation: 'fadeIn 0.5s ease 0.2s backwards' }}>Pembayaran Berhasil!</h3>
+                                <p style={{ marginBottom: '1rem', animation: 'fadeIn 0.5s ease 0.3s backwards' }}>
+                                    Terima kasih telah berlangganan <strong>{selectedPlan.name}</strong>.
+                                </p>
+
+                                <div style={{
+                                    background: '#f0fdf4',
+                                    padding: '1.2rem',
+                                    borderRadius: '12px',
+                                    border: '1px solid #bbf7d0',
+                                    color: '#166534',
+                                    fontWeight: '500',
+                                    marginBottom: '1rem',
+                                    animation: 'fadeIn 0.5s ease 0.4s backwards',
+                                    textAlign: 'left'
+                                }}>
+                                    <p style={{ marginBottom: '0.5rem', fontWeight: '700' }}>📌 Langkah Selanjutnya:</p>
+                                    <ul style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.95rem' }}>
+                                        <li style={{ marginBottom: '0.3rem' }}>Admin akan memverifikasi pembayaran kamu (maks. 1x24 jam).</li>
+                                        <li>Cek email kamu secara berkala, termasuk folder <strong>Spam</strong> atau <strong>Promosi</strong> (Promotions) untuk info aktivasi.</li>
+                                    </ul>
+                                </div>
+
+                                <button
+                                    className={pricingStyles.payBtn}
+                                    onClick={() => setShowModal(false)}
+                                    style={{ marginTop: '1rem', animation: 'fadeIn 0.5s ease 0.5s backwards' }}
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <h3 className={pricingStyles.modalTitle}>Pembayaran</h3>
+                                <div className={pricingStyles.summary} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', border: 'none' }}>
+                                    <span style={{ color: '#64748b', fontSize: '0.9rem' }}>{selectedPlan.name}</span>
+                                    <span style={{ fontSize: '1.2rem', fontWeight: '800', color: '#2f5e44' }}>{selectedPlan.price}</span>
+                                </div>
+
+                                <div className={pricingStyles.tabs}>
+                                    <button
+                                        className={`${pricingStyles.tabBtn} ${paymentMethod === 'bank' ? pricingStyles.active : ''}`}
+                                        onClick={() => setPaymentMethod('bank')}
+                                    >
+                                        Transfer Bank
+                                    </button>
+                                    <button
+                                        className={`${pricingStyles.tabBtn} ${paymentMethod === 'ewallet' ? pricingStyles.active : ''}`}
+                                        onClick={() => setPaymentMethod('ewallet')}
+                                    >
+                                        E-Wallet
+                                    </button>
+                                    <button
+                                        className={`${pricingStyles.tabBtn} ${paymentMethod === 'qris' ? pricingStyles.active : ''}`}
+                                        onClick={() => setPaymentMethod('qris')}
+                                    >
+                                        QRIS
+                                    </button>
+                                </div>
+
+                                <div className={pricingStyles.paymentContent}>
+                                    {paymentMethod === 'bank' && (
+                                        <div className={pricingStyles.bankInfo}>
+                                            <span className={pricingStyles.infoLabel}>Bank BCA (PT Silap Indonesia)</span>
+                                            <span className={pricingStyles.accountNumber}>8230 1234 5678</span>
+                                            <button className={pricingStyles.copyBtn} onClick={() => handleCopy('823012345678')}>
+                                                {copied ? 'Berhasil Disalin! ✓' : 'Salin No. Rek'}
+                                            </button>
+
+                                            <div className={pricingStyles.instructions} style={{ textAlign: 'left', marginTop: '1.5rem' }}>
+                                                <h4>Tutorial Pembayaran:</h4>
+                                                <ol style={{ fontSize: '0.9rem', paddingLeft: '1.2rem' }}>
+                                                    <li>Buka M-Banking BCA atau ATM.</li>
+                                                    <li>Pilih Transfer Antar Rekening.</li>
+                                                    <li>Masukkan No. Rekening di atas.</li>
+                                                    <li>Pastikan nama penerima <strong>PT Silap Indonesia</strong>.</li>
+                                                    <li>Simpan bukti/struk transfer.</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {paymentMethod === 'ewallet' && (
+                                        <div className={pricingStyles.ewalletInfo}>
+                                            <span className={pricingStyles.infoLabel}>OVO / Gopay / Dana</span>
+                                            <span className={pricingStyles.accountNumber}>0812 3456 7890</span>
+                                            <button className={pricingStyles.copyBtn} onClick={() => handleCopy('081234567890')}>
+                                                {copied ? 'Berhasil Disalin! ✓' : 'Salin Nomor'}
+                                            </button>
+                                            <div className={pricingStyles.instructions} style={{ textAlign: 'left', marginTop: '1.5rem' }}>
+                                                <h4>Tutorial Pembayaran:</h4>
+                                                <ol style={{ fontSize: '0.9rem', paddingLeft: '1.2rem' }}>
+                                                    <li>Buka aplikasi E-Wallet kamu.</li>
+                                                    <li>Pilih menu Transfer / Kirim ke Nomor.</li>
+                                                    <li>Masukkan nomor di atas.</li>
+                                                    <li>Simpan bukti/struk transfer.</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {paymentMethod === 'qris' && (
+                                        <div className={pricingStyles.qrisPlaceholder}>
+                                            <img src="/assets/qr-payment-dummy.svg" alt="QRIS" width={150} />
+                                            <p style={{ marginTop: '1rem' }}>Scan menggunakan aplikasi pembayaran apapun.</p>
+                                        </div>
+                                    )}
+
+                                    {/* Upload Proof Form */}
+                                    <div style={{ marginTop: '2rem', borderTop: '2px dashed #e2e8f0', paddingTop: '1.5rem' }}>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '700', fontSize: '0.95rem' }}>
+                                            Upload Bukti Pembayaran <span style={{ color: '#ef4444' }}>*</span>
+                                        </label>
+                                        <div
+                                            style={{
+                                                border: `2px dashed ${proofUploaded ? '#22c55e' : '#cbd5e1'}`,
+                                                borderRadius: '12px',
+                                                padding: '1.5rem',
+                                                textAlign: 'center',
+                                                cursor: 'pointer',
+                                                background: proofUploaded ? '#f0fdf4' : '#f8fafc',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                            onClick={() => fileInputRef.current?.click()}
+                                        >
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                style={{ display: 'none' }}
+                                                accept="image/*,application/pdf"
+                                                onChange={handleFileChange}
+                                            />
+                                            {proofUploaded ? (
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#16a34a' }}>
+                                                    <span>✓</span>
+                                                    <span>File berhasil diupload</span>
+                                                </div>
+                                            ) : (
+                                                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Klik untuk upload file (JPG, PNG, PDF)</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    className={pricingStyles.payBtn}
+                                    onClick={handlePaymentSubmit}
+                                    disabled={!proofUploaded}
+                                    style={{
+                                        opacity: proofUploaded ? 1 : 0.5,
+                                        cursor: proofUploaded ? 'pointer' : 'not-allowed'
+                                    }}
+                                >
+                                    Konfirmasi Pembayaran
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
