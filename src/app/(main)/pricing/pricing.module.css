@@ -95,8 +95,8 @@
 
 .pricingGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 3.5rem;
   width: min(1200px, 100%);
   margin: 0 auto;
   align-items: start;
@@ -664,8 +664,15 @@
 
 @media (max-width: 640px) {
   .hero { border-radius: 0 0 30px 30px; padding: 6rem 1rem 4rem; }
+  .hero h1 { font-size: 2rem; padding: 0 0.5rem; word-wrap: break-word; }
   .pricingSection { margin-top: -3rem; }
-  .pricingGrid { padding: 0 1.5rem; } /* Add spacing on mobile */
+  .pricingGrid { 
+    padding: 0 1rem;
+    gap: 4rem; /* More vertical space between stacked cards */
+  }
+  .pricingCard {
+    padding: 3rem 1.5rem 2.5rem; /* More internal breathing room */
+  }
   .modalBox { padding: 1.5rem; margin: 1rem; max-height: 85vh; border-radius: 20px; }
   .price { font-size: 2.5rem; }
   
