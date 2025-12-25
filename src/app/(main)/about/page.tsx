@@ -3,13 +3,23 @@
 import styles from './about.module.css';
 
 export default function AboutPage() {
-  const teamMembers = [
+  interface TeamMember {
+    name: string;
+    role: string;
+    major: string;
+    image: string;
+    linkedin: string;
+    objectPosition?: string;
+  }
+
+  const teamMembers: TeamMember[] = [
     {
       name: 'Christopher Gunawan',
       role: 'Chief Technology Officer',
       major: 'Computer Science Binus',
-      image: 'https://ui-avatars.com/api/?name=User+One&background=random&size=400',
-      linkedin: 'https://www.linkedin.com'
+      image: '/assets/ChristopherGunawan_CTO.png',
+      linkedin: 'https://www.linkedin.com/in/chgnw/',
+      objectPosition: 'center 10%'
     },
     {
       name: 'Pradipa Javier Fatah',
@@ -23,7 +33,7 @@ export default function AboutPage() {
       role: 'Chief Operating Officer',
       major: 'Computer Science Binus',
       image: 'https://ui-avatars.com/api/?name=User+Three&background=random&size=400',
-      linkedin: 'https://www.linkedin.com'
+      linkedin: 'https://www.linkedin.com/in/abdiabiyasa/'
     },
   ];
 
@@ -70,7 +80,12 @@ export default function AboutPage() {
           <div className={styles.teamGrid}>
             {teamMembers.map((member, idx) => (
               <div key={idx} className={styles.teamCard}>
-                <img src={member.image} alt={member.name} className={styles.teamImage} />
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className={styles.teamImage}
+                  style={member.objectPosition ? { objectPosition: member.objectPosition } : {}}
+                />
                 <div className={styles.teamInfo}>
                   <div className={styles.teamName}>{member.name}</div>
                   <div className={styles.teamRole}>{member.role}</div>
