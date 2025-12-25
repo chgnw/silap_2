@@ -378,7 +378,7 @@ export default function ServicesPage() {
                         <div className={pricingStyles.cardHeader}>
                             <h3>Paket Event</h3>
                             <div className={pricingStyles.price} style={{ fontSize: '2rem' }}>
-                                Estimasi<span>/event</span>
+                                Estimasi Biaya Total
                             </div>
                             <p className={pricingStyles.description}>Tidak menggunakan harga & kuota statis.</p>
                         </div>

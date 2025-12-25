@@ -274,7 +274,7 @@ function PricingContent() {
             <div className={styles.cardHeader}>
               <h3>Paket Event</h3>
               <div className={styles.price} style={{ fontSize: '2rem' }}>
-                Estimasi<span>/event</span>
+                Estimasi Biaya Total
               </div>
               <p className={styles.description}>Tidak menggunakan harga & kuota statis.</p>
             </div>
