@@ -9,12 +9,13 @@ import EventCalculator from '@/app/components/Sections/EventCalculator/EventCalc
 interface Tier {
   id: number;
   name: string;
-  price: number;
+  price: number | null;
   priceFormatted: string;
   period: string;
   desc: string;
   features: string[];
   popular: boolean;
+  isTentativePrice: boolean;
 }
 
 interface FAQ {
@@ -75,16 +76,20 @@ function PricingContent() {
         const result = await response.json();
 
         if (result.message === 'SUCCESS' && result.data) {
-          const mappedTiers: Tier[] = result.data.map((plan: any) => ({
-            id: plan.id,
-            name: plan.plan_name,
-            price: Number(plan.price),
-            priceFormatted: formatPrice(Number(plan.price)),
-            period: `/${plan.duration_days} hari`,
-            desc: plan.description || '',
-            features: plan.features ? plan.features.split(',').map((f: string) => f.trim()) : [],
-            popular: plan.is_popular === 1,
-          }));
+          const mappedTiers: Tier[] = result.data.map((plan: any) => {
+            const isTentative = plan.is_tentative_price === 1 || plan.is_tentative_price === true;
+            return {
+              id: plan.id,
+              name: plan.plan_name,
+              price: isTentative ? null : Number(plan.price),
+              priceFormatted: isTentative ? 'Hubungi Kami' : formatPrice(Number(plan.price)),
+              period: isTentative ? '' : `/${plan.duration_days} hari`,
+              desc: plan.description || '',
+              features: plan.features ? plan.features.split(',').map((f: string) => f.trim()) : [],
+              popular: plan.is_popular === 1,
+              isTentativePrice: isTentative,
+            };
+          });
           setTiers(mappedTiers);
         }
       } catch (error) {
@@ -145,7 +150,8 @@ function PricingContent() {
         period: '/bulan',
         desc: 'Paket langganan',
         features: [],
-        popular: false
+        popular: false,
+        isTentativePrice: false
       };
     }
 
@@ -178,17 +184,25 @@ function PricingContent() {
   const handlePayment = async () => {
     if (!selectedTier) return;
 
+    // Get the file from the file input
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      setPaymentError('Silakan upload bukti pembayaran terlebih dahulu');
+      return;
+    }
+
     setPaymentStatus('loading');
     setPaymentError('');
 
     try {
+      const formData = new FormData();
+      formData.append('subscription_plan_id', selectedTier.id.toString());
+      formData.append('payment_method', paymentMethod);
+      formData.append('payment_proof', file);
+
       const response = await fetch('/api/public/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subscription_plan_id: selectedTier.id,
-          payment_method: paymentMethod,
-        }),
+        body: formData,
       });
 
       const result = await response.json();
@@ -219,82 +233,55 @@ function PricingContent() {
           <p>Sesuaikan dengan kebutuhan rumah atau bisnis Anda.</p>
         </div>
         <div className={styles.pricingGrid}>
-          {/* 1. Paket Individu */}
-          <div className={styles.pricingCard}>
-            <div className={styles.cardHeader}>
-              <h3>Paket Individu</h3>
-              <div className={styles.price}>
-                Rp 49.000<span>/bulan</span>
-              </div>
-              <p className={styles.description}>Rumah tangga & pengguna personal</p>
+          {isLoadingTiers ? (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>
+              <p>Memuat paket langganan...</p>
             </div>
-            <ul className={styles.features}>
-              <li><span className={styles.check}>✓</span> Kuota sampah: 30 kg / bulan</li>
-              <li><span className={styles.check}>✓</span> Pickup: 2x per minggu</li>
-              <li><span className={styles.check}>✓</span> Jadwal pick up flexibel</li>
-              <li><span className={styles.check}>✓</span> Multi lokasi</li>
-              <li><span className={styles.check}>✓</span> Dashboard monitoring</li>
-            </ul>
-            <button
-              onClick={() => handleCheckout('Paket Individu')}
-              className={styles.ctaBtn}
-            >
-              Pilih Paket
-            </button>
-          </div>
-
-          {/* 2. Paket Bisnis */}
-          <div className={`${styles.pricingCard} ${styles.popular}`}>
-            <div className={styles.popularBadge}>Best Value</div>
-            <div className={styles.cardHeader}>
-              <h3>Paket Bisnis</h3>
-              <div className={styles.price}>
-                Rp 299.000<span>/bulan</span>
-              </div>
-              <p className={styles.description}>UMKM, kantor, restoran, bisnis skala menengah</p>
+          ) : tiers.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>
+              <p>Tidak ada paket tersedia saat ini.</p>
             </div>
-            <ul className={styles.features}>
-              <li><span className={styles.check}>✓</span> Kuota sampah: 300 kg / bulan</li>
-              <li><span className={styles.check}>✓</span> Pickup: 7x per minggu</li>
-              <li><span className={styles.check}>✓</span> Jadwal pick up flexibel</li>
-              <li><span className={styles.check}>✓</span> Multi lokasi outlet</li>
-              <li><span className={styles.check}>✓</span> Dashboard monitoring</li>
-            </ul>
-            <button
-              onClick={() => handleCheckout('Paket Bisnis')}
-              className={styles.ctaBtn}
-            >
-              Pilih Paket
-            </button>
-          </div>
-
-          {/* 3. Paket Event */}
-          <div className={styles.pricingCard}>
-            <div className={styles.popularBadge} style={{ background: '#2f5e44' }}>Custom</div>
-            <div className={styles.cardHeader}>
-              <h3>Paket Event</h3>
-              <div className={styles.price} style={{ fontSize: '2rem' }}>
-                Estimasi<span>/event</span>
+          ) : (
+            tiers.map((tier) => (
+              <div
+                key={tier.id}
+                className={`${styles.pricingCard} ${tier.popular ? styles.popular : ''}`}
+              >
+                {tier.popular && <div className={styles.popularBadge}>Best Value</div>}
+                {tier.isTentativePrice && !tier.popular && (
+                  <div className={styles.popularBadge} style={{ background: '#2f5e44' }}>Custom</div>
+                )}
+                <div className={styles.cardHeader}>
+                  <h3>{tier.name}</h3>
+                  <div className={styles.price} style={tier.isTentativePrice ? { fontSize: '2rem' } : {}}>
+                    {tier.priceFormatted}<span>{tier.period}</span>
+                  </div>
+                  <p className={styles.description}>{tier.desc}</p>
+                </div>
+                <ul className={styles.features}>
+                  {tier.features.map((feature, idx) => (
+                    <li key={idx}><span className={styles.check}>✓</span> {feature}</li>
+                  ))}
+                </ul>
+                {tier.isTentativePrice ? (
+                  <button
+                    onClick={() => calculatorRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    className={styles.ctaBtn}
+                    style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
+                  >
+                    Hitung Estimasi
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleCheckout(tier.name)}
+                    className={styles.ctaBtn}
+                  >
+                    Pilih Paket
+                  </button>
+                )}
               </div>
-              <p className={styles.description}>Tidak menggunakan harga & kuota statis.</p>
-            </div>
-            <ul className={styles.features}>
-              <li><span className={styles.check}>✓</span> Form Demo Estimasi Biaya</li>
-              <li><span className={styles.check}>✓</span> Cocok untuk event apapun</li>
-              <li><span className={styles.check}>✓</span> Tanpa kuota statis</li>
-              <li><span className={styles.check}>✓</span> Opsi Branding & Support</li>
-              <li><span className={styles.check}>✓</span> Jadwal pick up flexibel</li>
-              <li><span className={styles.check}>✓</span> Multi lokasi</li>
-              <li><span className={styles.check}>✓</span> Dashboard monitoring</li>
-            </ul>
-            <button
-              onClick={() => calculatorRef.current?.scrollIntoView({ behavior: 'smooth' })}
-              className={styles.ctaBtn}
-              style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
-            >
-              Hitung Estimasi
-            </button>
-          </div>
+            ))
+          )}
         </div>
       </section>
 
@@ -480,7 +467,7 @@ function PricingContent() {
                   {paymentMethod === 'qris' && (
                     <div className={styles.qrisPlaceholder}>
                       <img src="/assets/qr-payment-dummy.svg" alt="QRIS" width={150} />
-                      <p style={{ marginTop: '1rem' }}>Scan menggunakan aplikasi pembayaran apapun.</p>
+                      <p style={{ marginTop: '1rem', textAlign: 'center' }}>Scan menggunakan aplikasi pembayaran apapun.</p>
                     </div>
                   )}
 
@@ -514,7 +501,7 @@ function PricingContent() {
                           <span>File berhasil diupload</span>
                         </div>
                       ) : (
-                        <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Klik untuk upload file (JPG, PNG, PDF)</p>
+                        <p style={{ color: '#64748b', fontSize: '0.9rem', margin: '0' }}>Klik untuk upload file (JPG, PNG, PDF)</p>
                       )}
                     </div>
                   </div>

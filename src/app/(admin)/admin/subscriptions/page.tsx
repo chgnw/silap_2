@@ -13,12 +13,13 @@ type SubscriptionPlan = {
     id: number;
     plan_name: string;
     description: string | null;
-    price: number;
+    price: number | null;
     duration_days: number;
     pickup_frequency: string | null;
     max_weight: number | null;
     features: string | null;
     is_popular: boolean;
+    is_tentative_price: boolean;
     created_at?: string;
     updated_at?: string;
 };
@@ -96,6 +97,7 @@ export default function SubscriptionsPage() {
         max_weight: "",
         features: "",
         is_popular: false,
+        is_tentative_price: false,
     });
 
     // =========================================
@@ -186,12 +188,13 @@ export default function SubscriptionsPage() {
             setPlanForm({
                 plan_name: plan.plan_name,
                 description: plan.description || "",
-                price: plan.price.toString(),
+                price: plan.price?.toString() || "",
                 duration_days: plan.duration_days.toString(),
                 pickup_frequency: plan.pickup_frequency || "",
                 max_weight: plan.max_weight?.toString() || "",
                 features: plan.features || "",
                 is_popular: plan.is_popular || false,
+                is_tentative_price: plan.is_tentative_price || false,
             });
         } else {
             setPlanForm({
@@ -203,6 +206,7 @@ export default function SubscriptionsPage() {
                 max_weight: "",
                 features: "",
                 is_popular: false,
+                is_tentative_price: false,
             });
         }
 
@@ -222,12 +226,13 @@ export default function SubscriptionsPage() {
             const payload = {
                 plan_name: planForm.plan_name,
                 description: planForm.description || null,
-                price: parseFloat(planForm.price),
+                price: planForm.is_tentative_price ? null : parseFloat(planForm.price),
                 duration_days: parseInt(planForm.duration_days),
                 pickup_frequency: planForm.pickup_frequency || null,
                 max_weight: planForm.max_weight ? parseFloat(planForm.max_weight) : null,
                 features: planForm.features || null,
                 is_popular: planForm.is_popular,
+                is_tentative_price: planForm.is_tentative_price,
                 ...(planModalMode === "edit" && { id: selectedPlan?.id }),
             };
 
@@ -385,8 +390,16 @@ export default function SubscriptionsPage() {
             {
                 header: "Price",
                 accessorKey: "price",
-                cell: ({ getValue }) => {
-                    const value = getValue() as number;
+                cell: ({ row, getValue }) => {
+                    if (row.original.is_tentative_price) {
+                        return (
+                            <span style={{ color: "#2f5e44", fontStyle: "italic", fontWeight: "500" }}>
+                                Hubungi Kami
+                            </span>
+                        );
+                    }
+                    const value = getValue() as number | null;
+                    if (value === null) return "-";
                     return new Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
@@ -616,6 +629,20 @@ export default function SubscriptionsPage() {
         fetchSubscriptionPlans();
         fetchPendingPayments();
         fetchPaymentHistory();
+
+        // Auto-refresh pending payments every 30 seconds to sync with sidebar
+        const interval = setInterval(() => {
+            fetch("/api/admin/subscription")
+                .then(res => res.json())
+                .then(result => {
+                    if (result.message === "SUCCESS") {
+                        setPendingPayments(result.data || []);
+                    }
+                })
+                .catch(err => console.error("Error auto-refreshing pending payments:", err));
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
@@ -709,9 +736,34 @@ export default function SubscriptionsPage() {
                         />
                     </div>
 
+                    <div className={styles.formGroup}>
+                        <div className={styles.toggleContainer}>
+                            <label className={styles.toggleSwitch}>
+                                <input
+                                    type="checkbox"
+                                    checked={planForm.is_tentative_price}
+                                    onChange={(e) =>
+                                        setPlanForm({
+                                            ...planForm,
+                                            is_tentative_price: e.target.checked,
+                                            price: e.target.checked ? "" : planForm.price,
+                                        })
+                                    }
+                                    disabled={planModalMode === "view"}
+                                />
+                                <span className={styles.toggleSlider}></span>
+                            </label>
+                            <span className={styles.toggleLabel}>
+                                Harga Tentatif (perlu konsultasi, tidak ada harga tetap)
+                            </span>
+                        </div>
+                    </div>
+
                     <div className={styles.formRow}>
                         <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Price (IDR) *</label>
+                            <label className={styles.formLabel}>
+                                Price (IDR) {!planForm.is_tentative_price && "*"}
+                            </label>
                             <input
                                 type="number"
                                 className={styles.formInput}
@@ -719,9 +771,13 @@ export default function SubscriptionsPage() {
                                 onChange={(e) =>
                                     setPlanForm({ ...planForm, price: e.target.value })
                                 }
-                                disabled={planModalMode === "view"}
-                                required
-                                placeholder="e.g., 75000"
+                                disabled={planModalMode === "view" || planForm.is_tentative_price}
+                                required={!planForm.is_tentative_price}
+                                placeholder={planForm.is_tentative_price ? "Harga akan ditentukan" : "e.g., 75000"}
+                                style={{
+                                    backgroundColor: planForm.is_tentative_price ? "#f5f5f5" : undefined,
+                                    cursor: planForm.is_tentative_price ? "not-allowed" : undefined,
+                                }}
                             />
                         </div>
 

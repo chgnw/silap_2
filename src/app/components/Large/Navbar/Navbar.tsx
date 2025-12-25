@@ -98,9 +98,11 @@ export default function Header({ theme = "dark" }: HeaderProps) {
   // Lock body scroll when menu is expanded
   useEffect(() => {
     if (expanded) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflowY = "hidden";
+      document.body.style.overflowX = "hidden";
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflowY = "auto";
+      document.body.style.overflowX = "hidden";
     }
   }, [expanded]);
 

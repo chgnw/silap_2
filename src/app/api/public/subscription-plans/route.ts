@@ -13,13 +13,15 @@ export async function GET() {
                 pickup_frequency,
                 max_weight,
                 features,
-                is_popular
+                is_popular,
+                is_tentative_price
             FROM ms_subscription_plan
             WHERE is_active = 1
-            ORDER BY id ASC
+            ORDER BY is_tentative_price ASC, id ASC
         `;
 
         const plans = await query(sql);
+        console.log(plans);
 
         return NextResponse.json(
             {

@@ -206,7 +206,7 @@
   .login {
     width: 100%;
     justify-content: center;
-    flex-direction: column;
+    flex-direction: row;
     border-radius: 40px;
     padding: 0.5rem 1.5rem;
   }

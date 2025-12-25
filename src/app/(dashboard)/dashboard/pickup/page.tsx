@@ -63,6 +63,36 @@ export default function PickUpPage() {
     if (!session) router.push("/login");
   }, [session]);
 
+  // Check subscription status - only subscribed users can access pickup
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!session?.user?.id) return;
+
+      try {
+        const response = await fetch("/api/dashboard/subscription", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: session.user.id }),
+        });
+
+        const result = await response.json();
+
+        if (result.status === "pending_payment") {
+          // Pending payment users can access dashboard but not pickup
+          showToast("error", "Pembayaran kamu masih menunggu verifikasi admin.");
+          router.push("/dashboard");
+        } else if (result.status === "not_subscribed") {
+          // Not subscribed users cannot access dashboard at all
+          router.push("/pricing");
+        }
+      } catch (error) {
+        console.error("Failed to check subscription:", error);
+      }
+    };
+
+    checkSubscription();
+  }, [session?.user?.id, router]);
+
   // Data
   const [vehicleOptions, setVehicleOptions] = useState<OptionItem[]>([]);
   const [pickupOptions, setPickupOptions] = useState<OptionItem[]>([]);

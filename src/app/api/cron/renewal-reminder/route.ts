@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
         `;
 
         const expiringSubscriptions = (await query(sql)) as ExpiringSubscription[];
+        console.log("Expiring subscriptions: ", expiringSubscriptions);
 
         if (!expiringSubscriptions || expiringSubscriptions.length === 0) {
             return NextResponse.json({
