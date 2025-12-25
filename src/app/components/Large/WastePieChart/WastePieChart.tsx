@@ -29,10 +29,11 @@ const WastePieChart = ({ data, loading, colors }: WastePieChartProps) => {
         alignItems: 'center', 
         height: '100%', 
         minHeight: '200px',
-        color: '#888',
-        fontSize: '0.9rem'
+        color: 'var(--color-light-gray)',
+        fontSize: '0.9rem',
+        textAlign: 'center'
       }}>
-        <p>{loading ? "Memuat data..." : "Data tidak tersedia."}</p>
+        <p>{loading ? "Memuat data..." : "Data tidak tersedia untuk rentang waktu yang dipilih."}</p>
       </div>
     );
   }

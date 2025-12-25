@@ -75,6 +75,14 @@
   color: var(--color-black);
 }
 
+.navLink span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
 .iconContainer {
   background: var(--color-white);
   color: var(--color-primary);

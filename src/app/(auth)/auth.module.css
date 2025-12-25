@@ -9,17 +9,11 @@
 }
 
 .loginBackground {
-  background: linear-gradient(to bottom,
-      #a4b465 0%,
-      #a4b465 70%,
-      #e7f0d2 70%,
-      #e7f0d2 85%,
-      #d2ea9b 85%,
-      #d2ea9b 100%);
+  background: linear-gradient(180deg, #14231b 0%, #1A2D22 40%, #A4B465 100%)
 }
 
 .registerBackground {
-  background: #a4b465;
+  background: #1a2d22f2;
 }
 
 .authMain {

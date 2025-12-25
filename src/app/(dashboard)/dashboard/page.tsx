@@ -133,7 +133,7 @@ FilterSection.displayName = "FilterSection";
 
 // Subscription Card
 const SubscriptionCard = memo(
-  ({ subscription, loading }: { subscription: SubscriptionInfo; loading: boolean }) => {
+  ({ subscription, loading, hasPendingRenewal }: { subscription: SubscriptionInfo; loading: boolean; hasPendingRenewal: boolean }) => {
     if (loading) {
       return (
         <section className={styles.subscriptionCard}>
@@ -151,20 +151,23 @@ const SubscriptionCard = memo(
             </div>
             <p>Status Langganan</p>
           </div>
-          <div className={styles.subscriptionCardBody}>
-            <h2>Tidak Aktif</h2>
-            <span>Anda belum berlangganan</span>
-          </div>
-          <div className={styles.subscriptionCardFooter}>
-            <Link href="/pricing" className={styles.renewButton}>
-              Berlangganan
-            </Link>
+          <div className={styles.subscriptionCardContent}>
+            <div className={styles.subscriptionCardBody}>
+              <h2>Tidak Aktif</h2>
+              <span>Anda belum berlangganan</span>
+            </div>
+            <div className={styles.subscriptionCardFooter}>
+              <Link href="/pricing" className={styles.renewButton}>
+                Berlangganan
+              </Link>
+            </div>
           </div>
         </section>
       );
     }
 
     const isNearExpiry = subscription.days_remaining <= 3;
+    const showRenewButton = isNearExpiry && !hasPendingRenewal;
     const formatDate = (dateStr: string) => {
       return new Date(dateStr).toLocaleDateString("id-ID", {
         day: "numeric",
@@ -181,16 +184,21 @@ const SubscriptionCard = memo(
           </div>
           <p>Status Langganan</p>
         </div>
-        <div className={styles.subscriptionCardBody}>
-          <h2>{subscription.plan_name}</h2>
-          <span>s/d {formatDate(subscription.end_date)}</span>
-        </div>
-        <div className={styles.subscriptionCardFooter}>
-          {isNearExpiry && (
-            <Link href="/pricing" className={styles.renewButton}>
-              Perpanjang
-            </Link>
-          )}
+        <div className={styles.subscriptionCardContent}>
+          <div className={styles.subscriptionCardBody}>
+            <h2>{subscription.plan_name}</h2>
+            <span>s/d {formatDate(subscription.end_date)}</span>
+          </div>
+          <div className={styles.subscriptionCardFooter}>
+            {showRenewButton && (
+              <Link href="/pricing" className={styles.renewButton}>
+                Perpanjang
+              </Link>
+            )}
+            {hasPendingRenewal && (
+              <span className={styles.pendingBadge}>Menunggu Verifikasi</span>
+            )}
+          </div>
         </div>
       </section>
     );
@@ -281,7 +289,7 @@ const TargetCard = memo(
           </div>
         </div>
         <div className={styles.progressTarget}>
-          <p>(P){safeTarget.toFixed(2)} Kg</p>
+          <p>{safeTarget.toFixed(2)} Kg</p>
         </div>
         <div className={styles.progressFooter}>
           <p>*Target kontribusi sampah setiap minggu</p>
@@ -360,7 +368,7 @@ const LineChartCard = memo(
         </ResponsiveContainer>
       ) : (
         <div className={styles.emptyChart}>
-          <p>{loading ? "Memuat data..." : "No data available for this period."}</p>
+          <p>{loading ? "Memuat data..." : "Data tidak tersedia untuk rentang waktu yang dipilih."}</p>
         </div>
       )}
     </div>
@@ -388,6 +396,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState<boolean>(true);
+  const [hasPendingRenewal, setHasPendingRenewal] = useState<boolean>(false);
 
   useEffect(() => {
     if (!session) router.push("/login");
@@ -409,7 +418,13 @@ export default function DashboardPage() {
 
         if (result.status === "subscribed" && result.subscription) {
           setSubscriptionInfo(result.subscription);
+          setHasPendingRenewal(result.has_pending_renewal || false);
+        } else if (result.status === "not_subscribed") {
+          // Not subscribed users cannot access dashboard at all
+          router.push("/pricing");
+          return;
         }
+        // pending_payment users can access dashboard (except pickup page)
       } catch (error) {
         console.error("Failed to fetch subscription:", error);
       } finally {
@@ -418,7 +433,7 @@ export default function DashboardPage() {
     };
 
     fetchSubscription();
-  }, [session?.user?.id]);
+  }, [session?.user?.id, router]);
 
   const fetchDashboardData = useCallback(async (userId: string, start?: string, end?: string) => {
     try {
@@ -506,7 +521,7 @@ export default function DashboardPage() {
           onReset={handleReset}
         />
         <ProfileSection loading={loading} user={session?.user} />
-        <SubscriptionCard subscription={subscriptionInfo} loading={subscriptionLoading} />
+        <SubscriptionCard subscription={subscriptionInfo} loading={subscriptionLoading} hasPendingRenewal={hasPendingRenewal} />
       </div>
       <div className={styles.secondRow}>
         <StatsCard

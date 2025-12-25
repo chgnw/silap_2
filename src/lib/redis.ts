@@ -18,17 +18,18 @@ function createRedisClient() {
         username,
         password,
         connectTimeout: 10000,
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-    },
+        retryStrategy: (times: number) => {
+            const delay = Math.min(times * 50, 2000);
+            return delay;
+        },
         maxRetriesPerRequest: null,
     });
 
-client.on("ready", () => console.log("[Redis] Ready ✅"));
-client.on("error", (err) => console.error("[Redis] Error ❌", err.message));
-client.on("end", () => console.warn("[Redis] Connection ended"));
+    client.on("ready", () => console.log("[Redis] Ready ✅"));
+    client.on("error", (err) => console.error("[Redis] Error ❌", err.message));
+    client.on("end", () => console.warn("[Redis] Connection ended"));
 
-return client;
+    return client;
 }
 
 if (!global.redis) {

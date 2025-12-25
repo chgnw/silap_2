@@ -12,7 +12,6 @@ export default function MainLayout({
     <>
       <Navbar />
       <RoleRedirect />
-      <RoleRedirect />
       {children}
       <Footer />
     </>

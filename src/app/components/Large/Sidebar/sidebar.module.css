@@ -1,7 +1,7 @@
 /* Sidebar */
 .sidebar {
   width: 325px;
-  background-color: var(--color-primary);
+  background-color: rgb(47, 94, 68);
   color: var(--color-white);
   display: flex;
   flex-direction: column;
@@ -76,8 +76,8 @@
 }
 
 .iconContainer {
-  background: var(--color-white);
-  color: var(--color-primary);
+  background: #f1f6ef;
+  color: rgb(47, 94, 68);
   padding: clamp(0.625rem, 1vw, 0.875rem);
   border-radius: 0.75rem;
   display: flex;
@@ -92,8 +92,8 @@
 }
 
 .isSelected .iconContainer {
-  background-color: var(--color-primary);
-  color: var(--color-white);
+  color: #f1f6ef;
+  background-color: rgb(47, 94, 68);
 }
 
 .sidebarFooter {

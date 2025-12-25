@@ -4,7 +4,7 @@ import { query } from "@/lib/db";
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { id, plan_name, description, price, duration_days, pickup_frequency, max_weight, features, is_popular } = body;
+        const { id, plan_name, description, price, duration_days, pickup_frequency, max_weight, features, is_popular, is_tentative_price } = body;
 
         if (!id) {
             return NextResponse.json(
@@ -20,9 +20,10 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        if (!price || price <= 0) {
+        // Price is required only if is_tentative_price is false
+        if (!is_tentative_price && (!price || price <= 0)) {
             return NextResponse.json(
-                { error: "Valid price is required" },
+                { error: "Valid price is required (or mark as tentative price)" },
                 { status: 400 }
             );
         }
@@ -53,19 +54,21 @@ export async function POST(req: NextRequest) {
                 pickup_frequency = ?, 
                 max_weight = ?,
                 features = ?,
-                is_popular = ?
+                is_popular = ?,
+                is_tentative_price = ?
             WHERE id = ?
         `;
 
         await query(sql, [
             plan_name,
             description || null,
-            price,
+            is_tentative_price ? null : price,
             duration_days,
             pickup_frequency || null,
             max_weight || null,
             features || null,
             is_popular || false,
+            is_tentative_price || false,
             id
         ]);
 

@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 
 import { FaBars, FaBell } from "react-icons/fa";
 import Sidebar from "../components/Large/Sidebar/Sidebar";
+import FullPageSpinner from "../components/Large/Spinner/Spinner";
 
 import styles from "./dashboard.module.css";
 
@@ -85,19 +86,9 @@ export default function DashboardLayout({
           return;
         }
 
-        if (result.status === "pending_payment") {
-          // Has pending payment -> only allow profile page
-          if (pathname !== "/dashboard/profile") {
-            router.push("/dashboard/profile");
-            return;
-          }
-          // Allow access to profile page
-          setIsAllowed(true);
-          setIsCheckingSubscription(false);
-          return;
-        }
-
-        // User is subscribed, allow access to all dashboard pages
+        // For both "subscribed" and "pending_payment":
+        // - subscribed: allow all pages
+        // - pending_payment: allow all pages EXCEPT pickup (handled in pickup/page.tsx)
         setIsAllowed(true);
       } catch (error) {
         console.error("Error checking subscription:", error);
@@ -113,26 +104,12 @@ export default function DashboardLayout({
 
   // Show loading while checking session or subscription
   if (sessionStatus === "loading" || isCheckingSubscription) {
-    return (
-      <div className={styles.dashboardContainer}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Memuat dashboard...</p>
-        </div>
-      </div>
-    );
+    return <FullPageSpinner message="Memuat dashboard, mohon menunggu..." />;
   }
 
   // Don't render if not allowed (redirect happening)
   if (!isAllowed && pathname !== "/dashboard/profile") {
-    return (
-      <div className={styles.dashboardContainer}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Mengalihkan...</p>
-        </div>
-      </div>
-    );
+    return <FullPageSpinner message="Mengalihkan..." />;
   }
 
   return (

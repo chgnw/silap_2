@@ -49,8 +49,8 @@ export default function DashboardSidebar({
     };
 
     fetchPendingCount();
-    // Refresh every 60 seconds
-    const interval = setInterval(fetchPendingCount, 60000);
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchPendingCount, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -182,7 +182,7 @@ export default function DashboardSidebar({
           </div>
           <span>Subscriptions</span>
           {pendingCount > 0 && (
-            <span className={styles.badge}>{pendingCount}</span>
+            <p className={styles.badge}>{pendingCount}</p>
           )}
           {loadingPath === "/admin/subscriptions" && isPending && (
             <div className={styles.loadingSpinner}></div>

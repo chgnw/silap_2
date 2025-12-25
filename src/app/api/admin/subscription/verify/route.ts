@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { sendSubscriptionActivatedEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
     try {
@@ -49,9 +50,14 @@ export async function POST(req: NextRequest) {
                 ph.user_id,
                 ph.subscription_plan_id,
                 ph.transaction_status_id,
-                sp.duration_days
+                sp.duration_days,
+                sp.plan_name as plan_name,
+                sp.price as plan_price,
+                u.email as customer_email,
+                CONCAT(u.first_name, ' ', u.last_name) as customer_name
             FROM tr_payment_history ph
             LEFT JOIN ms_subscription_plan sp ON ph.subscription_plan_id = sp.id
+            LEFT JOIN ms_user u ON ph.user_id = u.id
             WHERE ph.id = ?
         `;
         const paymentResult = await query(checkPaymentSql, [payment_id]) as any[];
@@ -121,7 +127,6 @@ export async function POST(req: NextRequest) {
             UPDATE tr_payment_history 
             SET 
                 transaction_status_id = 4,
-                subscription_plan_id = ?,
                 reference_number = ?,
                 verified_by = ?,
                 verified_at = NOW()
@@ -129,11 +134,24 @@ export async function POST(req: NextRequest) {
         `;
 
         await query(updatePaymentSql, [
-            subscriptionId,
             reference_number,
             session.user.id,
             payment_id
         ]);
+
+        // Send email notification to customer (non-blocking)
+        if (payment.customer_email) {
+            sendSubscriptionActivatedEmail({
+                customerName: payment.customer_name || "Pelanggan",
+                customerEmail: payment.customer_email,
+                planName: payment.plan_name || "Paket Langganan",
+                planPrice: payment.plan_price || 0,
+                startDate: formatDate(startDate),
+                endDate: formatDate(endDate),
+            }).catch((err) => {
+                console.error("Failed to send subscription activation email:", err);
+            });
+        }
 
         return NextResponse.json(
             {

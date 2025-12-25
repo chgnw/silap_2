@@ -98,9 +98,11 @@ export default function Header({ theme = "dark" }: HeaderProps) {
   // Lock body scroll when menu is expanded
   useEffect(() => {
     if (expanded) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflowY = "hidden";
+      document.body.style.overflowX = "hidden";
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflowY = "auto";
+      document.body.style.overflowX = "hidden";
     }
   }, [expanded]);
 
@@ -161,13 +163,16 @@ export default function Header({ theme = "dark" }: HeaderProps) {
                         </span>
                       }
                       id="basic-nav-dropdown"
-                      className={`${styles.login} fw-bold`}
+                      className={`${styles.login} ${styles.customDropdown} fw-bold`}
                     >
+                      <NavDropdown.Item href="/dashboard">
+                        Dashboard
+                      </NavDropdown.Item>
                       <NavDropdown.Item href="/dashboard/profile">
                         Profile
                       </NavDropdown.Item>
-                      <NavDropdown.Divider />
-                      <NavDropdown.Item onClick={handleLogout}>
+                      <NavDropdown.Divider className={styles.dropdownDivider} />
+                      <NavDropdown.Item onClick={handleLogout} className={styles.logoutItem}>
                         Logout
                       </NavDropdown.Item>
                     </NavDropdown>
