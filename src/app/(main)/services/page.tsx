@@ -26,12 +26,13 @@ interface SubscriptionPlan {
     id: number;
     plan_name: string;
     description: string | null;
-    price: number;
+    price: number | null;
     duration_days: number;
     pickup_frequency: string | null;
     max_weight: number | null;
     features: string | null;
     is_popular: boolean;
+    is_tentative_price: boolean;
 }
 
 export default function ServicesPage() {
@@ -178,6 +179,19 @@ export default function ServicesPage() {
         return `Rp ${price}`;
     };
 
+    // Helper to format price for display (handles tentative prices)
+    const formatPriceForDisplay = (plan: SubscriptionPlan) => {
+        if (plan.is_tentative_price) {
+            return 'Estimasi Biaya Total';
+        }
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(plan.price ?? 0);
+    };
+
     // Helper to parse features
     const parseFeatures = (features: string | null): string[] => {
         if (!features) return [];
@@ -321,84 +335,59 @@ export default function ServicesPage() {
                 </div>
                 {/* USING PRICING.MODULE.CSS FOR EXACT MATCH */}
                 <div className={pricingStyles.pricingGrid}>
-                    {/* 1. Paket Individu */}
-                    <div className={pricingStyles.pricingCard}>
-                        <div className={pricingStyles.cardHeader}>
-                            <h3>Paket Individu</h3>
-                            <div className={pricingStyles.price}>
-                                Rp 49.000<span>/bulan</span>
-                            </div>
-                            <p className={pricingStyles.description}>Rumah tangga & pengguna personal</p>
+                    {pricingPlans.length === 0 ? (
+                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>
+                            <p>Memuat paket langganan...</p>
                         </div>
-                        <ul className={pricingStyles.features}>
-                            <li><span className={pricingStyles.check}>✓</span> Kuota sampah: 30 kg / bulan</li>
-                            <li><span className={pricingStyles.check}>✓</span> Pickup: 2x per minggu</li>
-                            <li><span className={pricingStyles.check}>✓</span> Jadwal pick up flexibel</li>
-                            <li><span className={pricingStyles.check}>✓</span> Multi lokasi</li>
-                            <li><span className={pricingStyles.check}>✓</span> Dashboard monitoring</li>
-                        </ul>
-                        <button
-                            onClick={() => openPaymentModal('Paket Individu', 'Rp 49.000')}
-                            className={pricingStyles.ctaBtn}
-                            style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
-                        >
-                            Pilih Paket
-                        </button>
-                    </div>
+                    ) : (
+                        pricingPlans.map((plan) => {
+                            const isTentative = plan.is_tentative_price === true || (plan.is_tentative_price as any) === 1;
+                            const isPopular = plan.is_popular === true || (plan.is_popular as any) === 1;
+                            const features = parseFeatures(plan.features);
+                            const priceDisplay = formatPriceForDisplay(plan);
 
-                    {/* 2. Paket Bisnis */}
-                    <div className={`${pricingStyles.pricingCard} ${pricingStyles.popular}`}>
-                        <div className={pricingStyles.popularBadge}>Best Value</div>
-                        <div className={pricingStyles.cardHeader}>
-                            <h3>Paket Bisnis</h3>
-                            <div className={pricingStyles.price}>
-                                Rp 299.000<span>/bulan</span>
-                            </div>
-                            <p className={pricingStyles.description}>UMKM, kantor, restoran, bisnis skala menengah</p>
-                        </div>
-                        <ul className={pricingStyles.features}>
-                            <li><span className={pricingStyles.check}>✓</span> Kuota sampah: 300 kg / bulan</li>
-                            <li><span className={pricingStyles.check}>✓</span> Pickup: 7x per minggu</li>
-                            <li><span className={pricingStyles.check}>✓</span> Jadwal pick up flexibel</li>
-                            <li><span className={pricingStyles.check}>✓</span> Multi lokasi outlet</li>
-                            <li><span className={pricingStyles.check}>✓</span> Dashboard monitoring</li>
-                        </ul>
-                        <button
-                            onClick={() => openPaymentModal('Paket Bisnis', 'Rp 299.000')}
-                            className={pricingStyles.ctaBtn}
-                            style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
-                        >
-                            Pilih Paket
-                        </button>
-                    </div>
-
-                    {/* 3. Paket Event */}
-                    <div className={pricingStyles.pricingCard}>
-                        <div className={pricingStyles.popularBadge} style={{ background: '#2f5e44' }}>Custom</div>
-                        <div className={pricingStyles.cardHeader}>
-                            <h3>Paket Event</h3>
-                            <div className={pricingStyles.price} style={{ fontSize: '2rem' }}>
-                                Estimasi Biaya Total
-                            </div>
-                            <p className={pricingStyles.description}>Tidak menggunakan harga & kuota statis.</p>
-                        </div>
-                        <ul className={pricingStyles.features}>
-                            <li><span className={pricingStyles.check}>✓</span> Form Demo Estimasi Biaya</li>
-                            <li><span className={pricingStyles.check}>✓</span> Cocok untuk event apapun</li>
-                            <li><span className={pricingStyles.check}>✓</span> Tanpa kuota statis</li>
-                            <li><span className={pricingStyles.check}>✓</span> Opsi Branding & Support</li>
-                            <li><span className={pricingStyles.check}>✓</span> Jadwal pick up flexibel</li>
-                            <li><span className={pricingStyles.check}>✓</span> Multi lokasi</li>
-                            <li><span className={pricingStyles.check}>✓</span> Dashboard monitoring</li>
-                        </ul>
-                        <button
-                            onClick={() => calculatorRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                            className={pricingStyles.ctaBtn}
-                            style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
-                        >
-                            Hitung Estimasi
-                        </button>
-                    </div>
+                            return (
+                                <div
+                                    key={plan.id}
+                                    className={`${pricingStyles.pricingCard} ${isPopular ? pricingStyles.popular : ''}`}
+                                >
+                                    {isPopular && <div className={pricingStyles.popularBadge}>Best Value</div>}
+                                    {isTentative && !isPopular && (
+                                        <div className={pricingStyles.popularBadge} style={{ background: '#2f5e44' }}>Custom</div>
+                                    )}
+                                    <div className={pricingStyles.cardHeader}>
+                                        <h3>{plan.plan_name}</h3>
+                                        <div className={pricingStyles.price} style={isTentative ? { fontSize: '2rem' } : {}}>
+                                            {priceDisplay}<span>{isTentative ? '' : `/${plan.duration_days} hari`}</span>
+                                        </div>
+                                        <p className={pricingStyles.description}>{plan.description || ''}</p>
+                                    </div>
+                                    <ul className={pricingStyles.features}>
+                                        {features.map((feature, idx) => (
+                                            <li key={idx}><span className={pricingStyles.check}>✓</span> {feature}</li>
+                                        ))}
+                                    </ul>
+                                    {isTentative ? (
+                                        <button
+                                            onClick={() => calculatorRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                            className={pricingStyles.ctaBtn}
+                                            style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
+                                        >
+                                            Hitung Estimasi
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => openPaymentModal(plan.plan_name, priceDisplay)}
+                                            className={pricingStyles.ctaBtn}
+                                            style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
+                                        >
+                                            Pilih Paket
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
             </section>
 
@@ -645,7 +634,7 @@ export default function ServicesPage() {
                                     {paymentMethod === 'qris' && (
                                         <div className={pricingStyles.qrisPlaceholder}>
                                             <img src="/assets/qr-payment-dummy.svg" alt="QRIS" width={150} />
-                                            <p style={{ marginTop: '1rem' }}>Scan menggunakan aplikasi pembayaran apapun.</p>
+                                            <p style={{ marginTop: '1rem', textAlign: 'center' }}>Scan menggunakan aplikasi pembayaran apapun.</p>
                                         </div>
                                     )}
 
@@ -679,7 +668,7 @@ export default function ServicesPage() {
                                                     <span>File berhasil diupload</span>
                                                 </div>
                                             ) : (
-                                                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Klik untuk upload file (JPG, PNG, PDF)</p>
+                                                <p style={{ color: '#64748b', fontSize: '0.9rem', margin: '0' }}>Klik untuk upload file (JPG, PNG, PDF)</p>
                                             )}
                                         </div>
                                     </div>

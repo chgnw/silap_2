@@ -63,6 +63,36 @@ export default function PickUpPage() {
     if (!session) router.push("/login");
   }, [session]);
 
+  // Check subscription status - only subscribed users can access pickup
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!session?.user?.id) return;
+
+      try {
+        const response = await fetch("/api/dashboard/subscription", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: session.user.id }),
+        });
+
+        const result = await response.json();
+
+        if (result.status === "pending_payment") {
+          // Pending payment users can access dashboard but not pickup
+          showToast("error", "Pembayaran kamu masih menunggu verifikasi admin.");
+          router.push("/dashboard");
+        } else if (result.status === "not_subscribed") {
+          // Not subscribed users cannot access dashboard at all
+          router.push("/pricing");
+        }
+      } catch (error) {
+        console.error("Failed to check subscription:", error);
+      }
+    };
+
+    checkSubscription();
+  }, [session?.user?.id, router]);
+
   // Data
   const [vehicleOptions, setVehicleOptions] = useState<OptionItem[]>([]);
   const [pickupOptions, setPickupOptions] = useState<OptionItem[]>([]);
@@ -392,34 +422,64 @@ export default function PickUpPage() {
   const handleSubmit = () => {
     // Validate required profile fields first
     const user = session?.user;
-    const missingFields: string[] = [];
+    const missingProfileFields: string[] = [];
 
-    if (!user?.first_name) missingFields.push("Nama Depan");
-    if (!user?.last_name) missingFields.push("Nama Belakang");
-    if (!user?.phone_number) missingFields.push("No. Telepon");
-    if (!user?.address) missingFields.push("Alamat");
+    if (!user?.first_name) missingProfileFields.push("Nama Depan");
+    if (!user?.last_name) missingProfileFields.push("Nama Belakang");
+    if (!user?.phone_number) missingProfileFields.push("No. Telepon");
+    if (!user?.address) missingProfileFields.push("Alamat");
 
-    if (missingFields.length > 0) {
+    if (missingProfileFields.length > 0) {
       showToast(
         "error",
-        `Lengkapi data profil terlebih dahulu: ${missingFields.join(", ")}. Silakan update di menu Profile.`
+        `Lengkapi data ${missingProfileFields.join(", ")} di menu profile.`
       );
       return;
     }
 
-    if (
-      !selectedDate ||
-      !selectedTime ||
-      weight === "" ||
-      !selectedPickupType ||
-      !selectedVehicle
-    ) {
-      showToast("error", "Mohon lengkapi informasi penjemputan sampah.");
+    // Validate pickup form fields
+    const missingFormFields: string[] = [];
+
+    if (!user?.phone_number || user.phone_number === "-") {
+      missingFormFields.push("Nomor Telepon");
+    }
+    if (!addressData.address || addressData.address === "Masukkan alamat pengiriman atau atur alamat pada menu profile.") {
+      missingFormFields.push("Alamat");
+    }
+    if (weight === "" || parseFloat(weight) <= 0) {
+      missingFormFields.push("Berat");
+    }
+    if (!selectedDate) {
+      missingFormFields.push("Tanggal");
+    }
+    if (!selectedTime) {
+      missingFormFields.push("Jam");
+    }
+    if (!pickupRegency) {
+      missingFormFields.push("Wilayah Pickup");
+    }
+    if (!selectedPickupType) {
+      missingFormFields.push("Tipe Pick Up");
+    }
+    if (!selectedVehicle) {
+      missingFormFields.push("Armada");
+    }
+
+    // Display validation errors based on number of missing fields
+    if (missingFormFields.length > 2) {
+      showToast("error", "Pastikan semua data terisi.");
+      return;
+    } else if (missingFormFields.length === 2) {
+      showToast("error", `${missingFormFields[0]} dan ${missingFormFields[1]} belum diisi.`);
+      return;
+    } else if (missingFormFields.length === 1) {
+      showToast("error", `${missingFormFields[0]} belum diisi.`);
       return;
     }
 
-    if (!pickupRegency) {
-      showToast("error", "Mohon pilih wilayah pickup.");
+    // Check for overload
+    if (isTotalOverload) {
+      showToast("error", `Berat melebihi kapasitas maksimum armada (${maxCapacity}kg).`);
       return;
     }
 
@@ -632,8 +692,8 @@ export default function PickUpPage() {
                   <div
                     key={vehicle.id}
                     className={`${style.vehicleOptionItem} ${selectedVehicle?.id === vehicle.id
-                        ? style.activeOption
-                        : ""
+                      ? style.activeOption
+                      : ""
                       }`}
                     style={{
                       opacity: isOverweight ? 0.5 : 1,
@@ -779,8 +839,8 @@ export default function PickUpPage() {
                 <div
                   key={option.id}
                   className={`${style.vehicleOptionItem} ${selectedPickupType?.id === option.id
-                      ? style.activeOption
-                      : ""
+                    ? style.activeOption
+                    : ""
                     }`}
                   onClick={() => handleSelectPickupType(option)}
                 >

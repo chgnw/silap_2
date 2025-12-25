@@ -364,8 +364,8 @@
 }
 .rightSide :global(.fc-button-primary),
 .rightSide :global(.fc-button-primary:disabled) {
-  background-color: #a4b465;
-  color: #000000;
+  background-color: rgb(47, 94, 68);
+  color: #F1F6EF;
   border: none;
   border-radius: 4px;
 }

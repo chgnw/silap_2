@@ -2,7 +2,7 @@
   display: flex;
   width: 100%;
   height: 100vh;
-  background-color: #E2EBC0;
+  background-color: #f1f6ef;
 }
 
 .contentWrapper {
@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2rem;
-  background-color: #E2EBC0;
+  background-color: #f1f6ef;
   position: sticky;
   top: 0;
   z-index: 0;
@@ -30,7 +30,7 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: var(--color-primary);
+  color: rgb(47, 94, 68);
   cursor: pointer;
 }
 
@@ -106,7 +106,7 @@
   flex-direction: column;
   gap: 1.5rem;
   flex: 1;
-  background-color: #E2EBC0;
+  background-color: transparent;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -284,7 +284,7 @@
 }
 
 .tierIcon {
-  color: var(--color-primary);
+  color: rgb(47, 94, 68);
   flex-shrink: 0;
 }
 
@@ -312,7 +312,7 @@
 .userTier span {
   font-size: 1.2rem;
   font-weight: bold;
-  color: var(--color-primary);
+  color: rgb(47, 94, 68);
 }
 
 .errorContainer {
@@ -334,7 +334,7 @@
 
 .secondRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, calc((100% - 2rem) / 3));
   gap: 1rem;
 }
 
@@ -411,7 +411,7 @@
 
 /* Total Sampah Card */
 .totalSampahCard {
-  background-color: var(--color-primary);
+  background-color: rgb(47, 94, 68);
   flex: 1;
 }
 
@@ -423,8 +423,8 @@
 }
 
 .totalSampahCard .cardSymbol {
-  background-color: var(--color-white);
-  color: var(--color-primary);
+  background-color: #f1f6ef;
+  color: rgb(47, 94, 68);
 }
 
 /* Total Point Card */
@@ -440,12 +440,12 @@
 }
 
 .totalPointCard .cardSymbol {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
+  background-color: rgb(47, 94, 68);
+  color: #f1f6ef;
 }
 
 .totalPointCard .cardFooter span {
-  color: var(--color-primary);
+  color: rgb(47, 94, 68);
 }
 
 /* Total Streak Card */
@@ -461,8 +461,8 @@
 }
 
 .totalStreakCard .cardSymbol {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  background-color: rgb(47, 94, 68);
+  color: #f1f6ef;
 }
 
 /* Streak Icon States */
@@ -481,8 +481,9 @@
    ======================================== */
 
 .lastRow {
+  height: 100%;
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: calc((100% - 2rem) / 3) calc(2 * (100% - 2rem) / 3 + 1rem);
   align-items: stretch;
   gap: 1rem;
 }
@@ -512,8 +513,8 @@
 }
 
 .leftTargetSymbol {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  background-color: rgb(47, 94, 68);
+  color: #f1f6ef;
   border-radius: 50%;
   padding: 0.5rem;
   width: 40px;
@@ -538,7 +539,7 @@
 
 .leftTargetProgressPercentage p {
   width: 70px;
-  font-size: 1.275rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-black);
 }
@@ -546,7 +547,7 @@
 .leftTargetProgressBarContainer {
   flex: 1;
   height: 26px;
-  background: #E2EBC0;
+  background: var(--color-primary-light);
   border-radius: 1rem;
   overflow: hidden;
   min-width: 0;
@@ -554,7 +555,7 @@
 
 .leftTargetProgressBarOverlay {
   height: 100%;
-  background-color: var(--color-primary);
+  background-color: rgb(47, 94, 68);
   border-radius: 1rem;
   display: flex;
   align-items: center;
@@ -615,8 +616,8 @@
 }
 
 .pieChartSymbol {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  background-color: rgb(47, 94, 68);
+  color: #f1f6ef;
   border-radius: 50%;
   padding: 0.5rem;
   width: 40px;
@@ -688,8 +689,8 @@
 }
 
 .lineChartSymbol {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  background-color: rgb(47, 94, 68);
+  color: #f1f6ef;
   border-radius: 50%;
   padding: 0.5rem;
   width: 40px;
@@ -743,7 +744,7 @@
   justify-content: center;
   text-align: center;
   min-height: 250px;
-  color: var(--color-gray);
+  color: var(--color-light-gray);
   flex: 1;
 }
 
@@ -1083,8 +1084,8 @@
 }
 
 .subscriptionCardSymbol {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  background-color: rgb(47, 94, 68);
+  color: #f1f6ef;
   border-radius: 50%;
   padding: 0.5rem;
   width: 40px;
@@ -1093,6 +1094,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.subscriptionCardContent {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .subscriptionCardBody {
@@ -1105,7 +1114,7 @@
 .subscriptionCardBody h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: rgb(47, 94, 68);
 }
 
 .subscriptionCardBody span {
@@ -1114,10 +1123,8 @@
 }
 
 .subscriptionCardFooter {
-  width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-end;
   gap: 0.5rem;
 }
 
@@ -1146,4 +1153,14 @@
 
 .renewButton:hover {
   background-color: #d35400;
+}
+
+.pendingBadge {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-primary);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
