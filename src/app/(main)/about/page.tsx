@@ -32,8 +32,9 @@ export default function AboutPage() {
       name: 'Abdi Abiyasa',
       role: 'Chief Operating Officer',
       major: 'Computer Science Binus',
-      image: 'https://ui-avatars.com/api/?name=User+Three&background=random&size=400',
-      linkedin: 'https://www.linkedin.com/in/abdiabiyasa/'
+      image: '/assets/Abdi Abiyasa_COO.png',
+      linkedin: 'https://www.linkedin.com/in/abdiabiyasa/',
+      objectPosition: 'center 50%'
     },
   ];
 
