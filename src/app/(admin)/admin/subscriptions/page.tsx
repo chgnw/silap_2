@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { FaEye, FaEdit, FaTrash, FaCheckCircle } from "react-icons/fa";
+import { FaEye, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 import { showToast } from "@/lib/toastHelper";
 import AdminTable from "../../../components/Large/DataTable/DataTable";
@@ -109,6 +109,20 @@ export default function SubscriptionsPage() {
     const [selectedPayment, setSelectedPayment] = useState<PendingPayment | null>(null);
     const [referenceNumber, setReferenceNumber] = useState("");
     const [referenceError, setReferenceError] = useState("");
+
+    // Cancel Payment States
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [cancelReason, setCancelReason] = useState("");
+    const [customCancelReason, setCustomCancelReason] = useState("");
+
+    const CANCEL_REASONS = [
+        "Bukti pembayaran tidak valid",
+        "Nominal pembayaran tidak sesuai",
+        "Bukti pembayaran tidak jelas/blur",
+        "Pembayaran duplikat",
+        "Request dari customer",
+        "Lainnya",
+    ];
 
     // =========================================
     // PAYMENT HISTORY SECTION
@@ -366,6 +380,56 @@ export default function SubscriptionsPage() {
     };
 
     // =========================================
+    // CANCEL PAYMENT ACTIONS
+    // =========================================
+    const handleOpenCancelModal = (payment: PendingPayment) => {
+        setSelectedPayment(payment);
+        setCancelReason("");
+        setCustomCancelReason("");
+        setIsCancelModalOpen(true);
+    };
+
+    const handleCancelPayment = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const finalReason = cancelReason === "Lainnya" ? customCancelReason : cancelReason;
+
+        if (!finalReason || finalReason.trim() === "") {
+            showToast("error", "Alasan pembatalan harus diisi");
+            return;
+        }
+
+        if (!selectedPayment) return;
+
+        setIsSubmitting(true);
+        try {
+            const response = await fetch("/api/admin/subscription/cancel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    payment_id: selectedPayment.id,
+                    cancel_reason: finalReason.trim(),
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.message === "SUCCESS") {
+                showToast("success", "Payment cancelled successfully");
+                setIsCancelModalOpen(false);
+                fetchPendingPayments();
+            } else {
+                showToast("error", result.error || result.detail || "Cancellation failed");
+            }
+        } catch (error) {
+            console.error("Error cancelling payment:", error);
+            showToast("error", "Error cancelling payment");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // =========================================
     // PAYMENT HISTORY ACTIONS
     // =========================================
     const handleViewHistory = (history: PaymentHistory) => {
@@ -533,6 +597,13 @@ export default function SubscriptionsPage() {
                             style={{ backgroundColor: "#d4edda" }}
                         >
                             <FaCheckCircle />
+                        </button>
+                        <button
+                            onClick={() => handleOpenCancelModal(row.original)}
+                            className={`${styles.btnAction} ${styles.btnDelete}`}
+                            title="Cancel Payment"
+                        >
+                            <FaTimesCircle />
                         </button>
                     </div>
                 ),
@@ -1046,11 +1117,21 @@ export default function SubscriptionsPage() {
                                 type="button"
                                 onClick={() => {
                                     setIsViewPaymentModalOpen(false);
+                                    handleOpenCancelModal(selectedPayment);
+                                }}
+                                className={`${styles.btnBase} ${styles.btnDeleteConfirm}`}
+                            >
+                                Reject
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsViewPaymentModalOpen(false);
                                     handleOpenVerifyModal(selectedPayment);
                                 }}
                                 className={`${styles.btnBase} ${styles.btnSave}`}
                             >
-                                Verify Payment
+                                Verify
                             </button>
                         </div>
                     </div>
@@ -1075,6 +1156,10 @@ export default function SubscriptionsPage() {
                         >
                             <p style={{ fontWeight: "600", marginBottom: "0.5rem" }}>
                                 Payment Summary
+                            </p>
+                            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+                                <strong>Transaction Code:</strong>{" "}
+                                <span style={{ fontFamily: "monospace" }}>{selectedPayment.transaction_code}</span>
                             </p>
                             <p style={{ fontSize: "0.9rem", color: "#666" }}>
                                 <strong>Customer:</strong> {selectedPayment.first_name}{" "}
@@ -1261,6 +1346,121 @@ export default function SubscriptionsPage() {
                             </button>
                         </div>
                     </div>
+                )}
+            </Modal>
+
+            {/* Cancel Payment Modal */}
+            <Modal
+                isOpen={isCancelModalOpen}
+                onClose={() => !isSubmitting && setIsCancelModalOpen(false)}
+                title="Cancel Payment"
+            >
+                {selectedPayment && (
+                    <form className={styles.singleLayout} onSubmit={handleCancelPayment}>
+                        <div
+                            style={{
+                                backgroundColor: "#fef2f2",
+                                padding: "1rem",
+                                borderRadius: "8px",
+                                border: "1px solid #fecaca",
+                            }}
+                        >
+                            <p style={{ fontWeight: "600", marginBottom: "0.5rem", color: "#dc2626" }}>
+                                Payment Summary
+                            </p>
+                            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+                                <strong>Transaction Code:</strong>{" "}
+                                <span style={{ fontFamily: "monospace" }}>{selectedPayment.transaction_code}</span>
+                            </p>
+                            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+                                <strong>Customer:</strong> {selectedPayment.first_name}{" "}
+                                {selectedPayment.last_name || ""}
+                            </p>
+                            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+                                <strong>Plan:</strong> {selectedPayment.plan_name} (
+                                {selectedPayment.duration_days} days)
+                            </p>
+                            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+                                <strong>Amount:</strong>{" "}
+                                {new Intl.NumberFormat("id-ID", {
+                                    style: "currency",
+                                    currency: "IDR",
+                                    minimumFractionDigits: 0,
+                                }).format(selectedPayment.total_payment)}
+                            </p>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Alasan Pembatalan *</label>
+                            <select
+                                className={styles.formInput}
+                                value={cancelReason}
+                                onChange={(e) => {
+                                    setCancelReason(e.target.value);
+                                    if (e.target.value !== "Lainnya") {
+                                        setCustomCancelReason("");
+                                    }
+                                }}
+                                required
+                                style={{ cursor: "pointer" }}
+                            >
+                                <option value="">-- Pilih Alasan --</option>
+                                {CANCEL_REASONS.map((reason) => (
+                                    <option key={reason} value={reason}>
+                                        {reason}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {cancelReason === "Lainnya" && (
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Alasan Lainnya *</label>
+                                <textarea
+                                    className={styles.formInput}
+                                    value={customCancelReason}
+                                    onChange={(e) => setCustomCancelReason(e.target.value)}
+                                    placeholder="Tuliskan alasan pembatalan..."
+                                    rows={3}
+                                    required
+                                    style={{ resize: "vertical" }}
+                                />
+                            </div>
+                        )}
+
+                        <div
+                            style={{
+                                backgroundColor: "#fef3c7",
+                                padding: "1rem",
+                                borderRadius: "8px",
+                                border: "1px solid #fcd34d",
+                            }}
+                        >
+                            <p style={{ fontSize: "0.9rem", color: "#92400e" }}>
+                                ⚠️ Pembayaran yang dibatalkan akan mengirimkan notifikasi email
+                                ke customer berisi alasan pembatalan dan info pengembalian dana
+                                (2x24 jam).
+                            </p>
+                        </div>
+
+                        <div className={styles.modalFooter}>
+                            <button
+                                type="button"
+                                onClick={() => setIsCancelModalOpen(false)}
+                                className={`${styles.btnBase} ${styles.btnCancel}`}
+                                disabled={isSubmitting}
+                            >
+                                Back
+                            </button>
+                            <button
+                                type="submit"
+                                className={`${styles.btnBase} ${styles.btnDeleteConfirm}`}
+                                disabled={isSubmitting || !cancelReason || (cancelReason === "Lainnya" && !customCancelReason)}
+                            >
+                                {isSubmitting ? "Processing..." : "Cancel Payment"}
+                            </button>
+                        </div>
+                    </form>
                 )}
             </Modal>
         </div>

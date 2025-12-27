@@ -199,6 +199,7 @@
   font-size: 0.7rem;
   font-weight: 600;
   margin-left: auto;
+  margin-bottom: 0;
   min-width: 20px;
   text-align: center;
   animation: pulse 2s infinite;

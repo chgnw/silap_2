@@ -51,23 +51,27 @@ export default function ServicesPage() {
 
     // Payment Modal State
     const [showModal, setShowModal] = useState(false);
-    const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string } | null>(null);
+    const [selectedPlan, setSelectedPlan] = useState<{ id: number; name: string; price: string } | null>(null);
     const [paymentMethod, setPaymentMethod] = useState<'bank' | 'ewallet' | 'qris'>('bank');
-    const [paymentStep, setPaymentStep] = useState<'details' | 'success'>('details');
+    const [paymentStep, setPaymentStep] = useState<'details' | 'loading' | 'success' | 'error'>('details');
     const [proofUploaded, setProofUploaded] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [paymentError, setPaymentError] = useState('');
+    const [transactionCode, setTransactionCode] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const openPaymentModal = (planName: string, price: string) => {
+    const openPaymentModal = (planId: number, planName: string, price: string) => {
         if (status === 'unauthenticated') {
             router.push('/login?callbackUrl=/services');
             return;
         }
-        setSelectedPlan({ name: planName, price });
+        setSelectedPlan({ id: planId, name: planName, price });
         setPaymentStep('details');
         setPaymentMethod('bank');
-        setProofUploaded(false); // Reset upload state
+        setProofUploaded(false);
         setCopied(false);
+        setPaymentError('');
+        setTransactionCode('');
         setShowModal(true);
     };
 
@@ -83,11 +87,44 @@ export default function ServicesPage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handlePaymentSubmit = () => {
-        // Simulate API call
-        setTimeout(() => {
+    const handlePaymentSubmit = async () => {
+        if (!selectedPlan) return;
+
+        // Get the file from the file input
+        const file = fileInputRef.current?.files?.[0];
+        if (!file) {
+            setPaymentError('Silakan upload bukti pembayaran terlebih dahulu');
+            setPaymentStep('error');
+            return;
+        }
+
+        setPaymentStep('loading');
+        setPaymentError('');
+
+        try {
+            const formData = new FormData();
+            formData.append('subscription_plan_id', selectedPlan.id.toString());
+            formData.append('payment_method', paymentMethod);
+            formData.append('payment_proof', file);
+
+            const response = await fetch('/api/public/subscribe', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to submit payment');
+            }
+
+            setTransactionCode(result.data?.transaction_code || '');
             setPaymentStep('success');
-        }, 1000);
+        } catch (error: any) {
+            console.error('Payment error:', error);
+            setPaymentError(error.message || 'Terjadi kesalahan saat memproses pembayaran');
+            setPaymentStep('error');
+        }
     };
 
     // Fleet carousel pagination
@@ -377,7 +414,7 @@ export default function ServicesPage() {
                                         </button>
                                     ) : (
                                         <button
-                                            onClick={() => openPaymentModal(plan.plan_name, priceDisplay)}
+                                            onClick={() => openPaymentModal(plan.id, plan.plan_name, priceDisplay)}
                                             className={pricingStyles.ctaBtn}
                                             style={{ textAlign: 'center', width: '100%', cursor: 'pointer' }}
                                         >
@@ -536,6 +573,11 @@ export default function ServicesPage() {
                                 <p style={{ marginBottom: '1rem', animation: 'fadeIn 0.5s ease 0.3s backwards' }}>
                                     Terima kasih telah berlangganan <strong>{selectedPlan.name}</strong>.
                                 </p>
+                                {transactionCode && (
+                                    <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', animation: 'fadeIn 0.5s ease 0.3s backwards' }}>
+                                        Kode Transaksi: <strong>{transactionCode}</strong>
+                                    </p>
+                                )}
 
                                 <div style={{
                                     background: '#f0fdf4',
@@ -563,6 +605,15 @@ export default function ServicesPage() {
                                     Tutup
                                 </button>
                             </div>
+                        ) : paymentStep === 'error' ? (
+                            <div className={pricingStyles.successState}>
+                                <div className={pricingStyles.successIcon} style={{ backgroundColor: '#ED1C24' }}>✗</div>
+                                <h3>Gagal Memproses</h3>
+                                <p>{paymentError}</p>
+                                <button className={pricingStyles.payBtn} onClick={() => setPaymentStep('details')}>
+                                    Coba Lagi
+                                </button>
+                            </div>
                         ) : (
                             <>
                                 <h3 className={pricingStyles.modalTitle}>Pembayaran</h3>
@@ -575,18 +626,21 @@ export default function ServicesPage() {
                                     <button
                                         className={`${pricingStyles.tabBtn} ${paymentMethod === 'bank' ? pricingStyles.active : ''}`}
                                         onClick={() => setPaymentMethod('bank')}
+                                        disabled={paymentStep === 'loading'}
                                     >
                                         Transfer Bank
                                     </button>
                                     <button
                                         className={`${pricingStyles.tabBtn} ${paymentMethod === 'ewallet' ? pricingStyles.active : ''}`}
                                         onClick={() => setPaymentMethod('ewallet')}
+                                        disabled={paymentStep === 'loading'}
                                     >
                                         E-Wallet
                                     </button>
                                     <button
                                         className={`${pricingStyles.tabBtn} ${paymentMethod === 'qris' ? pricingStyles.active : ''}`}
                                         onClick={() => setPaymentMethod('qris')}
+                                        disabled={paymentStep === 'loading'}
                                     >
                                         QRIS
                                     </button>
@@ -677,13 +731,13 @@ export default function ServicesPage() {
                                 <button
                                     className={pricingStyles.payBtn}
                                     onClick={handlePaymentSubmit}
-                                    disabled={!proofUploaded}
+                                    disabled={paymentStep === 'loading' || !proofUploaded}
                                     style={{
                                         opacity: proofUploaded ? 1 : 0.5,
                                         cursor: proofUploaded ? 'pointer' : 'not-allowed'
                                     }}
                                 >
-                                    Konfirmasi Pembayaran
+                                    {paymentStep === 'loading' ? 'Memproses...' : 'Konfirmasi Pembayaran'}
                                 </button>
                             </>
                         )}
