@@ -21,10 +21,8 @@ export default function Footer() {
                             Solusi manajemen sampah terintegrasi untuk masa depan yang lebih hijau dan berkelanjutan.
                         </p>
                         <div className={styles.socials}>
-                            <a href="#" aria-label="Instagram"><FaInstagram /></a>
-                            <a href="#" aria-label="LinkedIn"><FaLinkedin /></a>
-                            <a href="#" aria-label="Twitter"><FaTwitter /></a>
-                            <a href="#" aria-label="WhatsApp"><FaWhatsapp /></a>
+                            <a href="https://www.instagram.com/silapforeveryone.id/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
+                            <a href="https://api.whatsapp.com/send/?phone=6285128060864&text&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><FaWhatsapp /></a>
                         </div>
                     </div>
 
@@ -52,7 +50,7 @@ export default function Footer() {
                         <p>123 Green Street, Eco District</p>
                         <p>Jakarta Selatan, 12000</p>
                         <p className={styles.email}>silap4everyone@gmail.com</p>
-                        <p>+62 812 3456 7890</p>
+                        <p>+62 851 2806 0864</p>
                     </div>
                 </div>
 

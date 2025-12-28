@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/webp", "image/avif"],
   },
+  output: "standalone",
 };
 
 export default nextConfig;

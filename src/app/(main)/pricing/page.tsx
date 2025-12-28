@@ -414,31 +414,31 @@ function PricingContent() {
                   >
                     E-Wallet
                   </button>
-                  <button
+                  {/* <button
                     className={`${styles.tabBtn} ${paymentMethod === 'qris' ? styles.active : ''}`}
                     onClick={() => setPaymentMethod('qris')}
                     disabled={paymentStatus === 'loading'}
                   >
                     QRIS
-                  </button>
+                  </button> */}
                 </div>
 
                 <div className={styles.paymentContent}>
                   {paymentMethod === 'bank' && (
                     <div className={styles.bankInfo}>
-                      <span className={styles.infoLabel}>Bank BCA (PT Silap Indonesia)</span>
-                      <span className={styles.accountNumber}>8230 1234 5678</span>
-                      <button className={styles.copyBtn} onClick={() => handleCopy('823012345678')}>
+                      <span className={styles.infoLabel}>Bank Jago (Pradipa Javier Fatah)</span>
+                          <span className={styles.accountNumber}>1089 4784 3487</span>
+                          <button className={styles.copyBtn} onClick={() => handleCopy('108947843487')}>
                         {copied ? 'Berhasil Disalin! ✓' : 'Salin No. Rek'}
                       </button>
 
                       <div className={styles.instructions} style={{ textAlign: 'left', marginTop: '1.5rem' }}>
                         <h4>Tutorial Pembayaran:</h4>
                         <ol style={{ fontSize: '0.9rem', paddingLeft: '1.2rem' }}>
-                          <li>Buka M-Banking BCA atau ATM.</li>
+                          <li>Buka M-Banking atau ATM.</li>
                           <li>Pilih Transfer Antar Rekening.</li>
                           <li>Masukkan No. Rekening di atas.</li>
-                          <li>Pastikan nama penerima <strong>PT Silap Indonesia</strong>.</li>
+                          <li>Pastikan nama penerima <strong>Pradipa Javier Fatah</strong>.</li>
                           <li>Simpan bukti/struk transfer.</li>
                         </ol>
                       </div>
@@ -448,8 +448,8 @@ function PricingContent() {
                   {paymentMethod === 'ewallet' && (
                     <div className={styles.ewalletInfo}>
                       <span className={styles.infoLabel}>OVO / Gopay / Dana</span>
-                      <span className={styles.accountNumber}>0812 3456 7890</span>
-                      <button className={styles.copyBtn} onClick={() => handleCopy('081234567890')}>
+                      <span className={styles.accountNumber}>0822 1012 1242</span>
+                      <button className={styles.copyBtn} onClick={() => handleCopy('082210121242')}>
                         {copied ? 'Berhasil Disalin! ✓' : 'Salin Nomor'}
                       </button>
                       <div className={styles.instructions} style={{ textAlign: 'left', marginTop: '1.5rem' }}>
@@ -458,18 +458,19 @@ function PricingContent() {
                           <li>Buka aplikasi E-Wallet kamu.</li>
                           <li>Pilih menu Transfer / Kirim ke Nomor.</li>
                           <li>Masukkan nomor di atas.</li>
+                          <li>Pastikan nama penerima <strong>Pradipa Javier Fatah</strong>.</li>
                           <li>Simpan bukti/struk transfer.</li>
                         </ol>
                       </div>
                     </div>
                   )}
 
-                  {paymentMethod === 'qris' && (
+                  {/* {paymentMethod === 'qris' && (
                     <div className={styles.qrisPlaceholder}>
                       <img src="/assets/qr-payment-dummy.svg" alt="QRIS" width={150} />
                       <p style={{ marginTop: '1rem', textAlign: 'center' }}>Scan menggunakan aplikasi pembayaran apapun.</p>
                     </div>
-                  )}
+                  )} */}
 
                   {/* Upload Proof Form */}
                   <div style={{ marginTop: '2rem', borderTop: '2px dashed #e2e8f0', paddingTop: '1.5rem' }}>

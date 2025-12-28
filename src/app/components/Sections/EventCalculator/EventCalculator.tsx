@@ -204,7 +204,7 @@ export default function EventCalculator() {
                         <button
                             className={styles.btnPrimary}
                             style={{ backgroundColor: '#A4B465', borderColor: '#A4B465', color: 'white' }}
-                            onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
+                            onClick={() => window.open('https://wa.me/6285128060864', '_blank')}
                         >
                             Hubungi WhatsApp
                         </button>
