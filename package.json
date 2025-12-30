@@ -6,7 +6,8 @@
     "dev": "next dev -p 3001",
     "build": "SKIP_LINT=true next build",
     "start": "next start -p 3001",
-    "lint": "next lint"
+    "lint": "next lint",
+    "rebuild": "npm install && NODE_OPTIONS='--max-old-space-size=3072' npm run build && pm2 restart silap"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.20",
