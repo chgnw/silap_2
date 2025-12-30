@@ -156,11 +156,11 @@ export default function DashboardLayout({
             </nav>
           </div>
 
-          <div className={styles.headerRight}>
+          {/* <div className={styles.headerRight}>
             <button className={styles.notificationButton}>
               <FaBell />
             </button>
-          </div>
+          </div> */}
         </header>
         <main className={styles.pageContent}>
           <Toaster position="top-center" reverseOrder={false} />

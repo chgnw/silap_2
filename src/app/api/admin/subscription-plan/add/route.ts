@@ -28,33 +28,68 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check for duplicate plan name
-        const checkSql = `SELECT id FROM ms_subscription_plan WHERE plan_name = ?`;
+        // Check for existing plan with same name
+        const checkSql = `SELECT id, is_active FROM ms_subscription_plan WHERE plan_name = ?`;
         const existing = await query(checkSql, [plan_name]) as any[];
+
         if (existing.length > 0) {
-            return NextResponse.json(
-                { error: "Plan with this name already exists" },
-                { status: 409 }
-            );
+            const existingPlan = existing[0];
+
+            // If active plan exists, return error
+            if (existingPlan.is_active) {
+                return NextResponse.json(
+                    { error: "Plan with this name already exists" },
+                    { status: 409 }
+                );
+            }
+
+            // If inactive plan exists, reactivate and update it
+            const updateSql = `
+                UPDATE ms_subscription_plan 
+                SET is_active = TRUE,
+                    description = ?,
+                    price = ?,
+                    duration_days = ?,
+                    pickup_frequency = ?,
+                    max_weight = ?,
+                    features = ?,
+                    is_popular = ?,
+                    is_tentative_price = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `;
+
+            await query(updateSql, [
+                description || null,
+                is_tentative_price ? null : price,
+                duration_days,
+                pickup_frequency || null,
+                max_weight || null,
+                features || null,
+                is_popular || false,
+                is_tentative_price || false,
+                existingPlan.id
+            ]);
+        } else {
+            // No existing plan, insert new one
+            const insertSql = `
+                INSERT INTO ms_subscription_plan 
+                (plan_name, description, price, duration_days, pickup_frequency, max_weight, features, is_popular, is_tentative_price)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+
+            await query(insertSql, [
+                plan_name,
+                description || null,
+                is_tentative_price ? null : price,
+                duration_days,
+                pickup_frequency || null,
+                max_weight || null,
+                features || null,
+                is_popular || false,
+                is_tentative_price || false
+            ]);
         }
-
-        const sql = `
-            INSERT INTO ms_subscription_plan 
-            (plan_name, description, price, duration_days, pickup_frequency, max_weight, features, is_popular, is_tentative_price)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        await query(sql, [
-            plan_name,
-            description || null,
-            is_tentative_price ? null : price,
-            duration_days,
-            pickup_frequency || null,
-            max_weight || null,
-            features || null,
-            is_popular || false,
-            is_tentative_price || false
-        ]);
 
         return NextResponse.json(
             {
