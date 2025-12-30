@@ -20,52 +20,100 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if category name already exists
+    // Check if category name already exists (case-insensitive)
     const checkSql = `
-      SELECT id FROM ms_vehicle_category 
-      WHERE category_name = ?
+      SELECT id, is_active FROM ms_vehicle_category 
+      WHERE LOWER(category_name) = LOWER(?)
     `;
     const existing = (await query(checkSql, [category_name])) as any[];
+
     if (existing.length > 0) {
-      return NextResponse.json(
-        { error: "Category with this name already exists" },
-        { status: 409 }
-      );
+      const existingCategory = existing[0];
+
+      // If active category exists, return error
+      if (existingCategory.is_active) {
+        return NextResponse.json(
+          { error: "Category with this name already exists" },
+          { status: 409 }
+        );
+      }
+
+      // If inactive category exists, reactivate and update it
+      // Handle image upload
+      let imagePath: string | null = null;
+      if (imageFile && imageFile.size > 0) {
+        const bytes = await imageFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        // Create unique filename
+        const ext = imageFile.name.split(".").pop();
+        const filename = `${Date.now()}-${category_name.replace(/\s+/g, "-").toLowerCase()}.${ext}`;
+        const uploadDir = path.join(process.cwd(), "public", "upload", "vehicle-category");
+
+        // Ensure directory exists
+        await mkdir(uploadDir, { recursive: true });
+
+        const filePath = path.join(uploadDir, filename);
+        await writeFile(filePath, buffer);
+
+        imagePath = `/upload/vehicle-category/${filename}`;
+      }
+
+      const updateSql = `
+        UPDATE ms_vehicle_category 
+        SET is_active = TRUE,
+            category_name = ?,
+            min_weight = ?,
+            max_weight = ?,
+            description = ?,
+            image_path = COALESCE(?, image_path)
+        WHERE id = ?
+      `;
+
+      await query(updateSql, [
+        category_name,
+        min_weight ? parseFloat(min_weight) : 0,
+        max_weight ? parseFloat(max_weight) : null,
+        description || null,
+        imagePath,
+        existingCategory.id
+      ]);
+    } else {
+      // No existing category, insert new one
+      // Handle image upload
+      let imagePath: string | null = null;
+      if (imageFile && imageFile.size > 0) {
+        const bytes = await imageFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        // Create unique filename
+        const ext = imageFile.name.split(".").pop();
+        const filename = `${Date.now()}-${category_name.replace(/\s+/g, "-").toLowerCase()}.${ext}`;
+        const uploadDir = path.join(process.cwd(), "public", "upload", "vehicle-category");
+
+        // Ensure directory exists
+        await mkdir(uploadDir, { recursive: true });
+
+        const filePath = path.join(uploadDir, filename);
+        await writeFile(filePath, buffer);
+
+        imagePath = `/upload/vehicle-category/${filename}`;
+      }
+
+      const sql = `
+        INSERT INTO ms_vehicle_category 
+        (category_name, min_weight, max_weight, description, image_path)
+        VALUES (?, ?, ?, ?, ?)
+      `;
+
+      await query(sql, [
+        category_name,
+        min_weight ? parseFloat(min_weight) : 0,
+        max_weight ? parseFloat(max_weight) : null,
+        description || null,
+        imagePath,
+      ]);
     }
-
-    // Handle image upload
-    let imagePath: string | null = null;
-    if (imageFile && imageFile.size > 0) {
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      // Create unique filename
-      const ext = imageFile.name.split(".").pop();
-      const filename = `${Date.now()}-${category_name.replace(/\s+/g, "-").toLowerCase()}.${ext}`;
-      const uploadDir = path.join(process.cwd(), "public", "upload", "vehicle-category");
-
-      // Ensure directory exists
-      await mkdir(uploadDir, { recursive: true });
-
-      const filePath = path.join(uploadDir, filename);
-      await writeFile(filePath, buffer);
-
-      imagePath = `/upload/vehicle-category/${filename}`;
-    }
-
-    const sql = `
-      INSERT INTO ms_vehicle_category 
-      (category_name, min_weight, max_weight, description, image_path)
-      VALUES (?, ?, ?, ?, ?)
-    `;
-
-    await query(sql, [
-      category_name,
-      min_weight ? parseFloat(min_weight) : 0,
-      max_weight ? parseFloat(max_weight) : null,
-      description || null,
-      imagePath,
-    ]);
 
     return NextResponse.json(
       {
