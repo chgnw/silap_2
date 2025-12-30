@@ -451,6 +451,29 @@ export default function DriversVehiclesPage() {
         size: 50,
       },
       {
+        header: "Image",
+        accessorKey: "image_path",
+        cell: ({ row }) => (
+          <img
+            src={
+              row.original.image_path
+                ? `/upload/${row.original.image_path}`
+                : "/images/dummy.png"
+            }
+            alt={row.original.category_name}
+            style={{
+              width: "40px",
+              height: "40px",
+              objectFit: "cover",
+              borderRadius: "4px",
+            }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/images/dummy.png";
+            }}
+          />
+        ),
+      },
+      {
         header: "Category Name",
         accessorKey: "category_name",
       },
