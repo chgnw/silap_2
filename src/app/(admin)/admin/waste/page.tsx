@@ -175,6 +175,29 @@ export default function WastePage() {
         size: 50,
       },
       {
+        header: "Icon",
+        accessorKey: "icon_name",
+        cell: ({ row }) => (
+          <img
+            src={
+              row.original.icon_name
+                ? `/upload/${row.original.icon_name}`
+                : "/images/dummy.png"
+            }
+            alt={row.original.waste_category_name}
+            style={{
+              width: "40px",
+              height: "40px",
+              objectFit: "cover",
+              borderRadius: "4px",
+            }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/images/dummy.png";
+            }}
+          />
+        ),
+      },
+      {
         header: "Name",
         accessorKey: "waste_category_name",
       },
@@ -187,16 +210,6 @@ export default function WastePage() {
         header: "Points per Unit",
         accessorKey: "point_per_unit",
         cell: ({ getValue }) => getValue() || "0",
-      },
-      {
-        header: "Icon",
-        accessorKey: "icon_name",
-        cell: ({ getValue }) => {
-          const path = getValue() as string;
-          if (!path) return "-";
-
-          return path.split("/").pop();
-        },
       },
       {
         id: "actions",
@@ -231,7 +244,7 @@ export default function WastePage() {
   return (
     <div className={styles.pageContainer}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Master Waste Category Management</h1>
+        <h1 className={styles.pageTitle}>Waste Category Management</h1>
         <i className={styles.pageSubtitle}>
           Manage waste categories with points per unit system.
         </i>
@@ -248,9 +261,8 @@ export default function WastePage() {
       <Modal
         isOpen={isCatModalOpen}
         onClose={() => setIsCatModalOpen(false)}
-        title={`${
-          catMode === "add" ? "Add" : catMode === "edit" ? "Edit" : "Detail"
-        } Category`}
+        title={`${catMode === "add" ? "Add" : catMode === "edit" ? "Edit" : "Detail"
+          } Category`}
       >
         <form className={styles.splitLayout} onSubmit={handleSaveCategory}>
           <div className={styles.imageSection}>
