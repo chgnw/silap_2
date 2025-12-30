@@ -637,19 +637,19 @@ export default function ServicesPage() {
                                     >
                                         E-Wallet
                                     </button>
-                                    <button
+                                    {/* <button
                                         className={`${pricingStyles.tabBtn} ${paymentMethod === 'qris' ? pricingStyles.active : ''}`}
                                         onClick={() => setPaymentMethod('qris')}
                                         disabled={paymentStep === 'loading'}
                                     >
                                         QRIS
-                                    </button>
+                                    </button> */}
                                 </div>
 
                                 <div className={pricingStyles.paymentContent}>
                                     {paymentMethod === 'bank' && (
                                         <div className={pricingStyles.bankInfo}>
-                                            <span className={pricingStyles.infoLabel}>Bank BCA (PT Silap Indonesia)</span>
+                                            <span className={pricingStyles.infoLabel}>Bank Jago (Pradipa Javier Fatah)</span>
                                             <span className={pricingStyles.accountNumber}>8230 1234 5678</span>
                                             <button className={pricingStyles.copyBtn} onClick={() => handleCopy('823012345678')}>
                                                 {copied ? 'Berhasil Disalin! ✓' : 'Salin No. Rek'}
@@ -661,7 +661,7 @@ export default function ServicesPage() {
                                                     <li>Buka M-Banking BCA atau ATM.</li>
                                                     <li>Pilih Transfer Antar Rekening.</li>
                                                     <li>Masukkan No. Rekening di atas.</li>
-                                                    <li>Pastikan nama penerima <strong>PT Silap Indonesia</strong>.</li>
+                                                    <li>Pastikan nama penerima <strong>Pradipa Javier Fatah</strong>.</li>
                                                     <li>Simpan bukti/struk transfer.</li>
                                                 </ol>
                                             </div>
@@ -670,8 +670,8 @@ export default function ServicesPage() {
                                     {paymentMethod === 'ewallet' && (
                                         <div className={pricingStyles.ewalletInfo}>
                                             <span className={pricingStyles.infoLabel}>OVO / Gopay / Dana</span>
-                                            <span className={pricingStyles.accountNumber}>0812 3456 7890</span>
-                                            <button className={pricingStyles.copyBtn} onClick={() => handleCopy('081234567890')}>
+                                            <span className={pricingStyles.accountNumber}>0822 1012 1242</span>
+                                            <button className={pricingStyles.copyBtn} onClick={() => handleCopy('082210121242')}>
                                                 {copied ? 'Berhasil Disalin! ✓' : 'Salin Nomor'}
                                             </button>
                                             <div className={pricingStyles.instructions} style={{ textAlign: 'left', marginTop: '1.5rem' }}>
@@ -680,17 +680,18 @@ export default function ServicesPage() {
                                                     <li>Buka aplikasi E-Wallet kamu.</li>
                                                     <li>Pilih menu Transfer / Kirim ke Nomor.</li>
                                                     <li>Masukkan nomor di atas.</li>
+                                                    <li>Pastikan nama penerima <strong>Pradipa Javier Fatah</strong>.</li>
                                                     <li>Simpan bukti/struk transfer.</li>
                                                 </ol>
                                             </div>
                                         </div>
                                     )}
-                                    {paymentMethod === 'qris' && (
+                                    {/* {paymentMethod === 'qris' && (
                                         <div className={pricingStyles.qrisPlaceholder}>
                                             <img src="/assets/qr-payment-dummy.svg" alt="QRIS" width={150} />
                                             <p style={{ marginTop: '1rem', textAlign: 'center' }}>Scan menggunakan aplikasi pembayaran apapun.</p>
                                         </div>
-                                    )}
+                                    )} */}
 
                                     {/* Upload Proof Form */}
                                     <div style={{ marginTop: '2rem', borderTop: '2px dashed #e2e8f0', paddingTop: '1.5rem' }}>

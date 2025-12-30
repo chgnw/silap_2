@@ -13,7 +13,7 @@ export default function KelolaSampah() {
         <div className={styles.mockupWrap}>
           {/* dashboard image (center) */}
           <div className={styles.dashboard}>
-            <img src="/images/admin-dashboard-example.svg" alt="dashboard"/>
+            <img src="/images/silap-dashboard.svg" alt="dashboard"/>
           </div>
 
           {/* floating label images */}

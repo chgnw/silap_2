@@ -82,7 +82,7 @@ VALUES (
   'Administrator',
   'SILAP',
   'silap4everyone@gmail.com',
-  '$2a$10$rZ8jHXqMJZQ9sZ5xGxHJ5u5vZ0jHXqMJZQ9sZ5xGxHJ5u5vZ0jHXq'
+  '$2a$12$zxP6KGc0mrQ9FZoHWedF1.63BIow0jzua89Y5sCYK5MfvXhdC8cpu'
 )
 ON DUPLICATE KEY UPDATE 
   first_name = VALUES(first_name),
