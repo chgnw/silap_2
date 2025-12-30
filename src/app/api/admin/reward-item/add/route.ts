@@ -60,78 +60,130 @@ export async function POST(req: NextRequest) {
     }
 
     const checkSql = `
-      SELECT id FROM ms_reward
-      WHERE reward_name = ?
+      SELECT id, is_active FROM ms_reward
+      WHERE LOWER(reward_name) = LOWER(?)
       LIMIT 1;
     `;
     const checkResult = (await query(checkSql, [reward_name])) as any[];
 
     if (checkResult && checkResult.length > 0) {
-      return NextResponse.json(
-        {
-          message: "DUPLICATE",
-          detail: `Reward '${reward_name}' sudah ada!`,
-        },
-        { status: 409 }
-      );
-    }
+      const existingReward = checkResult[0];
 
-    let dbImagePath = null;
-    if (imageFile && imageFile.size > 0) {
-      const uploadDir = path.join(
-        process.cwd(),
-        "public",
-        "upload",
-        "rewardImages"
-      );
-      await fs.mkdir(uploadDir, { recursive: true });
+      // If active reward exists, return error
+      if (existingReward.is_active) {
+        return NextResponse.json(
+          {
+            message: "DUPLICATE",
+            detail: `Reward '${reward_name}' sudah ada!`,
+          },
+          { status: 409 }
+        );
+      }
 
-      const timestamp = Date.now();
-      const originalName = imageFile.name.replaceAll(" ", "_");
-      const filename = `${timestamp}_${originalName}`;
+      // If inactive reward exists, reactivate and update it
+      let dbImagePath = null;
+      if (imageFile && imageFile.size > 0) {
+        const uploadDir = path.join(
+          process.cwd(),
+          "public",
+          "upload",
+          "rewardImages"
+        );
+        await fs.mkdir(uploadDir, { recursive: true });
 
-      const arrayBuffer = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
+        const timestamp = Date.now();
+        const originalName = imageFile.name.replaceAll(" ", "_");
+        const filename = `${timestamp}_${originalName}`;
 
-      const finalFilePath = path.join(uploadDir, filename);
-      await fs.writeFile(finalFilePath, buffer);
+        const arrayBuffer = await imageFile.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
 
-      dbImagePath = `/rewardImages/${filename}`;
-    }
+        const finalFilePath = path.join(uploadDir, filename);
+        await fs.writeFile(finalFilePath, buffer);
 
-    let sql: string;
-    let params: any[];
-    if (dbImagePath) {
-      sql = `
-        INSERT INTO ms_reward (category_id, reward_name, vendor_name, image_path, point_required, stock)
-        VALUES (?, ?, ?, ?, ?, ?);
+        dbImagePath = `/rewardImages/${filename}`;
+      }
+
+      const updateSql = `
+        UPDATE ms_reward 
+        SET is_active = TRUE,
+            category_id = ?,
+            reward_name = ?,
+            vendor_name = ?,
+            image_path = COALESCE(?, image_path),
+            point_required = ?,
+            stock = ?
+        WHERE id = ?
       `;
-      params = [
+
+      await query(updateSql, [
         category_id,
         reward_name,
         vendor_name,
         dbImagePath,
         point_required,
         stock,
-      ];
+        existingReward.id
+      ]);
     } else {
-      sql = `
-        INSERT INTO ms_reward (category_id, reward_name, vendor_name, point_required, stock)
-        VALUES (?, ?, ?, ?, ?);
-      `;
-      params = [category_id, reward_name, vendor_name, point_required, stock];
-    }
+      // No existing reward, insert new one
+      var dbImagePath = null;
+      if (imageFile && imageFile.size > 0) {
+        const uploadDir = path.join(
+          process.cwd(),
+          "public",
+          "upload",
+          "rewardImages"
+        );
+        await fs.mkdir(uploadDir, { recursive: true });
 
-    const result = (await query(sql, params)) as any;
+        const timestamp = Date.now();
+        const originalName = imageFile.name.replaceAll(" ", "_");
+        const filename = `${timestamp}_${originalName}`;
 
-    if (result.affectedRows === 0) {
-      return NextResponse.json(
-        {
-          message: "FAILED",
-          detail: "Gagal memasukkan data reward baru!",
-        },
-        { status: 400 }
-      );
+        const arrayBuffer = await imageFile.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        const finalFilePath = path.join(uploadDir, filename);
+        await fs.writeFile(finalFilePath, buffer);
+
+        dbImagePath = `/rewardImages/${filename}`;
+      }
+
+      let sql: string;
+      let params: any[];
+      if (dbImagePath) {
+        sql = `
+          INSERT INTO ms_reward (category_id, reward_name, vendor_name, image_path, point_required, stock)
+          VALUES (?, ?, ?, ?, ?, ?);
+        `;
+        params = [
+          category_id,
+          reward_name,
+          vendor_name,
+          dbImagePath,
+          point_required,
+          stock,
+        ];
+      } else {
+        sql = `
+          INSERT INTO ms_reward (category_id, reward_name, vendor_name, point_required, stock)
+          VALUES (?, ?, ?, ?, ?);
+        `;
+        params = [category_id, reward_name, vendor_name, point_required, stock];
+      }
+
+      const result = (await query(sql, params)) as any;
+
+      if (result.affectedRows === 0) {
+        return NextResponse.json(
+          {
+            message: "FAILED",
+            detail: "Gagal memasukkan data reward baru!",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     return NextResponse.json(

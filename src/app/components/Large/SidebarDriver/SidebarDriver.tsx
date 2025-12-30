@@ -23,8 +23,20 @@ export default function SidebarDriver({
   const [isPending, startTransition] = useTransition();
   const [loadingPath, setLoadingPath] = useState<string | null>(null);
 
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/" });
+  const handleLogout = async () => {
+    try {
+      // Call driver logout API to unbind vehicle before signing out
+      await fetch("/api/driver/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("Error during driver logout:", error);
+      // Continue with signout even if API fails
+    } finally {
+      // Sign out regardless of API success/failure
+      signOut({ callbackUrl: "/" });
+    }
   };
 
   const handleLinkClick = (href: string) => (e: React.MouseEvent) => {
@@ -57,9 +69,8 @@ export default function SidebarDriver({
       <nav className={styles.sidebarNav}>
         <Link
           href="/driver"
-          className={`${styles.navLink} ${
-            pathname === "/driver" ? styles.isSelected : ""
-          } ${loadingPath === "/driver" && isPending ? styles.loading : ""}`}
+          className={`${styles.navLink} ${pathname === "/driver" ? styles.isSelected : ""
+            } ${loadingPath === "/driver" && isPending ? styles.loading : ""}`}
           onClick={handleLinkClick("/driver")}
         >
           <div className={styles.iconContainer}>
@@ -73,11 +84,9 @@ export default function SidebarDriver({
 
         <Link
           href="/driver/orders"
-          className={`${styles.navLink} ${
-            pathname === "/driver/orders" ? styles.isSelected : ""
-          } ${
-            loadingPath === "/driver/orders" && isPending ? styles.loading : ""
-          }`}
+          className={`${styles.navLink} ${pathname === "/driver/orders" ? styles.isSelected : ""
+            } ${loadingPath === "/driver/orders" && isPending ? styles.loading : ""
+            }`}
           onClick={handleLinkClick("/driver/orders")}
         >
           <div className={styles.iconContainer}>
@@ -91,11 +100,9 @@ export default function SidebarDriver({
 
         <Link
           href="/driver/profile"
-          className={`${styles.navLink} ${
-            pathname === "/driver/profile" ? styles.isSelected : ""
-          } ${
-            loadingPath === "/driver/profile" && isPending ? styles.loading : ""
-          }`}
+          className={`${styles.navLink} ${pathname === "/driver/profile" ? styles.isSelected : ""
+            } ${loadingPath === "/driver/profile" && isPending ? styles.loading : ""
+            }`}
           onClick={handleLinkClick("/driver/profile")}
         >
           <div className={styles.iconContainer}>

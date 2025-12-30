@@ -28,8 +28,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check for existing plan with same name
-        const checkSql = `SELECT id, is_active FROM ms_subscription_plan WHERE plan_name = ?`;
+        // Check for existing plan with same name (case-insensitive)
+        const checkSql = `SELECT id, is_active FROM ms_subscription_plan WHERE LOWER(plan_name) = LOWER(?)`;
         const existing = await query(checkSql, [plan_name]) as any[];
 
         if (existing.length > 0) {

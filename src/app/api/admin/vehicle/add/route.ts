@@ -39,21 +39,59 @@ export async function POST(req: Request) {
 
     if (license_plate || vin) {
       const checkSql = `
-        SELECT id FROM ms_vehicle 
-        WHERE license_plate = ? OR vin = ?
+        SELECT id, is_active FROM ms_vehicle 
+        WHERE LOWER(license_plate) = LOWER(?) OR LOWER(vin) = LOWER(?)
       `;
       const existing = (await query(checkSql, [
         license_plate || "",
         vin || "",
       ])) as any[];
+
       if (existing.length > 0) {
+        const existingVehicle = existing[0];
+
+        // If active vehicle exists, return error
+        if (existingVehicle.is_active) {
+          return NextResponse.json(
+            { error: "Vehicle with this license plate or VIN already exists" },
+            { status: 409 }
+          );
+        }
+
+        // If inactive vehicle exists, reactivate and update it
+        const updateSql = `
+          UPDATE ms_vehicle 
+          SET is_active = TRUE,
+              vehicle_category_id = ?,
+              brand = ?,
+              model = ?,
+              license_plate = ?,
+              vin = ?,
+              status = ?
+          WHERE id = ?
+        `;
+
+        await query(updateSql, [
+          vehicle_category_id,
+          brand || null,
+          model || null,
+          license_plate || null,
+          vin || null,
+          status || "active",
+          existingVehicle.id
+        ]);
+
         return NextResponse.json(
-          { error: "Vehicle with this license plate or VIN already exists" },
-          { status: 409 }
+          {
+            message: "SUCCESS",
+            detail: "Vehicle reactivated successfully",
+          },
+          { status: 200 }
         );
       }
     }
 
+    // No existing vehicle, insert new one
     const sql = `
       INSERT INTO ms_vehicle 
       (vehicle_category_id, brand, model, license_plate, vin, status)
