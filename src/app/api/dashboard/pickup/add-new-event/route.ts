@@ -90,6 +90,99 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // ============================================
+    // SUBSCRIPTION PLAN VALIDATION
+    // ============================================
+
+    // 1. Check if user has active subscription
+    const subscriptionSql = `
+      SELECT us.id, sp.max_weight, sp.pickup_frequency, sp.plan_name
+      FROM tr_user_subscription us
+      JOIN ms_subscription_plan sp ON us.subscription_plan_id = sp.id
+      WHERE us.user_id = ? 
+        AND us.status = 'active' 
+        AND us.end_date >= CURDATE()
+      LIMIT 1
+    `;
+    const subscriptionResult = await query(subscriptionSql, [user_id]) as any[];
+
+    if (subscriptionResult.length === 0) {
+      return NextResponse.json(
+        {
+          message: "NO_ACTIVE_SUBSCRIPTION",
+          error: "Subscription diperlukan",
+          details: "Anda harus memiliki subscription aktif untuk membuat pickup request. Silakan berlangganan terlebih dahulu."
+        },
+        { status: 403 }
+      );
+    }
+
+    const subscription = subscriptionResult[0];
+
+    // 2. Validate weight limit
+    if (pickup_weight > subscription.max_weight) {
+      return NextResponse.json(
+        {
+          message: "WEIGHT_LIMIT_EXCEEDED",
+          error: "Berat melebihi batas",
+          details: `Berat pickup (${pickup_weight}kg) melebihi batas maksimal paket ${subscription.plan_name} (${subscription.max_weight}kg per request).`
+        },
+        { status: 400 }
+      );
+    }
+
+    // 3. Validate pickup frequency (only for non-Flexible plans)
+    const frequencyLower = subscription.pickup_frequency?.toLowerCase().replace(/[-\s]/g, '') || '';
+
+    // Normalize: remove hyphens and spaces, convert to lowercase
+    // "Weekly" -> "weekly", "Bi-weekly" -> "biweekly", "Flexible" -> "flexible"
+    if (frequencyLower === 'weekly') {
+      // Weekly: Maximum 1 pickup per week (check based on event_date, not created_at)
+      const weeklyCheckSql = `
+        SELECT COUNT(*) as count
+        FROM tr_pickup_event
+        WHERE user_id = ?
+          AND YEARWEEK(event_date, 1) = YEARWEEK(?, 1)
+      `;
+      const weeklyResult = await query(weeklyCheckSql, [user_id, event_date]) as any[];
+
+      if (weeklyResult[0].count >= 1) {
+        return NextResponse.json(
+          {
+            message: "WEEKLY_LIMIT_REACHED",
+            error: "Batas pickup mingguan tercapai",
+            details: `Paket ${subscription.plan_name} hanya mengizinkan 1 pickup per minggu. Anda sudah ada jadwal pickup di minggu yang sama.`
+          },
+          { status: 429 }
+        );
+      }
+    } else if (frequencyLower === 'biweekly') {
+      // Biweekly: Maximum 2 pickups per week (check based on event_date, not created_at)
+      const biweeklyCheckSql = `
+        SELECT COUNT(*) as count
+        FROM tr_pickup_event
+        WHERE user_id = ?
+          AND YEARWEEK(event_date, 1) = YEARWEEK(?, 1)
+      `;
+      const biweeklyResult = await query(biweeklyCheckSql, [user_id, event_date]) as any[];
+
+      if (biweeklyResult[0].count >= 2) {
+        return NextResponse.json(
+          {
+            message: "BIWEEKLY_LIMIT_REACHED",
+            error: "Batas pickup mingguan tercapai",
+            details: `Paket ${subscription.plan_name} hanya mengizinkan 2 pickup per minggu. Anda sudah ada 2 jadwal pickup di minggu yang sama.`
+          },
+          { status: 429 }
+        );
+      }
+    }
+    // Flexible or any other value: no limit
+
+    // ============================================
+    // DUPLICATE CHECK (existing logic)
+    // ============================================
+
     const checkSql = `
             SELECT id FROM tr_pickup_event 
             WHERE user_id = ? 

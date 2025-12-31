@@ -7,6 +7,8 @@ interface SubscriptionRow {
     start_date: string;
     end_date: string;
     status: string;
+    max_weight: number;
+    pickup_frequency: string;
 }
 
 interface PendingPaymentRow {
@@ -36,7 +38,9 @@ export async function POST(request: NextRequest) {
                 sp.plan_name,
                 us.start_date,
                 us.end_date,
-                us.status
+                us.status,
+                sp.max_weight,
+                sp.pickup_frequency
             FROM tr_user_subscription us
             JOIN ms_subscription_plan sp ON us.subscription_plan_id = sp.id
             WHERE us.user_id = ?
@@ -77,6 +81,8 @@ export async function POST(request: NextRequest) {
                     start_date: subscription.start_date,
                     end_date: subscription.end_date,
                     days_remaining: daysRemaining,
+                    max_weight: subscription.max_weight,
+                    pickup_frequency: subscription.pickup_frequency,
                 },
                 has_pending_renewal: hasPendingRenewal,
             });
