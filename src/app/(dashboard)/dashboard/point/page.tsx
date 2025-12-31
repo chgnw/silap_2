@@ -179,6 +179,8 @@ export default function PointPage() {
           },
         });
         setCartItems({});
+        // Refresh reward items to show updated stock and total_redeemed
+        await getRewardItems();
       }
     } catch (error) {
       console.error("Error saat mengambil data reward item: ", error);
@@ -349,8 +351,8 @@ export default function PointPage() {
 
                     <div className={styles.contentFooter}>
                       <div className={styles.contentInfo}>
-                        <p>Sudah ditukar 1x</p>
-                        <p>{item.total_redeemed}+ ditukar</p>
+                        <p>Tersisa {item.stock} stok</p>
+                        <p>{item.total_redeemed} kali ditukar</p>
                       </div>
 
                       <div className={styles.buttonContainer}>

@@ -24,6 +24,7 @@ interface DBUser {
   points?: number;
   tier_list_id?: number | null;
   tier_list_name: string;
+  tier_icon?: string | null;
   current_streak?: number;
   waste_target?: number;
   rememberMeFlag?: boolean;
@@ -103,6 +104,7 @@ const authOptions: NextAuthOptions = {
             ms_user.points,
             ms_user.tier_list_id,
             ms_tier_list.tier_name,
+            ms_tier_list.tier_icon,
             ms_user.waste_target,
             ms_user.current_streak
           FROM ms_user
@@ -219,6 +221,7 @@ const authOptions: NextAuthOptions = {
               ms_user.points,
               ms_user.tier_list_id,
               ms_tier_list.tier_name AS tier_list_name,
+              ms_tier_list.tier_icon AS tier_icon,
               ms_user.waste_target,
               ms_user.current_streak
             FROM ms_user
@@ -251,6 +254,7 @@ const authOptions: NextAuthOptions = {
               points: dbUser.points,
               tier_list_id: dbUser.tier_list_id,
               tier_name: dbUser.tier_list_name,
+              tier_icon: dbUser.tier_icon,
               current_streak: dbUser.current_streak,
               waste_target: dbUser.waste_target,
               rememberMeFlag: false,
@@ -296,6 +300,7 @@ const authOptions: NextAuthOptions = {
               ms_user.points,
               ms_user.tier_list_id,
               ms_tier_list.tier_name AS tier_list_name,
+              ms_tier_list.tier_icon AS tier_icon,
               ms_user.waste_target,
               ms_user.current_streak
           FROM ms_user
@@ -330,6 +335,7 @@ const authOptions: NextAuthOptions = {
             points: dbUser.points,
             tier_list_id: dbUser.tier_list_id,
             tier_name: dbUser.tier_list_name,
+            tier_icon: dbUser.tier_icon,
             current_streak: dbUser.current_streak,
             waste_target: dbUser.waste_target,
           });
@@ -362,6 +368,7 @@ const authOptions: NextAuthOptions = {
         points: token.points,
         tier_list_id: token.tier_list_id,
         tier_list_name: token.tier_name,
+        tier_icon: token.tier_icon,
         current_streak: token.current_streak,
         waste_target: token.waste_target,
         rememberMeFlag: token.rememberMeFlag,

@@ -51,7 +51,6 @@
 }
 
 .categoryItem:hover .categoryIconWrapper {
-  background-color: #1A2D22;
   transform: scale(1.1) rotate(10deg);
 }
 

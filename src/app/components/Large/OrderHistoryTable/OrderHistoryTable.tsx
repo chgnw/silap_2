@@ -512,8 +512,14 @@ export default function OrderHistoryTable() {
                       </div>
                       <div className={styles.infoItem}>
                         <label>Invoice ID</label>
-                        <div className={styles.value}>
-                          #{selectedOrder.details.inv_id}
+                        <div
+                          className={styles.value}
+                          style={{
+                            fontFamily: "monospace",
+                            letterSpacing: "1px",
+                          }}
+                        >
+                          {selectedOrder.details.code || `#${selectedOrder.details.inv_id}`}
                         </div>
                       </div>
                     </>

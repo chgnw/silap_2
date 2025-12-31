@@ -213,12 +213,15 @@ const ProfileSection = memo(({ loading, user }: { loading: boolean; user: any })
       <LoadingSkeleton />
     ) : user ? (
       <>
-        {user.tier_list_id === 1 ? (
-          <GiDeerHead size={80} className={styles.tierIcon} />
-        ) : user.tier_list_id === 2 ? (
-          <GiBirdTwitter size={80} className={styles.tierIcon} />
-        ) : user.tier_list_id === 3 ? (
-          <GiElephant size={80} className={styles.tierIcon} />
+        {user.tier_icon ? (
+          <img
+            src={`${user.tier_icon}`}
+            alt={user.tier_list_name || "Tier Icon"}
+            className={styles.tierIcon}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/images/dummy.png";
+            }}
+          />
         ) : (
           <div className={styles.tierIconPlaceholder} />
         )}
