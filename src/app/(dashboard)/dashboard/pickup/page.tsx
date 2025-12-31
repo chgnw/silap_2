@@ -77,7 +77,17 @@ export default function PickUpPage() {
 
         const result = await response.json();
 
-        if (result.status === "pending_payment") {
+        if (result.status === "subscribed") {
+          // Store subscription plan data for validation
+          setSubscriptionPlan({
+            max_weight: result.subscription.max_weight,
+            pickup_frequency: result.subscription.pickup_frequency,
+            plan_name: result.subscription.plan_name,
+          });
+
+          // Fetch current week's pickup count
+          fetchWeeklyPickupCount();
+        } else if (result.status === "pending_payment") {
           // Pending payment users can access dashboard but not pickup
           showToast("error", "Pembayaran kamu masih menunggu verifikasi admin.");
           router.push("/dashboard");
@@ -140,6 +150,21 @@ export default function PickUpPage() {
   const isTotalOverload = currentWeightNum > maxCapacity;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [minTime, setMinTime] = useState("");
+  const [subscriptionPlan, setSubscriptionPlan] = useState<{
+    max_weight: number;
+    pickup_frequency: string;
+    plan_name: string;
+  } | null>(null);
+  const [weeklyPickupCount, setWeeklyPickupCount] = useState<number>(0);
+
+  /*
+    Refetch weekly pickup count when selected date changes
+  */
+  useEffect(() => {
+    if (selectedDate && session?.user?.id) {
+      fetchWeeklyPickupCount(selectedDate);
+    }
+  }, [selectedDate, session?.user?.id]);
 
   /*
     Function untuk nentuin vehicle based on weight 
@@ -177,6 +202,31 @@ export default function PickUpPage() {
   const openTimePicker = () => {
     if (timeInputRef.current) {
       timeInputRef.current.showPicker();
+    }
+  };
+
+  /*
+    Function untuk fetch jumlah pickup di minggu yang sama dengan event_date
+  */
+  const fetchWeeklyPickupCount = async (eventDate?: string) => {
+    if (!session?.user?.id) return;
+
+    try {
+      const response = await fetch("/api/dashboard/pickup/weekly-count", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: session.user.id,
+          event_date: eventDate || selectedDate || undefined
+        }),
+      });
+
+      const result = await response.json();
+      if (result.message === "SUCCESS") {
+        setWeeklyPickupCount(result.count || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching weekly pickup count:", error);
     }
   };
 
@@ -363,6 +413,9 @@ export default function PickUpPage() {
 
         showToast(response.status, "Jadwal penjemputan berhasil ditambahkan!");
         setRefreshKey((prev) => prev + 1);
+
+        // Refresh weekly pickup count
+        fetchWeeklyPickupCount();
       }
     } catch (error) {
       console.error("Error inserting new event:", error);
@@ -955,6 +1008,8 @@ export default function PickUpPage() {
         onClose={() => setShowConfirmModal(false)}
         onConfirm={handleConfirmSubmit}
         isSubmitting={isSubmitting}
+        subscriptionPlan={subscriptionPlan}
+        weeklyPickupCount={weeklyPickupCount}
         data={{
           name: addressData.name,
           phone: addressData.phone,

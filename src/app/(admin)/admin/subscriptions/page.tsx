@@ -882,7 +882,6 @@ export default function SubscriptionsPage() {
                                 <option value="">Select frequency</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Bi-weekly">Bi-weekly</option>
-                                <option value="Monthly">Monthly</option>
                                 <option value="Flexible">Flexible</option>
                             </select>
                         </div>

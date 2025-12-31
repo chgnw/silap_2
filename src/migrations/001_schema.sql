@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS ms_vehicle_category (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   category_name VARCHAR(100) NOT NULL UNIQUE COMMENT 'e.g., Motor, Mobil Pickup, Truk',
   min_weight DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT 'Minimum weight capacity in kg',
-  max_weight DECIMAL(10,2) NOT NULL COMMENT 'Maximum weight capacity in kg',
+  max_weight DECIMAL(10,2) NULL COMMENT 'Maximum weight capacity in kg (NULL = unlimited)',
   image_path VARCHAR(512) NULL COMMENT 'Path to vehicle category image',
   description TEXT NULL,
   is_active BOOLEAN DEFAULT TRUE,

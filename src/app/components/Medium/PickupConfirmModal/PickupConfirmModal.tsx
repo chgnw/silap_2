@@ -24,6 +24,12 @@ interface PickupConfirmModalProps {
   onClose: () => void;
   onConfirm: () => void;
   data: PickupConfirmData;
+  subscriptionPlan?: {
+    max_weight: number;
+    pickup_frequency: string;
+    plan_name: string;
+  } | null;
+  weeklyPickupCount?: number;
   isSubmitting?: boolean;
 }
 
@@ -32,9 +38,28 @@ export default function PickupConfirmModal({
   onClose,
   onConfirm,
   data,
+  subscriptionPlan,
+  weeklyPickupCount = 0,
   isSubmitting = false,
 }: PickupConfirmModalProps) {
   if (!isOpen) return null;
+
+  // Check if weight exceeds limit
+  const weightNum = parseFloat(data.weight) || 0;
+  const isOverLimit = subscriptionPlan && weightNum > subscriptionPlan.max_weight;
+
+  // Check if frequency limit is reached
+  const frequencyLower = subscriptionPlan?.pickup_frequency?.toLowerCase().replace(/[-\s]/g, '') || '';
+  let isFrequencyLimitReached = false;
+  let frequencyErrorMessage = '';
+
+  if (frequencyLower === 'weekly' && weeklyPickupCount >= 1) {
+    isFrequencyLimitReached = true;
+    frequencyErrorMessage = `Paket ${subscriptionPlan?.plan_name} hanya mengizinkan 1 pickup per minggu. Anda sudah membuat pickup minggu ini.`;
+  } else if (frequencyLower === 'biweekly' && weeklyPickupCount >= 2) {
+    isFrequencyLimitReached = true;
+    frequencyErrorMessage = `Paket ${subscriptionPlan?.plan_name} hanya mengizinkan 2 pickup per minggu. Anda sudah membuat 2 pickup minggu ini.`;
+  }
 
   // Format date to Indonesian format
   const formatDate = (dateStr: string) => {
@@ -168,6 +193,20 @@ export default function PickupConfirmModal({
           )}
 
           <div className={styles.dividerDashed}></div>
+
+          {/* Weight Error Warning */}
+          {isOverLimit && (
+            <div className={styles.errorWarning}>
+              ⚠️ Berat melebihi kapasitas maksimal kamu (max. {subscriptionPlan!.max_weight}kg)
+            </div>
+          )}
+
+          {/* Frequency Error Warning */}
+          {isFrequencyLimitReached && (
+            <div className={styles.errorWarning}>
+              ⚠️ {frequencyErrorMessage}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -187,7 +226,7 @@ export default function PickupConfirmModal({
             <button
               className={styles.confirmButton}
               onClick={onConfirm}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !!isOverLimit || isFrequencyLimitReached}
             >
               {isSubmitting ? "Memproses..." : "Konfirmasi Pickup"}
             </button>

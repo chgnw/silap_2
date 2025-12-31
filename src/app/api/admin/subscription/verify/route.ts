@@ -98,29 +98,79 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Calculate subscription dates
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + (payment.duration_days || 30));
-
         // Format dates for MySQL
         const formatDate = (date: Date) => {
             return date.toISOString().split('T')[0];
         };
 
-        // Create subscription record
-        const createSubscriptionSql = `
-            INSERT INTO tr_user_subscription (user_id, subscription_plan_id, start_date, end_date, status) 
-            VALUES (?, ?, ?, ?, 'active')
+        // Check if user already has an active subscription for this plan (renewal scenario)
+        const checkActiveSubSql = `
+            SELECT id, start_date, end_date 
+            FROM tr_user_subscription 
+            WHERE user_id = ? 
+                AND subscription_plan_id = ? 
+                AND status = 'active' 
+                AND end_date >= CURDATE()
+            LIMIT 1
         `;
-        const subscriptionResult = await query(createSubscriptionSql, [
+        const activeSubResult = await query(checkActiveSubSql, [
             payment.user_id,
-            payment.subscription_plan_id,
-            formatDate(startDate),
-            formatDate(endDate)
-        ]) as any;
+            payment.subscription_plan_id
+        ]) as any[];
 
-        const subscriptionId = subscriptionResult.insertId;
+        let subscriptionId;
+        let finalStartDate;
+        let finalEndDate;
+
+        if (activeSubResult.length > 0) {
+            // RENEWAL SCENARIO: Extend existing subscription
+            const activeSub = activeSubResult[0];
+            subscriptionId = activeSub.id;
+
+            // Keep the original start_date
+            finalStartDate = new Date(activeSub.start_date);
+
+            // Extend end_date by 30 days from current end_date
+            finalEndDate = new Date(activeSub.end_date);
+            finalEndDate.setDate(finalEndDate.getDate() + 30);
+
+            // Update existing subscription
+            const updateSubscriptionSql = `
+                UPDATE tr_user_subscription 
+                SET end_date = ?, updated_at = NOW()
+                WHERE id = ?
+            `;
+            await query(updateSubscriptionSql, [
+                formatDate(finalEndDate),
+                subscriptionId
+            ]);
+
+            console.log(`Renewal: Extended subscription ${subscriptionId} to ${formatDate(finalEndDate)}`);
+        } else {
+            // NEW SUBSCRIPTION SCENARIO: Create new record
+            const startDate = new Date();
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + (payment.duration_days || 30));
+
+            finalStartDate = startDate;
+            finalEndDate = endDate;
+
+            // Create subscription record
+            const createSubscriptionSql = `
+                INSERT INTO tr_user_subscription (user_id, subscription_plan_id, start_date, end_date, status) 
+                VALUES (?, ?, ?, ?, 'active')
+            `;
+            const subscriptionResult = await query(createSubscriptionSql, [
+                payment.user_id,
+                payment.subscription_plan_id,
+                formatDate(startDate),
+                formatDate(endDate)
+            ]) as any;
+
+            subscriptionId = subscriptionResult.insertId;
+            console.log(`New subscription: Created subscription ${subscriptionId}`);
+        }
+
 
         // Update payment history record
         const updatePaymentSql = `
@@ -146,8 +196,8 @@ export async function POST(req: NextRequest) {
                 customerEmail: payment.customer_email,
                 planName: payment.plan_name || "Paket Langganan",
                 planPrice: payment.plan_price || 0,
-                startDate: formatDate(startDate),
-                endDate: formatDate(endDate),
+                startDate: formatDate(finalStartDate),
+                endDate: formatDate(finalEndDate),
             }).catch((err) => {
                 console.error("Failed to send subscription activation email:", err);
             });
@@ -158,8 +208,8 @@ export async function POST(req: NextRequest) {
                 message: "SUCCESS",
                 detail: "Payment verified and subscription activated",
                 subscription_id: subscriptionId,
-                start_date: formatDate(startDate),
-                end_date: formatDate(endDate)
+                start_date: formatDate(finalStartDate),
+                end_date: formatDate(finalEndDate)
             },
             { status: 200 }
         );

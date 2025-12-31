@@ -60,18 +60,31 @@ export async function POST(request: NextRequest) {
 
         // Check if user already has an active subscription
         const activeSubSql = `
-            SELECT id FROM tr_user_subscription 
+            SELECT id, subscription_plan_id 
+            FROM tr_user_subscription 
             WHERE user_id = ? AND status = 'active' AND end_date >= CURDATE()
             LIMIT 1
         `;
         const activeSubResult = await query(activeSubSql, [session.user.id]) as any[];
 
         if (activeSubResult.length > 0) {
-            return NextResponse.json(
-                { error: "You already have an active subscription" },
-                { status: 400 }
-            );
+            const activeSub = activeSubResult[0];
+
+            // Check if trying to subscribe to a different plan
+            if (activeSub.subscription_plan_id !== parseInt(subscription_plan_id)) {
+                return NextResponse.json(
+                    {
+                        error: "Plan upgrade/downgrade not available",
+                        detail: "You currently have an active subscription with a different plan. Please contact admin if you wish to change your subscription plan."
+                    },
+                    { status: 400 }
+                );
+            }
+
+            // Same plan - allow renewal (payment will be pending until verified)
+            console.log("Renewal scenario: Same plan renewal allowed");
         }
+
 
         // Check if user has a pending payment
         const pendingPaymentSql = `
