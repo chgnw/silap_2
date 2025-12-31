@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
           END AS status,
           JSON_OBJECT(
               'method', py.payment_method,
+              'code', py.transaction_code,
               'inv_id', py.id
           ) AS details,
           CONCAT('Rp ', FORMAT(py.total_payment, 0)) AS amount_display

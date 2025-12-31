@@ -286,6 +286,7 @@
 .tierIcon {
   color: rgb(47, 94, 68);
   flex-shrink: 0;
+  width: 80px;
 }
 
 .tierIconPlaceholder {

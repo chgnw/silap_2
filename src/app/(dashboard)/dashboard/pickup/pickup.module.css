@@ -360,7 +360,7 @@
   gap: 0.75em;
 }
 .rightSide :global(.fc .fc-button-group > .fc-button:hover) {
-  background-color: #e2ebc0;
+  background-color: #1a2d22;
 }
 .rightSide :global(.fc-button-primary),
 .rightSide :global(.fc-button-primary:disabled) {
