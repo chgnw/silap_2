@@ -14,6 +14,15 @@ export async function getPool() {
       connectionLimit: 10,
       timezone: '+07:00'
     });
+
+    // Set session timezone for MySQL functions like CURDATE(), NOW(), etc.
+    globalForMysql.pool.on('connection', (connection) => {
+      connection.query("SET time_zone='+07:00';", (err:any) => {
+        if (err) {
+          console.error('Error setting MySQL timezone:', err);
+        }
+      });
+    });
   }
   return globalForMysql.pool;
 }

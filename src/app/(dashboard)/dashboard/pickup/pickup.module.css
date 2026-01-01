@@ -29,7 +29,8 @@
   justify-content: flex-start;
   gap: 1rem;
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  scrollbar-width: thin;
 }
 .leftSideHeader {
   font-size: 1rem;

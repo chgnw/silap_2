@@ -12,7 +12,7 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
   const { data: session } = useSession();
   const [events, setEvents] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [modalView, setModalView] = useState<'list' | 'edit'>('list');
+  const [modalView, setModalView] = useState<'list' | 'edit' | 'delete'>('list');
   const [selectedDate, setSelectedDate] = useState('');
   const [eventsOnSelectedDate, setEventsOnSelectedDate] = useState<any[]>([]);
   const [editingEvent, setEditingEvent] = useState<any | null>(null);
@@ -39,7 +39,7 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
           user_id: user_id
         })
       })
-      
+
       if (!response.ok) {
         throw new Error('Gagal mengambil data event')
       }
@@ -90,7 +90,7 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
     Function untuk munculin modal edit/delete event
   */
   const handleDateClick = (info: any) => {
-    const clickedDateStr = info.dateStr; 
+    const clickedDateStr = info.dateStr;
     const clickedDateObj = new Date(clickedDateStr);
     const clickedDayIndex = clickedDateObj.getDay();
 
@@ -106,7 +106,7 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
 
     setSelectedDate(clickedDateStr);
     setEventsOnSelectedDate(eventsFound);
-    
+
     setModalView('list');
     setEditingEvent(null);
     setShowModal(true);
@@ -134,7 +134,7 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
       });
 
       const result = await response.json();
-      if(result.message !== "SUCCESS") {
+      if (result.message !== "SUCCESS") {
         showToast(result.message, "Failed to update event");
       }
 
@@ -203,38 +203,44 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
     }
   }
 
-  const handleDeleteAction = async (eventData: any) => {
-    const isConfirmed = window.confirm(`Apakah Anda yakin ingin menghapus jadwal pada jam ${eventData.extendedProps.pickup_time}?`);
+  const handleDeleteAction = (eventData: any) => {
+    setEditingEvent(eventData);
+    setModalView('delete');
+  }
 
-    if (isConfirmed) {
-      try {
-         const response = await fetch("/api/dashboard/pickup/delete-event", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              event_id: eventData.id, 
-              user_id: session?.user?.id 
-            })
-         });
-         
-         const result = await response.json();
-         if (result.message === "SUCCESS") {
-            showToast("success", "Event berhasil dihapus");
-            if (session?.user?.id) {
-              fetchEvents(session?.user?.id);
-            }
-            
-            setEventsOnSelectedDate(prev => prev.filter(e => e.id !== eventData.id));
-            
-            if (eventsOnSelectedDate.length <= 1){
-              setShowModal(false); 
-            }
-         } else {
-            showToast("error", "Gagal menghapus event");
-         }
-      } catch (error) {
-         console.error(error);
+  const confirmDelete = async () => {
+    if (!editingEvent) return;
+
+    try {
+      const response = await fetch("/api/dashboard/pickup/delete-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event_id: editingEvent.id,
+          user_id: session?.user?.id
+        })
+      });
+
+      const result = await response.json();
+      if (result.message === "SUCCESS") {
+        showToast("success", "Event berhasil dihapus");
+        if (session?.user?.id) {
+          fetchEvents(session?.user?.id);
+        }
+
+        setEventsOnSelectedDate(prev => prev.filter(e => e.id !== editingEvent.id));
+
+        if (eventsOnSelectedDate.length <= 1) {
+          setShowModal(false);
+        }
+      } else {
+        showToast("error", "Gagal menghapus event");
       }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setModalView('list');
+      setEditingEvent(null);
     }
   }
 
@@ -255,14 +261,16 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
             <div className={styles.modalHeader}>
               {modalView === 'list' ? (
                 <h3>Events on {selectedDate}</h3>
-              ) : (
+              ) : modalView === 'edit' ? (
                 <h3>Edit Event</h3>
+              ) : (
+                <h3>Konfirmasi Hapus Event</h3>
               )}
               <button onClick={() => setShowModal(false)} className={styles.closeBtn}>
                 <MdCancel />
               </button>
             </div>
-            
+
             <div className={styles.modalBody}>
               {/* 
                 list = tampilin semua event pada hari itu 
@@ -276,9 +284,9 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
                       {eventsOnSelectedDate.map((ev) => (
                         <li key={ev.id} className={styles.eventItem}>
                           <div className={styles.eventInfo}>
-                            <strong>{ev.extendedProps.pickup_time.slice(0,5)} ({ev.extendedProps.pickup_type_name})</strong>
+                            <strong>{ev.extendedProps.pickup_time.slice(0, 5)} ({ev.extendedProps.pickup_type_name})</strong>
                             <span className={styles.eventSub}>
-                                {ev.extendedProps.pickup_address || "Tidak ada alamat"}
+                              {ev.extendedProps.pickup_address || "Tidak ada alamat"}
                             </span>
                           </div>
                           <div className={styles.eventActions}>
@@ -303,8 +311,8 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
                       <label>Nama</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={formData.user_name}
                         className={styles.inputField}
                         readOnly
@@ -314,8 +322,8 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
 
                     <div className={styles.formGroup}>
                       <label>Berat</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={`${formData.weight} kg`}
                         className={styles.inputField}
                         readOnly
@@ -326,10 +334,10 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
 
                   <div className={styles.formGroup}>
                     <label>Alamat</label>
-                    <textarea 
+                    <textarea
                       rows={3}
                       value={formData.address}
-                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       className={styles.inputField}
                       placeholder="Masukkan alamat lengkap..."
                     />
@@ -337,20 +345,20 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
 
                   <div className={styles.formGroup}>
                     <label>Tanggal Pick Up</label>
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       value={formData.date}
-                      onChange={(e) => setFormData({...formData, date: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                       className={styles.inputField}
                     />
                   </div>
 
                   <div className={styles.formGroup}>
                     <label>Waktu Pick Up</label>
-                    <input 
-                      type="time" 
+                    <input
+                      type="time"
                       value={formData.time}
-                      onChange={(e) => setFormData({...formData, time: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                       className={styles.inputField}
                     />
                   </div>
@@ -361,6 +369,47 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
                     </button>
                     <button onClick={handleSaveEdit} className={`${styles.btnSave} ${styles.btn}`}>
                       Simpan
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Delete Confirmation View */}
+              {modalView === 'delete' && editingEvent && (
+                <div className={styles.deleteConfirmation}>
+                  <p className={styles.deleteWarning}>Apakah Anda yakin ingin menghapus event berikut?</p>
+                  <div className={styles.eventDetails}>
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Nama Customer:</span>
+                      <span className={styles.detailValue}>
+                        {editingEvent.extendedProps.first_name} {editingEvent.extendedProps.last_name}
+                      </span>
+                    </div>
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Tipe Pickup:</span>
+                      <span className={styles.detailValue}>{editingEvent.extendedProps.pickup_type_name}</span>
+                    </div>
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Tanggal:</span>
+                      <span className={styles.detailValue}>{selectedDate}</span>
+                    </div>
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Jam:</span>
+                      <span className={styles.detailValue}>{editingEvent.extendedProps.pickup_time.slice(0, 5)}</span>
+                    </div>
+                  </div>
+                  <div className={styles.formActions}>
+                    <button
+                      onClick={() => setModalView('list')}
+                      className={`${styles.btnCancel} ${styles.btn}`}
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={confirmDelete}
+                      className={`${styles.btnDelete} ${styles.btn}`}
+                    >
+                      Delete
                     </button>
                   </div>
                 </div>

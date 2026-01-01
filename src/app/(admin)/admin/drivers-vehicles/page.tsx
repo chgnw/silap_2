@@ -901,7 +901,14 @@ export default function DriversVehiclesPage() {
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>ID Card Number (KTP)</label>
+              <label className={styles.formLabel}>
+                ID Card Number (KTP)
+                {driverMode !== "view" && (
+                  <span style={{ float: "right", fontSize: "0.875rem", color: "#666" }}>
+                    {driverForm.id_card_number.length.toString().padStart(2, '0')}/16
+                  </span>
+                )}
+              </label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -927,7 +934,14 @@ export default function DriversVehiclesPage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>License Number (SIM)</label>
+              <label className={styles.formLabel}>
+                License Number (SIM)
+                {driverMode !== "view" && (
+                  <span style={{ float: "right", fontSize: "0.875rem", color: "#666" }}>
+                    {driverForm.license_number.length.toString().padStart(2, '0')}/16
+                  </span>
+                )}
+              </label>
               <input
                 type="text"
                 inputMode="numeric"
