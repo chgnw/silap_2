@@ -104,7 +104,7 @@ export async function GET(req: Request) {
         AND pe.vehicle_category_id = ?
         AND pe.pickup_weight >= ?
         AND pe.pickup_weight <= ?
-        AND pe.pickup_regency = ?
+        AND UPPER(pe.pickup_regency) = UPPER(?)
         AND pe.event_status = 'pending'
         AND NOT EXISTS (
           SELECT 1 FROM tr_pickup tp 
@@ -115,7 +115,6 @@ export async function GET(req: Request) {
 
     // Debug: Check query parameters
     // console.log("=== QUERY PARAMETERS ===");
-    // console.log("CURDATE() will compare with event_date");
     // console.log("driver.vehicle_category_id:", driver.vehicle_category_id);
     // console.log("driver.category_name:", driver.category_name);
     // console.log("driver.category_min_weight:", driver.category_min_weight);
@@ -179,7 +178,7 @@ export async function GET(req: Request) {
            AND pe.vehicle_category_id = ?
            AND pe.pickup_weight >= ?
            AND pe.pickup_weight <= ?
-           AND pe.pickup_regency = ?
+           AND UPPER(pe.pickup_regency) = UPPER(?)
            AND pe.event_status = 'pending'
            AND NOT EXISTS (
              SELECT 1 FROM tr_pickup tp 

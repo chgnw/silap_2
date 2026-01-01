@@ -585,6 +585,10 @@
     gap: 1.5rem;
   }
 
+  .registerFormCard {
+    margin-top: 4rem;
+  }
+
   .left {
     padding-left: 0;
     justify-content: center;

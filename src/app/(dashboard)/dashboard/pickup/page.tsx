@@ -662,7 +662,7 @@ export default function PickUpPage() {
               className={style.actionLink}
               onClick={() => setShowVehicleDropdown(!showVehicleDropdown)}
             >
-              {showVehicleDropdown ? <span>Tutup</span> : <span>Pilih</span>}
+              <span>Kendaraan rekomendasi kami</span>
               <MdArrowForwardIos
                 style={{
                   transform: showVehicleDropdown
@@ -740,32 +740,28 @@ export default function PickUpPage() {
                 const currentWeight = parseFloat(weight) || 0;
                 const vehicleLimit = parseFloat(vehicle.max_weight);
                 const isOverweight = currentWeight > vehicleLimit;
+                const isRecommended = selectedVehicle?.id === vehicle.id;
 
                 return (
                   <div
                     key={vehicle.id}
-                    className={`${style.vehicleOptionItem} ${selectedVehicle?.id === vehicle.id
+                    className={`${style.vehicleOptionItem} ${isRecommended
                       ? style.activeOption
                       : ""
                       }`}
                     style={{
-                      opacity: isOverweight ? 0.5 : 1,
-                      cursor: isOverweight ? "not-allowed" : "pointer",
-                      pointerEvents: isOverweight ? "none" : "auto",
-                    }}
-                    onClick={() => {
-                      if (!isOverweight) {
-                        handleSelectVehicle(vehicle);
-                      }
+                      opacity: isOverweight ? 0.5 : isRecommended ? 1 : 0.7,
+                      cursor: "default",
+                      pointerEvents: "none",
                     }}
                   >
                     <input
                       type="radio"
                       name="vehicle"
-                      checked={selectedVehicle?.id === vehicle.id}
+                      checked={isRecommended}
                       readOnly
                       className={style.vehicleRadio}
-                      disabled={isOverweight}
+                      disabled={!isRecommended}
                     />
 
                     <div className={style.vehicleImgPlaceholderSmall}>
@@ -775,11 +771,27 @@ export default function PickUpPage() {
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span className={style.vehicleName}>{vehicle.name}</span>
+                      <span className={style.vehicleName}>
+                        {vehicle.name}
+                        {isRecommended && (
+                          <span style={{
+                            fontSize: "10px",
+                            color: "#2f5e44",
+                            marginLeft: "6px",
+                            fontWeight: "600"
+                          }}>
+                            ✓ Dipilih
+                          </span>
+                        )}
+                      </span>
 
-                      {isOverweight && (
+                      {isOverweight ? (
                         <span style={{ fontSize: "10px", color: "#ED1C24" }}>
-                          Maksimal {vehicle.max_weight}kg
+                          Melebihi kapasitas ({vehicle.max_weight}kg)
+                        </span>
+                      ) : !isRecommended && (
+                        <span style={{ fontSize: "10px", color: "#666" }}>
+                          Kapasitas {vehicle.max_weight}kg
                         </span>
                       )}
                     </div>

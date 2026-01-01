@@ -1188,7 +1188,7 @@ export default function SubscriptionsPage() {
                                     if (referenceError) validateReferenceNumber(e.target.value.toUpperCase());
                                 }}
                                 onBlur={() => validateReferenceNumber(referenceNumber)}
-                                placeholder="e.g., TRF-123456789"
+                                placeholder="e.g., SUB-xxxxxxxx-xxxxxxxx"
                                 style={{
                                     borderColor: referenceError ? "#ED1C24" : undefined,
                                 }}
