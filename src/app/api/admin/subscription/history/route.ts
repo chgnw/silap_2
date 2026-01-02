@@ -9,9 +9,11 @@ export async function GET() {
                 ph.transaction_code,
                 ph.user_id,
                 ph.subscription_plan_id,
+                ph.transaction_status_id,
                 ph.payment_type,
                 ph.payment_method,
                 ph.reference_number,
+                ph.cancel_reason,
                 ph.total_payment,
                 ph.payment_time,
                 ph.verified_at,
@@ -24,12 +26,12 @@ export async function GET() {
                 sp.price,
                 sp.duration_days,
                 sp.pickup_frequency,
-                admin.first_name as verified_by_name
+                CONCAT(admin.first_name, ' ', admin.last_name) as verified_by_name
             FROM tr_payment_history ph
             LEFT JOIN ms_user u ON ph.user_id = u.id
             LEFT JOIN ms_subscription_plan sp ON ph.subscription_plan_id = sp.id
             LEFT JOIN ms_user admin ON ph.verified_by = admin.id
-            WHERE ph.transaction_status_id = 4
+            WHERE ph.transaction_status_id IN (4, 5)
                 AND ph.subscription_plan_id IS NOT NULL
             ORDER BY ph.verified_at DESC, ph.created_at DESC
         `;
