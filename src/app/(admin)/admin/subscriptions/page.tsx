@@ -52,9 +52,11 @@ type PaymentHistory = {
     transaction_code: string;
     user_id: number;
     subscription_plan_id: number;
+    transaction_status_id: number;
     payment_type: string;
     payment_method: string | null;
     reference_number: string | null;
+    cancel_reason: string | null;
     total_payment: number;
     payment_time: string;
     verified_at: string;
@@ -654,15 +656,26 @@ export default function SubscriptionsPage() {
                 },
             },
             {
-                header: "Reference Number",
-                accessorKey: "reference_number",
+                header: "Status",
+                accessorKey: "transaction_status_id",
                 cell: ({ getValue }) => {
-                    const value = getValue() as string | null;
-                    return value ? (
-                        <span style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "#2f5e44", fontWeight: "600" }}>
-                            {value}
+                    const statusId = getValue() as number;
+                    const isVerified = statusId === 4;
+                    return (
+                        <span
+                            style={{
+                                display: "inline-block",
+                                padding: "4px 12px",
+                                borderRadius: "12px",
+                                fontSize: "0.8rem",
+                                fontWeight: "600",
+                                backgroundColor: isVerified ? "#d4edda" : "#f8d7da",
+                                color: isVerified ? "#155724" : "#ED1C24",
+                            }}
+                        >
+                            {isVerified ? "✓ Verified" : "✗ Rejected"}
                         </span>
-                    ) : "-";
+                    );
                 },
             },
             {
@@ -1297,13 +1310,23 @@ export default function SubscriptionsPage() {
 
                         <div className={styles.formRow}>
                             <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Reference Number</label>
-                                <p style={{ fontFamily: "monospace", fontSize: "0.95rem", color: "#2f5e44", fontWeight: "600" }}>
-                                    {selectedHistory.reference_number || "-"}
-                                </p>
+                                <label className={styles.formLabel}>
+                                    {selectedHistory.transaction_status_id === 4 ? "Reference Number" : "Cancel Reason"}
+                                </label>
+                                {selectedHistory.transaction_status_id === 4 ? (
+                                    <p style={{ fontFamily: "monospace", fontSize: "0.95rem", color: "#2f5e44", fontWeight: "600" }}>
+                                        {selectedHistory.reference_number || "-"}
+                                    </p>
+                                ) : (
+                                    <p style={{ fontSize: "0.95rem", color: "#ED1C24" }}>
+                                        {selectedHistory.cancel_reason || "-"}
+                                    </p>
+                                )}
                             </div>
                             <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Verified By</label>
+                                <label className={styles.formLabel}>
+                                    {selectedHistory.transaction_status_id === 4 ? "Verified By" : "Rejected By"}
+                                </label>
                                 <p>{selectedHistory.verified_by_name || "-"}</p>
                             </div>
                         </div>
