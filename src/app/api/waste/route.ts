@@ -11,6 +11,7 @@ export async function GET() {
         unit,
         point_per_unit
       FROM ms_waste_category
+      WHERE is_active = 1
       ORDER BY id
     `;
     const rows = await query(sql);
