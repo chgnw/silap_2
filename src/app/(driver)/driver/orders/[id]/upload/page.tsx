@@ -139,9 +139,9 @@ export default function UploadOrderPage() {
         total_weight: calculatedTotalWeight,
         categories: isSorted
           ? selectedCategories.map((cat) => ({
-              category_id: cat.id,
-              weight: cat.weight,
-            }))
+            category_id: cat.id,
+            weight: cat.weight,
+          }))
           : [],
       };
 
@@ -209,9 +209,8 @@ export default function UploadOrderPage() {
           aria-checked={isSorted}
         >
           <span
-            className={`${styles.toggleSlider} ${
-              isSorted ? styles.toggleSliderActive : ""
-            }`}
+            className={`${styles.toggleSlider} ${isSorted ? styles.toggleSliderActive : ""
+              }`}
           />
         </button>
       </div>
@@ -260,7 +259,7 @@ export default function UploadOrderPage() {
                       <div className={styles.categoryIcon}>
                         {category.icon ? (
                           <Image
-                            src={`/upload${category.icon}`}
+                            src={category.icon}
                             alt={category.name}
                             width={40}
                             height={40}
@@ -292,7 +291,7 @@ export default function UploadOrderPage() {
                   <div className={styles.selectedCategoryIcon}>
                     {category.icon ? (
                       <Image
-                        src={`/upload${category.icon}`}
+                        src={category.icon}
                         alt={category.name}
                         width={32}
                         height={32}

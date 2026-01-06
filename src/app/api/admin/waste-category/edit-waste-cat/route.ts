@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     };
 
     if (imageFile && imageFile.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "upload" ,"wasteCatIcon");
+      const uploadDir = path.join(process.cwd(), "public", "upload", "wasteCatIcon");
       await fs.mkdir(uploadDir, { recursive: true });
 
       const timestamp = Date.now();
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
       await fs.writeFile(path.join(uploadDir, filename), buffer);
 
-      dataToUpdate.icon_name = `/wasteCatIcon/${filename}`;
+      dataToUpdate.icon_name = `/upload/wasteCatIcon/${filename}`;
     }
 
     const keys = Object.keys(dataToUpdate);
