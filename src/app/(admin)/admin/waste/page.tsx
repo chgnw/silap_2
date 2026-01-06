@@ -180,8 +180,7 @@ export default function WastePage() {
         cell: ({ row }) => (
           <img
             src={
-              row.original.icon_name
-                ? `/upload/${row.original.icon_name}`
+                row.original.icon_name ? row.original.icon_name
                 : "/images/dummy.png"
             }
             alt={row.original.waste_category_name}
@@ -270,7 +269,7 @@ export default function WastePage() {
 
             <div className={styles.imagePreview}>
               {catIconPreview ? (
-                <img src={`/upload${catIconPreview}`} alt="Preview" />
+                <img src={catIconPreview} alt="Preview" />
               ) : selectedCat?.icon_name ? (
                 <span style={{ fontSize: 30 }}>📦</span>
               ) : (

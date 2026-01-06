@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         const finalFilePath = path.join(uploadDir, filename);
         await fs.writeFile(finalFilePath, buffer);
 
-        dbImagePath = `/wasteCatIcon/${filename}`;
+        dbImagePath = `/upload/wasteCatIcon/${filename}`;
       }
 
       const updateSql = `
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
         const finalFilePath = path.join(uploadDir, filename);
         await fs.writeFile(finalFilePath, buffer);
 
-        dbImagePath = `/wasteCatIcon/${filename}`;
+        dbImagePath = `/upload/wasteCatIcon/${filename}`;
       }
 
       const sql = `

@@ -22,7 +22,7 @@ const WasteTypeCard = ({ category }: WasteTypeCardProps) => {
       <div className={styles.categoryIconWrapper}>
         {category.icon && !imageError ? (
           <img
-            src={`/upload${category.icon}`}
+            src={category.icon}
             alt={category.name}
             className={styles.categoryIcon}
             onError={() => setImageError(true)}
