@@ -71,6 +71,43 @@ export async function GET(req: Request) {
       );
     }
 
+    // Get pickups that are currently on-progress for this driver
+    // Status 2 = Accepted, 6 = On the way, 7 = Arrived
+    const onProgressSql = `
+      SELECT 
+        pe.id,
+        pe.transaction_code,
+        pe.user_id,
+        pe.pickup_address,
+        pe.pickup_regency,
+        pe.pickup_weight,
+        pe.pickup_type_id,
+        pe.event_date,
+        pe.pickup_time,
+        pe.vehicle_category_id,
+        pe.event_status,
+        pe.user_notes,
+        pe.image_url,
+        pe.created_at,
+        u.first_name,
+        u.last_name,
+        u.phone_number,
+        pt.pickup_type_name,
+        vc.category_name,
+        ts.transaction_status_name as status
+      FROM tr_pickup p
+      JOIN tr_pickup_event pe ON p.pickup_event_id = pe.id
+      JOIN ms_user u ON pe.user_id = u.id
+      JOIN ms_pickup_type pt ON pe.pickup_type_id = pt.id
+      LEFT JOIN ms_vehicle_category vc ON pe.vehicle_category_id = vc.id
+      JOIN ms_transaction_status ts ON p.transaction_status_id = ts.id
+      WHERE p.driver_id = ?
+        AND p.transaction_status_id IN (2, 6, 7)
+      ORDER BY p.created_at DESC
+    `;
+
+    const onProgressPickups = await query(onProgressSql, [driver.driver_id]);
+
     // Get pickup events for today that match driver's vehicle CATEGORY, weight range, and operational area
     // Only show events that haven't been accepted (not in tr_pickup yet) and not completed/cancelled
     const eventsSql = `
@@ -207,6 +244,7 @@ export async function GET(req: Request) {
         message: "SUCCESS",
         data: {
           driver_info: driver,
+          on_progress_pickups: onProgressPickups,
           pickup_events: pickupEvents,
           today_stats: stats[0],
         },

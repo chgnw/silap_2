@@ -537,9 +537,9 @@ export default function DashboardPage() {
         />
         <StatsCard
           title="Jumlah poin yang dikumpulkan"
-          value={dashboardData?.points_current || 0}
+          value={(dashboardData?.points_current || 0).toLocaleString()}
           unit="Points"
-          footer={<><span>+{dashboardData?.points_last_earned || 0} Poin</span><h1>dari poin sebelumnya</h1></>}
+          footer={<><span>+{(dashboardData?.points_last_earned || 0).toLocaleString()} Poin</span><h1>dari poin sebelumnya</h1></>}
           icon={<FaStar />}
           className={styles.totalPointCard}
         />

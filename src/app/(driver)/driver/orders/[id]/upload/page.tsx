@@ -259,7 +259,7 @@ export default function UploadOrderPage() {
                       <div className={styles.categoryIcon}>
                         {category.icon ? (
                           <Image
-                            src={category.icon}
+                            src={`/upload${category.icon}`}
                             alt={category.name}
                             width={40}
                             height={40}
@@ -291,7 +291,7 @@ export default function UploadOrderPage() {
                   <div className={styles.selectedCategoryIcon}>
                     {category.icon ? (
                       <Image
-                        src={category.icon}
+                        src={`/upload${category.icon}`}
                         alt={category.name}
                         width={32}
                         height={32}
