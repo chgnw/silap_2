@@ -31,6 +31,22 @@ interface PickupEvent {
   category_max_weight: number;
 }
 
+interface OnProgressPickup {
+  id: number;
+  transaction_code: string;
+  user_id: number;
+  pickup_address: string;
+  pickup_weight: number;
+  event_date: string;
+  pickup_time: string;
+  image_url: string | null;
+  first_name: string;
+  last_name: string | null;
+  phone_number: string | null;
+  pickup_type_name: string;
+  status: string;
+}
+
 interface TodayStats {
   total_orders: number;
   completed: number;
@@ -45,6 +61,7 @@ export default function DriverOrdersPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [pickupEvents, setPickupEvents] = useState<PickupEvent[]>([]);
+  const [onProgressPickups, setOnProgressPickups] = useState<OnProgressPickup[]>([]);
   const [todayStats, setTodayStats] = useState<TodayStats>({
     total_orders: 0,
     completed: 0,
@@ -101,6 +118,7 @@ export default function DriverOrdersPage() {
       const data = await res.json();
 
       if (data.message === "SUCCESS") {
+        setOnProgressPickups(data.data.on_progress_pickups || []);
         setPickupEvents(data.data.pickup_events || []);
         setTodayStats(data.data.today_stats);
         setSetupRequired(data.data.setup_required || null);
@@ -155,13 +173,13 @@ export default function DriverOrdersPage() {
           >
             <FaCog />
           </button>
-        <button
-          className={styles.refreshButton}
-          onClick={handleRefresh}
-          disabled={loading || refreshing}
-        >
-          <FaSync className={refreshing ? styles.spinning : ""} />
-        </button>
+          <button
+            className={styles.refreshButton}
+            onClick={handleRefresh}
+            disabled={loading || refreshing}
+          >
+            <FaSync className={refreshing ? styles.spinning : ""} />
+          </button>
         </div>
       </div>
 
@@ -227,8 +245,8 @@ export default function DriverOrdersPage() {
               {setupRequired.vehicle && setupRequired.operational_area
                 ? "Kendaraan dan area operasional belum diatur. Silakan atur kendaraan dan area operasional Anda."
                 : setupRequired.vehicle
-                ? "Kendaraan belum diassign. Silahkan pilih kendaraan Anda pada menu awal."
-                : "Area operasional belum diatur. Silakan atur area operasional Anda."}
+                  ? "Kendaraan belum diassign. Silahkan pilih kendaraan Anda pada menu awal."
+                  : "Area operasional belum diatur. Silakan atur area operasional Anda."}
             </p>
             {setupRequired.operational_area && (
               <button
@@ -248,7 +266,7 @@ export default function DriverOrdersPage() {
               </button>
             )}
           </div>
-        ) : pickupEvents.length === 0 ? (
+        ) : pickupEvents.length === 0 && onProgressPickups.length === 0 ? (
           <div className={styles.emptyState}>
             <Image
               src="/images/karung.png"
@@ -259,61 +277,138 @@ export default function DriverOrdersPage() {
             <p>Belum ada order untuk hari ini</p>
           </div>
         ) : (
-          pickupEvents.map((event) => (
-            <div
-              key={event.id}
-              className={styles.eventCard}
-              onClick={() => handleCardClick(event.id)}
-            >
-              {/* Event Image */}
-              <div className={styles.eventImage}>
-                {event.image_url ? (
-                  <Image
-                    src={`/upload/${event.image_url}`}
-                    alt="Pickup location"
-                    width={120}
-                    height={120}
-                    className={styles.pickupImage}
-                  />
-                ) : (
-                  <div className={styles.imagePlaceholder}>
-                    <FaShoppingBag size={40} color="#ccc" />
+          <>
+            {/* On Progress Section */}
+            {onProgressPickups.length > 0 && (
+              <>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.sectionTitle}>On Progress</span>
+                  <span className={styles.sectionBadge}>{onProgressPickups.length}</span>
+                </div>
+                {onProgressPickups.map((pickup) => (
+                  <div
+                    key={pickup.id}
+                    className={`${styles.eventCard} ${styles.onProgressCard}`}
+                    onClick={() => handleCardClick(pickup.id)}
+                  >
+                    {/* Event Image */}
+                    <div className={styles.eventImage}>
+                      {pickup.image_url ? (
+                        <Image
+                          src={`/upload/${pickup.image_url}`}
+                          alt="Pickup location"
+                          width={120}
+                          height={120}
+                          className={styles.pickupImage}
+                        />
+                      ) : (
+                        <div className={styles.imagePlaceholder}>
+                          <FaShoppingBag size={40} color="#ccc" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Event Info */}
+                    <div className={styles.eventInfo}>
+                      <div className={styles.eventRow}>
+                        <span className={styles.eventLabel}>Nama</span>
+                        <span className={styles.eventValue}>
+                          {pickup.first_name} {pickup.last_name || ""}
+                        </span>
+                      </div>
+
+                      <div className={styles.eventRow}>
+                        <span className={styles.eventLabel}>Order ID</span>
+                        <span className={styles.eventValue}>
+                          {pickup.transaction_code}
+                        </span>
+                      </div>
+
+                      <div className={styles.eventRow}>
+                        <span className={styles.eventLabel}>Status</span>
+                        <span className={`${styles.eventValue} ${styles.statusInProgress}`}>
+                          {pickup.status}
+                        </span>
+                      </div>
+
+                      <div className={styles.eventRow}>
+                        <span className={styles.eventLabel}>Berat</span>
+                        <span className={styles.eventValue}>
+                          {pickup.pickup_weight} Kg
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Separator between On Progress and Available Orders */}
+                {pickupEvents.length > 0 && (
+                  <div className={styles.sectionDivider}>
+                    <div className={styles.dividerLine}></div>
+                    <span className={styles.dividerText}>Order Tersedia</span>
+                    <div className={styles.dividerLine}></div>
                   </div>
                 )}
+              </>
+            )}
+
+            {/* Available Pickup Events */}
+            {pickupEvents.map((event) => (
+              <div
+                key={event.id}
+                className={styles.eventCard}
+                onClick={() => handleCardClick(event.id)}
+              >
+                {/* Event Image */}
+                <div className={styles.eventImage}>
+                  {event.image_url ? (
+                    <Image
+                      src={`/upload/${event.image_url}`}
+                      alt="Pickup location"
+                      width={120}
+                      height={120}
+                      className={styles.pickupImage}
+                    />
+                  ) : (
+                    <div className={styles.imagePlaceholder}>
+                      <FaShoppingBag size={40} color="#ccc" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Event Info */}
+                <div className={styles.eventInfo}>
+                  <div className={styles.eventRow}>
+                    <span className={styles.eventLabel}>Nama</span>
+                    <span className={styles.eventValue}>
+                      {event.first_name} {event.last_name || ""}
+                    </span>
+                  </div>
+
+                  <div className={styles.eventRow}>
+                    <span className={styles.eventLabel}>Order ID</span>
+                    <span className={styles.eventValue}>
+                      {event.transaction_code}
+                    </span>
+                  </div>
+
+                  <div className={styles.eventRow}>
+                    <span className={styles.eventLabel}>Jam</span>
+                    <span className={styles.eventValue}>
+                      {event.pickup_time.substring(0, 5)}
+                    </span>
+                  </div>
+
+                  <div className={styles.eventRow}>
+                    <span className={styles.eventLabel}>Berat</span>
+                    <span className={styles.eventValue}>
+                      {event.pickup_weight} Kg
+                    </span>
+                  </div>
+                </div>
               </div>
-
-              {/* Event Info */}
-              <div className={styles.eventInfo}>
-                <div className={styles.eventRow}>
-                  <span className={styles.eventLabel}>Nama</span>
-                  <span className={styles.eventValue}>
-                    {event.first_name} {event.last_name || ""}
-                  </span>
-                </div>
-
-                <div className={styles.eventRow}>
-                  <span className={styles.eventLabel}>Order ID</span>
-                  <span className={styles.eventValue}>
-                    {event.transaction_code}
-                  </span>
-                </div>
-
-                <div className={styles.eventRow}>
-                  <span className={styles.eventLabel}>Jam</span>
-                  <span className={styles.eventValue}>
-                    {event.pickup_time.substring(0, 5)}
-                  </span>
-                </div>
-
-                <div className={styles.eventRow}>
-                  <span className={styles.eventLabel}>Berat</span>
-                  <span className={styles.eventValue}>
-                    {event.pickup_weight} Kg
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))
+            ))}
+          </>
         )}
       </div>
     </div>

@@ -26,6 +26,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -99,6 +100,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -306,6 +308,60 @@
   margin-top: 1rem;
   color: #666;
   font-size: 1rem;
+}
+
+/* On Progress Section */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2f5e44;
+}
+
+.sectionBadge {
+  background: #2f5e44;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+}
+
+.onProgressCard {
+  border: 2px solid #2f5e44;
+  background: linear-gradient(135deg, #f0fff4 0%, #fff 100%);
+}
+
+.statusInProgress {
+  color: #2f5e44 !important;
+  font-weight: 700 !important;
+}
+
+/* Section Divider */
+.sectionDivider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+}
+
+.dividerText {
+  font-size: 0.875rem;
+  color: #888;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {
