@@ -22,7 +22,7 @@ export async function POST(
 
         // Get driver info
         const driverSql = `
-      SELECT id FROM ms_driver WHERE user_id = ?
+      SELECT id FROM ms_driver WHERE user_id = ? AND is_deleted = FALSE
     `;
         const driverData = (await query(driverSql, [userId])) as any[];
 

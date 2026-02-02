@@ -42,7 +42,7 @@ export async function GET() {
         vc.id as vehicle_category_id
       FROM ms_user u
       LEFT JOIN ms_role r ON u.role_id = r.id
-      LEFT JOIN ms_driver d ON u.id = d.user_id
+      LEFT JOIN ms_driver d ON u.id = d.user_id AND d.is_deleted = FALSE
       LEFT JOIN ms_vehicle v ON d.assigned_vehicle_id = v.id
       LEFT JOIN ms_vehicle_category vc ON v.vehicle_category_id = vc.id
       WHERE u.email = ?

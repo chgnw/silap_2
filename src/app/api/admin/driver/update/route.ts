@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     // Get existing driver data
     const existingDriverResult = (await query(
-      "SELECT id, is_verified, assigned_vehicle_id FROM ms_driver WHERE id = ?",
+      "SELECT id, is_verified, assigned_vehicle_id FROM ms_driver WHERE id = ? AND is_deleted = FALSE",
       [id]
     )) as any[];
 

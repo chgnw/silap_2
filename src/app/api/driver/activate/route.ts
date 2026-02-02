@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
     const userId = users[0].id;
 
-    const checkDriverSql = "SELECT id FROM ms_driver WHERE user_id = ?";
+    const checkDriverSql = "SELECT id FROM ms_driver WHERE user_id = ? AND is_deleted = FALSE";
     const drivers = (await query(checkDriverSql, [userId])) as any[];
 
     if (drivers.length === 0) {

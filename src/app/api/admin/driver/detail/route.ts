@@ -37,7 +37,7 @@ export async function POST(request: Request) {
         u.address
       FROM ms_driver d
       INNER JOIN ms_user u ON d.user_id = u.id
-      WHERE d.id = ?
+      WHERE d.id = ? AND d.is_deleted = FALSE
     `;
 
     const results = await query(sql, [driverId]);

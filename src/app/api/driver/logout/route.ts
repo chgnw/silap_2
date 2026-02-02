@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const driverSql = `
       SELECT id, assigned_vehicle_id 
       FROM ms_driver 
-      WHERE user_id = ?
+      WHERE user_id = ? AND is_deleted = FALSE
     `;
     const driverData = (await query(driverSql, [userId])) as any[];
 
