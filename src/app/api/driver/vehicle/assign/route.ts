@@ -30,20 +30,20 @@ export async function POST(req: Request) {
     `;
     const vehicleCheck = (await query(checkVehicleSql, [vehicle_id])) as any[];
     if (vehicleCheck.length === 0) {
-      return NextResponse.json({ 
-        error: "Vehicle not available" 
-      },{ status: 400 });
+      return NextResponse.json({
+        error: "Vehicle not available"
+      }, { status: 400 });
     }
 
     // Check if driver exists
     const checkDriverSql = `
       SELECT id, assigned_vehicle_id FROM ms_driver 
-      WHERE user_id = ?
+      WHERE user_id = ? AND is_deleted = FALSE
     `;
     const driverCheck = (await query(checkDriverSql, [userId])) as any[];
     if (driverCheck.length === 0) {
-      return NextResponse.json({ 
-        error: "Driver not found" 
+      return NextResponse.json({
+        error: "Driver not found"
       }, { status: 404 });
     }
     const driver = driverCheck[0];

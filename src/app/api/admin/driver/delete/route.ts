@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const driverCheckSql = `
       SELECT user_id 
       FROM ms_driver
-      WHERE id = ?
+      WHERE id = ? AND is_deleted = FALSE
     `;
     const driverCheck = await query(driverCheckSql, [id]);
     if (driverCheck.length === 0) {
@@ -30,18 +30,19 @@ export async function POST(req: Request) {
     }
 
     const userId = driverCheck[0].user_id;
-    await query("DELETE FROM ms_driver WHERE id = ?", [id]);
-    await query("DELETE FROM ms_user WHERE id = ?", [userId]);
+
+    // Soft delete: set is_deleted = TRUE instead of hard delete
+    await query("UPDATE ms_driver SET is_deleted = TRUE WHERE id = ?", [id]);
 
     return NextResponse.json({
-        message: "SUCCESS",
-        detail: "Driver deleted successfully",
-      }, { status: 200 }
+      message: "SUCCESS",
+      detail: "Driver deleted successfully",
+    }, { status: 200 }
     );
   } catch (error: any) {
     console.error("Error deleting driver:", error);
-    return NextResponse.json({ 
-      error: "Failed to delete driver", detail: error.message 
+    return NextResponse.json({
+      error: "Failed to delete driver", detail: error.message
     }, { status: 500 }
     );
   }

@@ -25,7 +25,7 @@ export async function GET() {
         vc.category_name as vehicle_category,
         vc.id as vehicle_category_id
       FROM ms_user u
-      JOIN ms_driver d ON u.id = d.user_id
+      JOIN ms_driver d ON u.id = d.user_id AND d.is_deleted = FALSE
       LEFT JOIN ms_vehicle v ON d.assigned_vehicle_id = v.id
       LEFT JOIN ms_vehicle_category vc ON v.vehicle_category_id = vc.id
       WHERE u.email = ?
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     const driverSql = `
       SELECT d.id 
       FROM ms_user u
-      JOIN ms_driver d ON u.id = d.user_id
+      JOIN ms_driver d ON u.id = d.user_id AND d.is_deleted = FALSE
       WHERE u.email = ?
     `;
     const drivers = (await query(driverSql, [session.user.email])) as any[];

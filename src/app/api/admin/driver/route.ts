@@ -22,7 +22,7 @@ export async function GET() {
         u.address
       FROM ms_driver d
       INNER JOIN ms_user u ON d.user_id = u.id
-      WHERE u.role_id = 3
+      WHERE u.role_id = 3 AND d.is_deleted = FALSE
       ORDER BY d.id DESC
     `;
 

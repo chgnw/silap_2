@@ -31,7 +31,7 @@ export async function GET(req: Request) {
       FROM ms_driver d
       LEFT JOIN ms_vehicle v ON d.assigned_vehicle_id = v.id
       LEFT JOIN ms_vehicle_category vc ON v.vehicle_category_id = vc.id
-      WHERE d.user_id = ?
+      WHERE d.user_id = ? AND d.is_deleted = FALSE
     `;
     const driverData = (await query(driverSql, [userId])) as any[];
     if (driverData.length === 0) {
