@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { locationFetch } from "@/lib/locationFetch";
 
 const cache = new Map<string, { data: any; time: number }>();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
@@ -31,12 +32,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const res = await fetch(
+    const data = await locationFetch(
       `https://alamat.thecloudalert.com/api/cari/index/?keyword=${encodeURIComponent(
         village
       )}`
     );
-    const data = await res.json();
 
     if (data.status === 200 && data.result && data.result.length > 0) {
       const matchedResults = data.result.filter(
