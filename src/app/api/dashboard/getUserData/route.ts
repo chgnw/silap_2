@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { toWIBDateString } from "@/lib/dateHelper";
 
 
 type TotalWasteResult = {
@@ -35,8 +36,8 @@ function getDefaultDateRange() {
   const start = new Date();
   start.setMonth(start.getMonth() - 1);
   return {
-    start_date: start.toISOString().split("T")[0],
-    end_date: end.toISOString().split("T")[0],
+    start_date: toWIBDateString(start),
+    end_date: toWIBDateString(end),
   };
 }
 

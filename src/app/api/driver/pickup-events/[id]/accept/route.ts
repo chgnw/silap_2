@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { toWIBDateString } from "@/lib/dateHelper";
 
 export async function POST(
   req: Request,
@@ -114,7 +115,7 @@ export async function POST(
 
     // Format datetime for MySQL (YYYY-MM-DD HH:MM:SS)
     const eventDate = new Date(event.event_date);
-    const dateStr = eventDate.toISOString().split("T")[0]; // YYYY-MM-DD
+    const dateStr = toWIBDateString(eventDate); // YYYY-MM-DD
     const pickupSchedule = `${dateStr} ${event.pickup_time}`;
 
     await query(insertSql, [
