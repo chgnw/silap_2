@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/db";
+import { getPool, query } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
+  const pool = await getPool();
+  const connection = await pool.getConnection();
+
   try {
     const { first_name, last_name, email, password, phone_number, role } = await req.json();
 
-    console.log("📥 Received:", {
+    console.log("📥 Received Registration Request:", {
       first_name,
       last_name,
       email,
@@ -16,66 +19,87 @@ export async function POST(req: Request) {
 
     if (!first_name || !last_name || !email || !password || !role) {
       return NextResponse.json(
-        {
-          error: "Missing required fields",
-        },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    const checkUserSql = "SELECT id FROM ms_user WHERE email = ?";
-    const exists = await query(checkUserSql, [email]);
-    if (exists.length > 0) {
+    // Start Transaction
+    await connection.beginTransaction();
+
+    // 1. Check if user already exists
+    const [existingUsers] = await connection.query(
+      "SELECT id FROM ms_user WHERE email = ? LIMIT 1",
+      [email]
+    ) as any[];
+
+    if (existingUsers.length > 0) {
+      await connection.rollback();
       return NextResponse.json(
-        {
-          error: "Email already registered",
-        },
+        { error: "Email already registered" },
         { status: 409 }
       );
     }
 
-    const hashed = await bcrypt.hash(password, 10);
-    const checkRoleSql = "SELECT id FROM ms_role WHERE role_name = ? LIMIT 1";
-    const roleResult = await query(checkRoleSql, [role]);
-    if (roleResult.length === 0) {
+    // 2. Validate Role
+    // Normalize role name to match "Customer" or "Driver" in DB (seed data)
+    const normalizedRole = role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+    const [roles] = await connection.query(
+      "SELECT id FROM ms_role WHERE role_name = ? LIMIT 1",
+      [normalizedRole]
+    ) as any[];
+
+    if (roles.length === 0) {
+      await connection.rollback();
       return NextResponse.json(
-        {
-          error: "Invalid role name",
-        },
+        { error: `Invalid role name: ${role}` },
         { status: 400 }
       );
     }
 
-    const role_id = roleResult[0].id;
-    const insertUserSql = `INSERT INTO ms_user (role_id, provider, first_name, last_name, email, password, phone_number, tier_list_id) VALUES (?, 'local', ?, ?, ?, ?, ?, 1)`;
-    const insertUserResult = (await query(insertUserSql, [
+    const role_id = roles[0].id;
+
+    // 3. Hash Password
+    const hashed = await bcrypt.hash(password, 10);
+
+    // 4. Insert User
+    // Default tier_list_id = 1 (Sprout)
+    const insertUserSql = `
+      INSERT INTO ms_user (role_id, provider, first_name, last_name, email, password, phone_number, tier_list_id) 
+      VALUES (?, 'local', ?, ?, ?, ?, ?, 1)
+    `;
+    const [insertUserResult] = await connection.query(insertUserSql, [
       role_id,
       first_name,
       last_name,
       email,
       hashed,
       phone_number || null,
-    ])) as any;
+    ]) as any;
 
     const newUserId = insertUserResult.insertId;
-    const insertDriverSql = `INSERT INTO ms_driver (user_id, is_verified, is_available) VALUES (?, false, false)`;
-    await query(insertDriverSql, [newUserId]);
 
-    console.log("✅ Registered user:", email);
+    // 5. If role is Driver, insert into ms_driver
+    if (normalizedRole === "Driver") {
+      const insertDriverSql = `INSERT INTO ms_driver (user_id, is_verified, is_available) VALUES (?, false, false)`;
+      await connection.query(insertDriverSql, [newUserId]);
+      console.log("🚚 Created driver record for:", email);
+    }
 
-    return NextResponse.json(
-      {
-        ok: true,
-      },
-      { status: 201 }
-    );
+    // Commit Transaction
+    await connection.commit();
+    console.log("✅ Successfully registered:", email);
+
+    return NextResponse.json({ ok: true }, { status: 201 });
+
   } catch (err: any) {
-    console.error("Error in /auth/register:", err);
+    if (connection) await connection.rollback();
+    console.error("❌ Error in /auth/register:", err);
     return NextResponse.json(
-      {
-        error: err.message,
-      },
+      { error: err.message || "Internal Server Error" },
       { status: 500 }
     );
+  } finally {
+    if (connection) connection.release();
   }
 }
