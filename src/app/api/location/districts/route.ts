@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { locationFetch } from "@/lib/locationFetch";
 
 const cache = new Map<string, { data: any; time: number }>();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
@@ -27,10 +28,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const res = await fetch(
+    const data = await locationFetch(
       `https://alamat.thecloudalert.com/api/kecamatan/get/?d_kabkota_id=${regencyId}`
     );
-    const data = await res.json();
 
     if (data.status === 200 && data.result) {
       cache.set(regencyId, { data: data.result, time: now });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { locationFetch } from "@/lib/locationFetch";
 
 let cachedProvinces: any = null;
 let cacheTime: number = 0;
@@ -16,10 +17,9 @@ export async function GET() {
       });
     }
 
-    const res = await fetch(
+    const data = await locationFetch(
       "https://alamat.thecloudalert.com/api/provinsi/get/"
     );
-    const data = await res.json();
 
     if (data.status === 200 && data.result) {
       cachedProvinces = data.result;
