@@ -95,7 +95,7 @@ const FilterSection = memo(
     onEndDateChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onReset: () => void;
   }) => {
-    const today = useMemo(() => new Date().toISOString().split("T")[0], []);
+    const today = useMemo(() => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }), []);
 
     return (
       <section className={styles.filterSection}>
@@ -110,7 +110,7 @@ const FilterSection = memo(
               type="date"
               max={today}
               className={styles.filterInput}
-              value={dateRange[0] ? dateRange[0].toISOString().split("T")[0] : ""}
+              value={dateRange[0] ? dateRange[0].toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }) : ""}
               onChange={onStartDateChange}
             />
           </div>
@@ -120,7 +120,7 @@ const FilterSection = memo(
               type="date"
               max={today}
               className={styles.filterInput}
-              value={dateRange[1] ? dateRange[1].toISOString().split("T")[0] : ""}
+              value={dateRange[1] ? dateRange[1].toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }) : ""}
               onChange={onEndDateChange}
             />
           </div>
@@ -461,7 +461,7 @@ export default function DashboardPage() {
 
     const [start, end] = dateRange;
     if (start || end) {
-      fetchDashboardData(userId, start?.toISOString().split("T")[0], end?.toISOString().split("T")[0]);
+      fetchDashboardData(userId, start?.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }), end?.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }));
     } else if (!hasFetchedRef.current) {
       fetchDashboardData(userId);
       hasFetchedRef.current = true;

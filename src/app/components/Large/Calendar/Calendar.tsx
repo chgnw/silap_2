@@ -5,7 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { MdCancel } from "react-icons/md";
 
-import { showToast } from "@/lib/toastHelper"; 
+import { showToast } from "@/lib/toastHelper";
 import styles from './calendar.module.css';
 
 export default function Calendar({ refreshTrigger }: { refreshTrigger: number }) {
@@ -47,19 +47,21 @@ export default function Calendar({ refreshTrigger }: { refreshTrigger: number })
       const data = await response.json();
 
       const formattedEvents = data.data.map((item: any) => {
-        const dateOnly = item.event_date.split('T')[0];
+        const dateOnly = new Date(item.event_date).toLocaleDateString('en-CA', {
+          timeZone: 'Asia/Jakarta'
+        });
         const timeOnly = item.pickup_time;
-        const commonProps = { 
+        const commonProps = {
           ...item
         };
 
         if (item.pickup_type_id === 2) {
-          const dayIndex = new Date(dateOnly).getDay(); 
+          const dayIndex = new Date(dateOnly).getDay();
           return {
             id: item.id,
             groupId: `${item.id}`,
             title: `Rutin: ${timeOnly.slice(0, 5)}`,
-            daysOfWeek: [ dayIndex ],
+            daysOfWeek: [dayIndex],
             startTime: timeOnly,
             startRecur: dateOnly,
             extendedProps: commonProps

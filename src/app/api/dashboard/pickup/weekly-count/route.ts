@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { toWIBDateString } from "@/lib/dateHelper";
 
 export async function POST(request: NextRequest) {
     try {
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Count pickups in the same week as the event_date (or current week if not provided)
-        const dateToCheck = event_date || new Date().toISOString().split('T')[0];
+        const dateToCheck = event_date || toWIBDateString();
 
         const countSql = `
       SELECT COUNT(*) as count

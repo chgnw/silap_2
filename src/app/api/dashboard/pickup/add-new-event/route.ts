@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { generateTransactionCode } from "@/lib/transactionCode";
+import { toWIBDateString } from "@/lib/dateHelper";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     const pickup_regency = pickupRegency;
     const pickup_type_id = pickupType.id;
     const eventDateTime = new Date(`${date}T${time}:00+07:00`);
-    const event_date = eventDateTime.toISOString().split("T")[0];
+    const event_date = toWIBDateString(eventDateTime);
     const pickup_time = time;
     const vehicle_category_id = vehicle.id; // Changed from vehicle_id to vehicle_category_id
     const pickup_weight = parseFloat(weight);
